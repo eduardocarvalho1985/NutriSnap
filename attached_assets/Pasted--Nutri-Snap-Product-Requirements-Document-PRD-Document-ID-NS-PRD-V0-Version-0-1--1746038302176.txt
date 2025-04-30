@@ -1,0 +1,163 @@
+# Nutri Snap – Product Requirements Document (PRD)
+
+**Document ID:** NS‑PRD‑V0  **Version:** 0.1  **Created:** 30 Apr 2025  **Owner:** Product Team (Edu)
+
+---
+
+## 1. Purpose & Vision
+
+Nutri Snap helps people in Brazil hit daily nutrition and workout targets through simple logging, adaptive goals and clear progress insights. Launching as a mobile‑first web app (deployed on Vercel) with Firebase authentication, it focuses on rapid onboarding, habit formation and data‑driven feedback.
+
+---
+
+## 2. Goals & Success Metrics (MVP‑6 months)
+
+| Objective           | Metric                                     | Target  |
+| ------------------- | ------------------------------------------ | ------- |
+| Acquire trial users | Sign‑ups during 10‑day free trial          | ≥ 5 000 |
+| Convert to paid     | Trial‑to‑paid conversion rate              | ≥ 20 %  |
+| Engagement          | Weekly active users (WAU/MAU)              | ≥ 60 %  |
+| Stickiness          | Avg. logs per active day                   | ≥ 3     |
+| Health impact       | % users meeting calorie goal ≥ 5 days/week | ≥ 50 %  |
+
+---
+
+## 3. User Personas
+
+- **“Focused Fernando”** – 29, São Paulo tech worker, wants to lean out to 12 % body‑fat, tracks macros daily.
+- **“Busy Beatriz”** – 35, nurse, juggles shifts; needs quick logging and reminders to stay on track.
+- **“Starter Samuel”** – 18, student, new to fitness; relies on default recommendations and clear visuals.
+
+---
+
+## 4. Scope – MVP (V0)
+
+1. **Account & Auth**
+   - Email / Google / Apple sign‑up & sign‑in via Firebase Auth.
+2. **Onboarding & Profile**
+   - Collect demographics: age, gender, height, weight, profession.
+   - Personal goals: target weight & body‑fat %.
+   - Auto‑calculate suggested calories & macros (editable).
+3. **Nutrition Targets**
+   - Set & edit daily calories, protein, carbs, fat.
+4. **Home Dashboard**
+   - App title header.
+   - Progress rings/bars: total calories allowed vs. eaten; macros overview.
+   - “+” Floating Action Button to add food log.
+   - Bottom navigation: Home | Progress | Settings | Profile (Workout tab – placeholder).
+5. **Food Logging**
+   - Manual entry (food name, quantity, macros).
+   - (Nice‑to‑have backlog: barcode scan & photo recognition.)
+6. **Progress Page**
+   - Calendar or bar chart of daily calories vs. goal; color‑coded met / missed.
+7. **Settings & Subscription**
+   - Change plan, currency BRL.
+   - Paywall: 10‑day free → R\$ 199 annual or R\$ 20 monthly via Stripe.
+8. **Profile**
+   - Display avatar, demographics and goals; edit profile.
+9. **Internationalization**
+   - Framework ready for i18n; default language pt‑BR.
+10. **Tech Foundations**
+    - Next.js 14 on Vercel, Firebase (Auth, Firestore, Functions), Tailwind CSS, React Intl, Chart.js.
+
+---
+
+## 5. Detailed Feature Requirements
+
+### 5.1 Account & Auth
+
+| Requirement                                  | Priority |
+| -------------------------------------------- | -------- |
+| Users can create account with email/password | P0       |
+| OAuth sign‑in with Google & Apple            | P1       |
+| Secure session management, password reset    | P0       |
+
+### 5.2 Onboarding & Profile
+
+- Multi‑step wizard (max 60 sec completion).
+- Auto suggestion formula: **TDEE = Mifflin‑St Jeor × Activity factor**; macro split default **P 30 % / C 40 % / F 30 %**.
+- All data stored in `users/{uid}` Firestore doc.
+
+### 5.3 Nutrition Targets & Logging
+
+- User can adjust targets anytime in Settings.
+- Food log object: `foodLog/{uid}/{date}/{timestamp}` with macro breakdown.
+- Daily aggregates calculated in Cloud Function on write.
+
+### 5.4 Home Dashboard
+
+- Real‑time progress rings (Animated SVG).
+- Calories bar turns green when ≤ goal, red when exceeded.
+- “+” button opens **Add Food** modal.
+
+### 5.5 Progress Page
+
+- 7‑day bar chart (Chart.js) showing goal vs. actual.
+- Toggle to 30‑day view.
+- Success days highlighted.
+
+### 5.6 Settings & Subscription
+
+- Use Stripe customer portal (BRL). Trial auto‑converts unless cancelled.
+- Display next billing date & plan.
+
+### 5.7 Internationalization
+
+- All copy in `locales/pt-BR.json`.
+- Parameterized messages ready for future `en-US`, `es-ES`.
+
+---
+
+## 6. Non‑Functional Requirements
+
+- **Performance:** First Contentful Paint ≤ 2.5 s on mid‑range mobile.
+- **PWA:** Installable with offline caching of last 7 days’ data.
+- **Security & Privacy:** GDPR/LGPD compliant; encrypted at rest & in transit.
+- **Accessibility:** WCAG 2.1 AA.
+
+---
+
+## 7. Analytics & Experimentation
+
+- Firebase Analytics events: `sign_up`, `trial_start`, `subscription_start`, `food_log`, `goal_met`.
+- Funnel dashboards in Looker Studio.
+- A/B: Trial length, pricing copy.
+
+---
+
+## 8. Roadmap (post‑MVP)
+
+| Timeline | Feature |
+| -------- | ------- |
+| V0+3 mo  | Workout logging, exercise library |
+| V0+4 mo  | Variable calorie & macro targets by day type (strength, cardio, rest) |
+| V0+6 mo  | AI meal recommendations, barcode scan |
+| V0+9 mo  | Social challenges, coach marketplace |
+
+-------- | ------------------------------------- |
+| V0+3 mo  | Workout logging, exercise library     |
+| V0+6 mo  | AI meal recommendations, barcode scan |
+| V0+9 mo  | Social challenges, coach marketplace  |
+
+---
+
+## 9. Risks & Mitigations
+
+| Risk                              | Impact     | Mitigation                                                                |
+| --------------------------------- | ---------- | ------------------------------------------------------------------------- |
+| Low conversion from trial to paid | Revenue    | Optimize onboarding & value messaging; offer quarterly plan               |
+| Food DB accuracy                  | User trust | Start with manual entry, integrate verified Brazilian food database in V1 |
+| Integration with Stripe BRL       | Delay      | Prototype early in staging                                                |
+
+---
+
+## 10. Open Questions
+
+1. Will we support OAuth Facebook at launch? No
+2. Does the team need barcode scanning in MVP or backlog? BAcklog
+3. Exact color palette and branding assets – pending design. Modern, sleek, Black, olive green and white.
+
+---
+
+*End of Document*
+
