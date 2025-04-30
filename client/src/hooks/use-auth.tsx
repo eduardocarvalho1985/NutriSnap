@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, createContext } from "react";
-import { auth, FirebaseUser, getUserProfile, onAuthStateChanged } from "@/lib/firebase";
+import { auth, FirebaseUser, getUserProfile, updateUserProfile, onAuthStateChanged } from "@/lib/firebase";
 
 // Define the user type
 export type User = {
@@ -85,7 +85,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUser = (data: Partial<User>) => {
     setUser(prevUser => {
       if (!prevUser) return null;
-      return { ...prevUser, ...data };
+      
+      // Update user data with new values
+      const updatedUser = { ...prevUser, ...data };
+      
+      // If onboarding is completed, make sure the change persists in our mock environment
+      if (data.onboardingCompleted) {
+        // Update the Firebase user profile with the onboarding status
+        if (prevUser.uid) {
+          updateUserProfile(prevUser.uid, { onboardingCompleted: true })
+            .catch(err => console.error("Failed to update user profile:", err));
+        }
+      }
+      
+      return updatedUser;
     });
   };
 

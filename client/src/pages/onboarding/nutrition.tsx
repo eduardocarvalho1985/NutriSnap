@@ -82,7 +82,7 @@ type NutritionFormValues = z.infer<typeof nutritionSchema>;
 
 export default function Nutrition() {
   const [location, setLocation] = useLocation();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { onboardingData, updateOnboardingData, completeOnboarding } = useOnboarding();
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -126,12 +126,21 @@ export default function Nutrition() {
       updateOnboardingData(finalOnboardingData);
       completeOnboarding();
       
+      // Update auth user state with onboardingCompleted flag
+      updateUser({
+        ...data,
+        onboardingCompleted: true
+      });
+      
       toast({
         title: "Configuração concluída!",
         description: "Seu perfil está pronto para uso."
       });
       
-      setLocation("/dashboard");
+      // Force redirect to dashboard after a short delay
+      setTimeout(() => {
+        setLocation("/dashboard");
+      }, 100);
     } catch (error: any) {
       toast({
         title: "Erro ao salvar perfil",

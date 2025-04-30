@@ -100,7 +100,7 @@ export default function Profile() {
               
               <div className="text-center">
                 <h2 className="text-xl font-semibold">{user?.name || "Usuário"}</h2>
-                <p className="text-sm text-gray-500">Membro desde {format(user?.createdAt?.toDate() || new Date(), "MMMM yyyy", { locale: ptBR })}</p>
+                <p className="text-sm text-gray-500">Membro desde {format(user?.createdAt instanceof Date ? user.createdAt : new Date(), "MMMM yyyy", { locale: ptBR })}</p>
               </div>
             </div>
             
