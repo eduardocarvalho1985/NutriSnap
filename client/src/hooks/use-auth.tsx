@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
-import { FirebaseUser, getUserProfile, updateUserProfile, onAuthStateChanged } from "@/lib/firebase";
+import { FirebaseUser, getUserProfile, updateUserProfile, listenToAuthChanges } from "@/lib/firebase";
 
 // Define the User type for our application
 export type User = {
@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     
     // Set up the auth state listener
-    const unsubscribe = onAuthStateChanged(handleAuthStateChanged);
+    const unsubscribe = listenToAuthChanges(handleAuthStateChanged);
     
     // Cleanup function to unsubscribe when component unmounts
     return () => {

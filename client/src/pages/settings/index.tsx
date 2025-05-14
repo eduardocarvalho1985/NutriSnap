@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { signOut } from "@/lib/firebase";
+import { signOutUser } from "@/lib/firebase";
 import { useLocation } from "wouter";
 import {
   BellIcon,
@@ -27,7 +27,7 @@ export default function Settings() {
   async function handleSignOut() {
     setIsLoading(true);
     try {
-      await signOut();
+      await signOutUser();
       setLocation("/auth/login");
     } catch (error: any) {
       toast({
