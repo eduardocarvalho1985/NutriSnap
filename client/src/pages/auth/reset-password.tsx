@@ -31,16 +31,33 @@ export default function ResetPassword() {
   async function onSubmit(data: ResetFormValues) {
     setIsLoading(true);
     try {
+      console.log("Requesting password reset for:", data.email);
       await resetPassword(data.email);
+      
+      console.log("Password reset email sent successfully");
       setIsSuccess(true);
       toast({
         title: "Email enviado",
         description: "Verifique sua caixa de entrada para redefinir sua senha",
       });
     } catch (error: any) {
+      console.error("Password reset error:", error);
+      
+      let errorMessage = "Ocorreu um erro ao enviar o email. Tente novamente.";
+      
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "Não encontramos uma conta com este email.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "O formato do email é inválido.";
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Muitas tentativas. Tente novamente mais tarde.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao enviar email",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

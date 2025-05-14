@@ -36,137 +36,117 @@ export default function Login() {
   async function onSubmit(data: LoginFormValues) {
     setIsLoading(true);
     try {
-      await signInWithEmail(data.email, data.password);
-      setLocation("/dashboard");
+      console.log("Attempting to sign in with email:", data.email);
+      const result = await signInWithEmail(data.email, data.password);
+      
+      if (result && result.user) {
+        console.log("Email sign-in successful, user:", result.user.uid);
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Redirecionando para o dashboard..."
+        });
+        
+        // Navigate after a short delay to ensure Firebase auth state change is processed
+        setTimeout(() => {
+          setLocation("/dashboard");
+        }, 1000);
+      } else {
+        console.error("No user returned from signInWithEmail");
+        throw new Error("Falha no login. Tente novamente.");
+      }
     } catch (error: any) {
+      console.error("Login error:", error);
+      let errorMessage = "Ocorreu um erro ao fazer login. Tente novamente.";
+      
+      if (error.code === "auth/invalid-credential") {
+        errorMessage = "Email ou senha incorretos. Verifique suas credenciais.";
+      } else if (error.code === "auth/user-not-found") {
+        errorMessage = "Usuário não encontrado. Verifique seu email ou crie uma conta.";
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Senha incorreta. Tente novamente.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer login",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      // Reset loading state with a short delay to ensure UI feedback is visible
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   }
 
   async function handleGoogleSignIn() {
     setIsLoading(true);
     try {
+      console.log("Attempting to sign in with Google");
       const result = await signInWithGoogle();
       
       if (result && result.user) {
-        console.log("Google sign-in successful, user:", result.user);
+        console.log("Google sign-in successful, user:", result.user.uid);
         
-        // Check if user profile exists
-        const userProfile = await getUserProfile(result.user.uid);
-        console.log("User profile:", userProfile);
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Redirecionando para o dashboard...",
+        });
         
-        if (!userProfile) {
-          console.log("Creating new user profile");
-          // Create user profile for new user
-          await createUserProfile(result.user.uid, {
-            email: result.user.email,
-            name: result.user.displayName,
-            onboardingCompleted: false
-          });
-          
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo ao NutriSnap. Vamos configurar seu perfil.",
-          });
-          
-          setTimeout(() => {
-            setLocation("/onboarding");
-          }, 500);
-        } else {
-          console.log("User profile exists, checking onboarding status");
-          if (userProfile.onboardingCompleted) {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Bem-vindo de volta ao NutriSnap.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/dashboard");
-            }, 500);
-          } else {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Vamos finalizar a configuração do seu perfil.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/onboarding");
-            }, 500);
-          }
-        }
+        // Navigate directly to dashboard - auth state handler will redirect to onboarding if needed
+        setTimeout(() => {
+          setLocation("/dashboard");
+        }, 1000);
       } else {
         throw new Error("Falha ao fazer login com Google");
       }
     } catch (error: any) {
       console.error("Google sign-in error:", error);
+      
+      let errorMessage = "Ocorreu um erro ao fazer login com o Google. Tente novamente.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer login com Google",
-        description: error.message || "Houve um erro ao fazer login. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
-      setIsLoading(false);
+    } finally {
+      // Reset loading state with a short delay
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
     }
   }
 
   async function handleAppleSignIn() {
     setIsLoading(true);
     try {
-      const result = await signInWithApple();
+      console.log("Attempting to sign in with Apple");
       
-      if (result && result.user) {
-        // Check if user profile exists
-        const userProfile = await getUserProfile(result.user.uid);
-        
-        if (!userProfile) {
-          // Create user profile
-          await createUserProfile(result.user.uid, {
-            email: result.user.email,
-            name: result.user.displayName,
-            onboardingCompleted: false
-          });
-          
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo ao NutriSnap. Vamos configurar seu perfil.",
-          });
-          
-          setTimeout(() => {
-            setLocation("/onboarding");
-          }, 500);
-        } else {
-          if (userProfile.onboardingCompleted) {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Bem-vindo de volta ao NutriSnap.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/dashboard");
-            }, 500);
-          } else {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Vamos finalizar a configuração do seu perfil.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/onboarding");
-            }, 500);
-          }
-        }
-      } else {
-        throw new Error("Falha ao fazer login com Apple");
-      }
+      // Apple sign-in is currently not fully implemented
+      toast({
+        title: "Função não disponível",
+        description: "Login com Apple ainda não foi implementado.",
+        variant: "destructive"
+      });
+      
+      setIsLoading(false);
     } catch (error: any) {
+      console.error("Apple sign-in error:", error);
+      
+      let errorMessage = "Ocorreu um erro ao fazer login com Apple. Tente novamente.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer login com Apple",
-        description: error.message || "Houve um erro ao fazer login. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
       setIsLoading(false);
