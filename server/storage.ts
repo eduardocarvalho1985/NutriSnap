@@ -161,16 +161,11 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
     
-    const query = db.select()
-      .from(weightLogs)
-      .where(eq(weightLogs.userId, user.id))
-      .orderBy(desc(weightLogs.date));
-    
-    if (limit) {
-      query.limit(limit);
-    }
-    
-    const weightLogsResult = await query;
+    const weightLogsResult = await db.query.weightLogs.findMany({
+      where: (weightLog, { eq }) => eq(weightLog.userId, user.id),
+      orderBy: (weightLog, { desc }) => [desc(weightLog.date)],
+      limit: limit || undefined
+    });
     
     return weightLogsResult;
   }
@@ -182,12 +177,15 @@ export class DatabaseStorage implements IStorage {
       throw new Error("User not found");
     }
     
-    const dateValue = weightLogData.date ? new Date(weightLogData.date) : new Date();
+    // Format date as ISO string
+    const dateStr = weightLogData.date 
+      ? new Date(weightLogData.date).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
     
     const [weightLog] = await db.insert(weightLogs)
       .values({
         userId: user.id,
-        date: dateValue,
+        date: dateStr,
         weight: weightLogData.weight!,
       })
       .returning();
