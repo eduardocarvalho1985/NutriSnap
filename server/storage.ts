@@ -1,4 +1,6 @@
 import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog } from "@shared/schema";
+import { db } from "./db";
+import { eq, and, desc } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -19,38 +21,22 @@ export interface IStorage {
   createWeightLog(uid: string, weightLog: Partial<InsertWeightLog>): Promise<WeightLog>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private foodLogs: Map<number, FoodLog>;
-  private weightLogs: Map<number, WeightLog>;
-  private userIdCounter: number;
-  private foodLogIdCounter: number;
-  private weightLogIdCounter: number;
-
-  constructor() {
-    this.users = new Map();
-    this.foodLogs = new Map();
-    this.weightLogs = new Map();
-    this.userIdCounter = 1;
-    this.foodLogIdCounter = 1;
-    this.weightLogIdCounter = 1;
-  }
-
+export class DatabaseStorage implements IStorage {
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUid(uid: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.uid === uid);
+    const [user] = await db.select().from(users).where(eq(users.uid, uid));
+    return user;
   }
 
   async createUser(userData: Partial<InsertUser>): Promise<User> {
-    const id = this.userIdCounter++;
     const now = new Date();
     
-    const user: User = {
-      id,
+    const [user] = await db.insert(users).values({
       uid: userData.uid!,
       email: userData.email!,
       name: userData.name || null,
@@ -73,9 +59,8 @@ export class MemStorage implements IStorage {
       onboardingCompleted: userData.onboardingCompleted || false,
       createdAt: now,
       updatedAt: now
-    };
+    }).returning();
     
-    this.users.set(id, user);
     return user;
   }
 
@@ -86,13 +71,14 @@ export class MemStorage implements IStorage {
       return undefined;
     }
     
-    const updatedUser: User = {
-      ...user,
-      ...userData,
-      updatedAt: new Date()
-    };
+    const [updatedUser] = await db.update(users)
+      .set({
+        ...userData,
+        updatedAt: new Date()
+      })
+      .where(eq(users.uid, uid))
+      .returning();
     
-    this.users.set(user.id, updatedUser);
     return updatedUser;
   }
 
@@ -103,14 +89,15 @@ export class MemStorage implements IStorage {
       return undefined;
     }
     
-    const updatedUser: User = {
-      ...user,
-      stripeCustomerId: stripeInfo.stripeCustomerId,
-      stripeSubscriptionId: stripeInfo.stripeSubscriptionId,
-      updatedAt: new Date()
-    };
+    const [updatedUser] = await db.update(users)
+      .set({
+        stripeCustomerId: stripeInfo.stripeCustomerId,
+        stripeSubscriptionId: stripeInfo.stripeSubscriptionId,
+        updatedAt: new Date()
+      })
+      .where(eq(users.uid, uid))
+      .returning();
     
-    this.users.set(user.id, updatedUser);
     return updatedUser;
   }
 
@@ -122,8 +109,18 @@ export class MemStorage implements IStorage {
       return [];
     }
     
-    return Array.from(this.foodLogs.values())
-      .filter(log => log.userId === user.id && log.date.toString() === date);
+    // Use SQL query to handle date comparison
+    const formattedDate = new Date(date).toISOString().split('T')[0];
+    
+    const foodLogsResult = await db.query.foodLogs.findMany({
+      where: (foodLog, { eq, and }) => 
+        and(
+          eq(foodLog.userId, user.id),
+          eq(foodLog.date, formattedDate)
+        )
+    });
+    
+    return foodLogsResult;
   }
 
   async createFoodLog(uid: string, foodLogData: Partial<InsertFoodLog>): Promise<FoodLog> {
@@ -133,25 +130,26 @@ export class MemStorage implements IStorage {
       throw new Error("User not found");
     }
     
-    const id = this.foodLogIdCounter++;
-    const now = new Date();
+    // Format date as ISO string
+    const dateStr = foodLogData.date 
+      ? new Date(foodLogData.date).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
     
-    const foodLog: FoodLog = {
-      id,
-      userId: user.id,
-      date: new Date(foodLogData.date!),
-      mealType: foodLogData.mealType!,
-      name: foodLogData.name!,
-      quantity: foodLogData.quantity!,
-      unit: foodLogData.unit!,
-      calories: foodLogData.calories!,
-      protein: foodLogData.protein || 0,
-      carbs: foodLogData.carbs || 0,
-      fat: foodLogData.fat || 0,
-      createdAt: now
-    };
+    const [foodLog] = await db.insert(foodLogs)
+      .values({
+        userId: user.id,
+        date: dateStr,
+        mealType: foodLogData.mealType!,
+        name: foodLogData.name!,
+        quantity: foodLogData.quantity!,
+        unit: foodLogData.unit!,
+        calories: foodLogData.calories!,
+        protein: foodLogData.protein || 0,
+        carbs: foodLogData.carbs || 0,
+        fat: foodLogData.fat || 0,
+      })
+      .returning();
     
-    this.foodLogs.set(id, foodLog);
     return foodLog;
   }
 
@@ -163,11 +161,18 @@ export class MemStorage implements IStorage {
       return [];
     }
     
-    const logs = Array.from(this.weightLogs.values())
-      .filter(log => log.userId === user.id)
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
+    const query = db.select()
+      .from(weightLogs)
+      .where(eq(weightLogs.userId, user.id))
+      .orderBy(desc(weightLogs.date));
     
-    return limit ? logs.slice(0, limit) : logs;
+    if (limit) {
+      query.limit(limit);
+    }
+    
+    const weightLogsResult = await query;
+    
+    return weightLogsResult;
   }
 
   async createWeightLog(uid: string, weightLogData: Partial<InsertWeightLog>): Promise<WeightLog> {
@@ -177,18 +182,15 @@ export class MemStorage implements IStorage {
       throw new Error("User not found");
     }
     
-    const id = this.weightLogIdCounter++;
-    const now = new Date();
+    const dateValue = weightLogData.date ? new Date(weightLogData.date) : new Date();
     
-    const weightLog: WeightLog = {
-      id,
-      userId: user.id,
-      date: new Date(weightLogData.date!),
-      weight: weightLogData.weight!,
-      createdAt: now
-    };
-    
-    this.weightLogs.set(id, weightLog);
+    const [weightLog] = await db.insert(weightLogs)
+      .values({
+        userId: user.id,
+        date: dateValue,
+        weight: weightLogData.weight!,
+      })
+      .returning();
     
     // Update the user's current weight
     await this.updateUser(uid, { weight: weightLogData.weight });
@@ -197,4 +199,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

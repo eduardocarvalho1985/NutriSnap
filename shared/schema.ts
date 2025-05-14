@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, real, date, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, real, date, timestamp, primaryKey } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 // Users table
 export const users = pgTable("users", {
@@ -32,7 +33,7 @@ export const users = pgTable("users", {
 // Food logs table
 export const foodLogs = pgTable("food_logs", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   date: date("date").notNull(),
   mealType: text("meal_type").notNull(),
   name: text("name").notNull(),
@@ -48,11 +49,31 @@ export const foodLogs = pgTable("food_logs", {
 // Weight logs table
 export const weightLogs = pgTable("weight_logs", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   date: date("date").notNull(),
   weight: real("weight").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+// Define relations
+export const usersRelations = relations(users, ({ many }) => ({
+  foodLogs: many(foodLogs),
+  weightLogs: many(weightLogs),
+}));
+
+export const foodLogsRelations = relations(foodLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [foodLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const weightLogsRelations = relations(weightLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [weightLogs.userId],
+    references: [users.id],
+  }),
+}));
 
 // Zod schemas for insertions
 export const insertUserSchema = createInsertSchema(users).omit({
