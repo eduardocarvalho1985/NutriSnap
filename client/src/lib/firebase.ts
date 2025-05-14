@@ -26,13 +26,22 @@ import {
   serverTimestamp
 } from "firebase/firestore";
 
-// Check if we have the Firebase API keys
-const hasFirebaseKeys = 
+// Firebase User type
+export type FirebaseUser = {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+};
+
+// Check if we have the Firebase API keys in environment
+const hasFirebaseKeys = Boolean(
   import.meta.env.VITE_FIREBASE_API_KEY && 
   import.meta.env.VITE_FIREBASE_PROJECT_ID && 
-  import.meta.env.VITE_FIREBASE_APP_ID;
+  import.meta.env.VITE_FIREBASE_APP_ID
+);
 
-// Firebase configuration
+// Create a Firebase configuration object
 const firebaseConfig = hasFirebaseKeys ? {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: `${import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com`,
@@ -42,32 +51,43 @@ const firebaseConfig = hasFirebaseKeys ? {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 } : null;
 
-// Initialize Firebase services
-let app;
-let auth;
-let db;
+// Initialize Firebase or mock services
+let app: any;
+let auth: any;
+let db: any;
 
-// Firebase User type
-export type FirebaseUser = {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
-};
-
-// If we have Firebase config, initialize Firebase; otherwise use mocks
-if (firebaseConfig) {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} else {
-  console.warn('Firebase keys not found, using mock implementation');
-  // Mock auth object with current user state
+// Use try-catch to handle initialization errors gracefully
+try {
+  if (firebaseConfig) {
+    // Real Firebase implementation
+    console.log('Initializing Firebase with config:', firebaseConfig);
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    console.log('Firebase initialized successfully');
+  } else {
+    // Mock implementation
+    console.warn('Firebase keys not found, using mock implementation');
+    // Mock auth object with current user state
+    auth = {
+      currentUser: null,
+      onAuthStateChanged: null,
+    };
+    // Mock DB (in-memory)
+    db = {
+      users: new Map(),
+      foodLogs: new Map(),
+      weightLogs: new Map()
+    };
+  }
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
+  // Fall back to mock implementation in case of error
+  console.warn('Falling back to mock implementation due to initialization error');
   auth = {
     currentUser: null,
     onAuthStateChanged: null,
   };
-  // Mock DB (in-memory)
   db = {
     users: new Map(),
     foodLogs: new Map(),
