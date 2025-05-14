@@ -1,6 +1,6 @@
 import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -109,16 +109,17 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
     
-    // Use SQL query to handle date comparison
+    // Use SQL query for date comparison
     const formattedDate = new Date(date).toISOString().split('T')[0];
     
-    const foodLogsResult = await db.query.foodLogs.findMany({
-      where: (foodLog, { eq, and }) => 
+    const foodLogsResult = await db.select()
+      .from(foodLogs)
+      .where(
         and(
-          eq(foodLog.userId, user.id),
-          eq(foodLog.date, formattedDate)
+          eq(foodLogs.userId, user.id),
+          sql`${foodLogs.date}::text = ${formattedDate}`
         )
-    });
+      );
     
     return foodLogsResult;
   }
@@ -135,19 +136,22 @@ export class DatabaseStorage implements IStorage {
       ? new Date(foodLogData.date).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0];
     
+    // Create the food log
+    const insertValues = {
+      userId: user.id,
+      date: dateStr,
+      mealType: foodLogData.mealType!,
+      name: foodLogData.name!,
+      quantity: foodLogData.quantity!,
+      unit: foodLogData.unit!,
+      calories: foodLogData.calories!,
+      protein: foodLogData.protein || 0,
+      carbs: foodLogData.carbs || 0,
+      fat: foodLogData.fat || 0,
+    };
+    
     const [foodLog] = await db.insert(foodLogs)
-      .values({
-        userId: user.id,
-        date: dateStr,
-        mealType: foodLogData.mealType!,
-        name: foodLogData.name!,
-        quantity: foodLogData.quantity!,
-        unit: foodLogData.unit!,
-        calories: foodLogData.calories!,
-        protein: foodLogData.protein || 0,
-        carbs: foodLogData.carbs || 0,
-        fat: foodLogData.fat || 0,
-      })
+      .values(insertValues)
       .returning();
     
     return foodLog;
@@ -182,12 +186,15 @@ export class DatabaseStorage implements IStorage {
       ? new Date(weightLogData.date).toISOString().split('T')[0]
       : new Date().toISOString().split('T')[0];
     
+    // Create the weight log
+    const insertValues = {
+      userId: user.id,
+      date: dateStr,
+      weight: weightLogData.weight!,
+    };
+    
     const [weightLog] = await db.insert(weightLogs)
-      .values({
-        userId: user.id,
-        date: dateStr,
-        weight: weightLogData.weight!,
-      })
+      .values(insertValues)
       .returning();
     
     // Update the user's current weight
