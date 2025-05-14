@@ -46,10 +46,8 @@ export default function Login() {
           description: "Redirecionando para o dashboard..."
         });
         
-        // Navigate after a short delay to ensure Firebase auth state change is processed
-        setTimeout(() => {
-          setLocation("/dashboard");
-        }, 1000);
+        // Force navigation to dashboard immediately after successful login
+        setLocation("/dashboard");
       } else {
         console.error("No user returned from signInWithEmail");
         throw new Error("Falha no login. Tente novamente.");
@@ -74,10 +72,8 @@ export default function Login() {
         variant: "destructive"
       });
     } finally {
-      // Reset loading state with a short delay to ensure UI feedback is visible
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+      // Reset loading state
+      setIsLoading(false);
     }
   }
 
@@ -95,10 +91,8 @@ export default function Login() {
           description: "Redirecionando para o dashboard...",
         });
         
-        // Navigate directly to dashboard - auth state handler will redirect to onboarding if needed
-        setTimeout(() => {
-          setLocation("/dashboard");
-        }, 1000);
+        // Force navigation to dashboard immediately after successful login
+        setLocation("/dashboard");
       } else {
         throw new Error("Falha ao fazer login com Google");
       }
@@ -116,10 +110,8 @@ export default function Login() {
         variant: "destructive"
       });
     } finally {
-      // Reset loading state with a short delay
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
+      // Reset loading state
+      setIsLoading(false);
     }
   }
 

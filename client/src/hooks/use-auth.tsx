@@ -63,39 +63,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.log("Auth state changed:", firebaseUser ? "User logged in" : "User logged out");
         
         if (firebaseUser) {
-          // User is signed in
-          console.log("Fetching user profile for:", firebaseUser.uid);
-          const userProfile = await getUserProfile(firebaseUser.uid);
+          // User is signed in - First set basic user info immediately
+          const basicUserInfo: User = {
+            uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            displayName: firebaseUser.displayName,
+            photoURL: firebaseUser.photoURL,
+            onboardingCompleted: false, // Default value in case we can't fetch the profile
+          };
           
-          if (userProfile) {
-            console.log("User profile found, merging data");
-            // Combine Firebase auth user with profile data
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoURL: firebaseUser.photoURL,
-              ...userProfile,
+          // Set basic user data right away to allow navigation
+          setUser(basicUserInfo);
+          setLoading(false);
+          
+          // Try to fetch profile in background without blocking auth flow
+          console.log("Fetching user profile for:", firebaseUser.uid);
+          getUserProfile(firebaseUser.uid)
+            .then(userProfile => {
+              if (userProfile) {
+                console.log("User profile found, merging data");
+                // Update user with profile data 
+                setUser(prevUser => ({
+                  ...(prevUser || basicUserInfo),
+                  ...userProfile,
+                }));
+              } else {
+                console.log("No user profile found, keeping basic auth data");
+                // Basic user info already set, nothing to do
+              }
+            })
+            .catch(profileError => {
+              console.error("Error fetching user profile:", profileError);
+              // We already set basic user info, so authentication still works
             });
-          } else {
-            console.log("No user profile found, using auth data only");
-            // If no profile exists yet, only use auth data
-            setUser({
-              uid: firebaseUser.uid,
-              email: firebaseUser.email,
-              displayName: firebaseUser.displayName,
-              photoURL: firebaseUser.photoURL,
-              onboardingCompleted: false,
-            });
-          }
         } else {
           // User is signed out
           console.log("Setting user to null (signed out)");
           setUser(null);
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error processing auth state change:", error);
-      } finally {
         setLoading(false);
       }
     };
