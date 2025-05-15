@@ -5,6 +5,8 @@ import { z } from "zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { addFoodLog } from "@/lib/firebase";
 import { XIcon } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 // Form validation schema
 const foodLogSchema = z.object({
@@ -37,6 +40,7 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
   const { user } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [saveForLater, setSaveForLater] = useState(false);
   const queryClient = useQueryClient();
   
   const form = useForm<FoodLogFormValues>({
@@ -58,6 +62,7 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
     
     setIsLoading(true);
     try {
+      // Adicionar o alimento ao registro diário
       await addFoodLog(user.uid, date, data.mealType, {
         name: data.name,
         quantity: data.quantity,
@@ -70,6 +75,36 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
       
       // Invalidate food logs query to refresh the data
       queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, date] });
+      
+      // Se a opção de salvar estiver marcada, salvar o alimento para uso futuro
+      if (saveForLater) {
+        try {
+          await apiRequest("POST", `/api/users/${user.uid}/saved-foods`, {
+            name: data.name,
+            quantity: data.quantity,
+            unit: data.unit,
+            calories: data.calories,
+            protein: data.protein,
+            carbs: data.carbs,
+            fat: data.fat
+          });
+          
+          toast({
+            title: "Alimento salvo",
+            description: `${data.name} foi salvo para uso futuro.`,
+          });
+          
+          // Invalidar a query de alimentos salvos para atualizar a lista
+          queryClient.invalidateQueries({ queryKey: ["/api/users", user.uid, "saved-foods"] });
+        } catch (saveError: any) {
+          console.error("Erro ao salvar alimento:", saveError);
+          toast({
+            title: "Erro ao salvar alimento",
+            description: "Ocorreu um erro ao salvar este alimento para uso futuro.",
+            variant: "destructive",
+          });
+        }
+      }
       
       toast({
         title: "Alimento adicionado",
@@ -291,6 +326,18 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
                     </FormItem>
                   )}
                 />
+              </div>
+              
+              <div className="flex items-center space-x-2 mb-4">
+                <Checkbox
+                  id="save-for-later"
+                  checked={saveForLater}
+                  onCheckedChange={(checked) => setSaveForLater(checked as boolean)}
+                  disabled={isLoading}
+                />
+                <Label htmlFor="save-for-later" className="text-sm font-medium">
+                  Salvar este alimento para uso futuro
+                </Label>
               </div>
               
               <div className="flex space-x-3 pt-2">
