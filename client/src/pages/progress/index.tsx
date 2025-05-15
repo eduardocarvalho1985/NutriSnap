@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { addWeightLog } from "@/lib/firebase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart } from "recharts";
 import { SlidersHorizontal, TrendingDown } from "lucide-react";
+import { useRouter } from 'next/navigation';
 
 type TimeRange = "7days" | "30days" | "3months";
 
@@ -20,12 +21,17 @@ export default function Progress() {
   const [timeRange, setTimeRange] = useState<TimeRange>("7days");
   const [newWeight, setNewWeight] = useState("");
   const { toast } = useToast();
-  
+	const router = useRouter();
+
+  const setLocation = (path: string) => {
+		router.push(path);
+	}
+
   // Get date range based on selected time range
   const getDateRange = () => {
     const endDate = new Date();
     let startDate: Date;
-    
+
     switch (timeRange) {
       case "30days":
         startDate = subDays(endDate, 30);
@@ -36,15 +42,15 @@ export default function Progress() {
       default:
         startDate = subDays(endDate, 7);
     }
-    
+
     return { startDate, endDate };
   };
-  
+
   const { startDate, endDate } = getDateRange();
-  
+
   // Generate array of dates in the range
   const dateRange = eachDayOfInterval({ start: startDate, end: endDate });
-  
+
   // Query weight logs
   const { data: weightLogs = [], refetch: refetchWeightLogs } = useQuery({
     queryKey: ["/api/weight-logs", user?.uid],
@@ -54,13 +60,13 @@ export default function Progress() {
     },
     enabled: !!user?.uid
   });
-  
+
   // Query food logs for each day in the range
   const { data: foodLogsData } = useQuery({
     queryKey: ["/api/food-logs-range", user?.uid, timeRange],
     queryFn: async () => {
       if (!user?.uid) return [];
-      
+
       const promises = dateRange.map(date => {
         const formattedDate = format(date, "yyyy-MM-dd");
         return getFoodLogs(user.uid, formattedDate).then(logs => ({
@@ -68,17 +74,17 @@ export default function Progress() {
           logs
         }));
       });
-      
+
       return Promise.all(promises);
     },
     enabled: !!user?.uid
   });
-  
+
   // Process food logs data for chart
   const caloriesChartData = foodLogsData?.map(dayData => {
     const totalCalories = dayData.logs.reduce((sum, log) => sum + (log.calories || 0), 0);
     const targetCalories = user?.calories || 2000;
-    
+
     return {
       date: format(new Date(dayData.date), "EEE", { locale: ptBR }),
       fullDate: dayData.date,
@@ -87,41 +93,41 @@ export default function Progress() {
       metGoal: totalCalories <= targetCalories
     };
   }) || [];
-  
+
   // Process weight logs data for chart
   const weightChartData = dateRange.map(date => {
     const formattedDate = format(date, "yyyy-MM-dd");
     const weightLog = weightLogs.find(log => log.date === formattedDate);
-    
+
     return {
       date: format(date, "dd MMM", { locale: ptBR }),
       fullDate: formattedDate,
       weight: weightLog?.weight || null
     };
   }).filter(item => item.weight !== null);
-  
+
   // Calculate stats
   const daysInRange = caloriesChartData.length;
   const daysOnTarget = caloriesChartData.filter(day => day.metGoal).length;
   const averageCalories = caloriesChartData.length > 0
     ? Math.round(caloriesChartData.reduce((sum, day) => sum + day.consumed, 0) / caloriesChartData.length)
     : 0;
-  
+
   // Get most recent weight
   const sortedWeightLogs = [...weightLogs].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
   const latestWeight = sortedWeightLogs.length > 0 ? sortedWeightLogs[0].weight : null;
-  
+
   // Calculate weight change
   const oldestWeightInRange = weightLogs.find(log => 
     new Date(log.date) >= startDate
   );
-  
+
   const weightChange = latestWeight && oldestWeightInRange 
     ? (latestWeight - oldestWeightInRange.weight).toFixed(1)
     : null;
-  
+
   const weightChangeDirection = weightChange !== null
     ? parseFloat(weightChange) > 0 
       ? "up" 
@@ -129,22 +135,22 @@ export default function Progress() {
         ? "down" 
         : "same"
     : null;
-  
+
   async function handleUpdateWeight() {
     if (!user?.uid || !newWeight.trim()) return;
-    
+
     try {
       const weight = parseFloat(newWeight);
       if (isNaN(weight) || weight <= 0) {
         throw new Error("Peso inválido");
       }
-      
+
       await addWeightLog(user.uid, format(new Date(), "yyyy-MM-dd"), weight);
       toast({
         title: "Peso atualizado",
         description: "Seu peso foi atualizado com sucesso."
       });
-      
+
       setNewWeight("");
       refetchWeightLogs();
     } catch (error: any) {
@@ -206,7 +212,7 @@ export default function Progress() {
               <span className="w-3 h-3 rounded-full bg-accent inline-block ml-3 mr-1"></span> Consumido
             </div>
           </div>
-          
+
           <div className="h-60 w-full">
             {caloriesChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -257,7 +263,7 @@ export default function Progress() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardContent className="p-4">
               <h4 className="text-sm font-medium text-gray-500 mb-1">Dias na meta</h4>
@@ -293,12 +299,12 @@ export default function Progress() {
                 </Button>
               </div>
             </div>
-            
+
             {latestWeight && (
               <div className="flex items-center mb-4">
                 <span className="text-3xl font-semibold">{latestWeight.toFixed(1)}</span>
                 <span className="text-sm text-gray-500 ml-1">kg</span>
-                
+
                 {weightChange && weightChangeDirection !== "same" && (
                   <span className={`text-xs ml-3 flex items-center ${
                     weightChangeDirection === "down" ? "text-green-500" : "text-red-500"
@@ -320,7 +326,7 @@ export default function Progress() {
                 )}
               </div>
             )}
-            
+
             <div className="h-40 w-full">
               {weightChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
@@ -356,6 +362,9 @@ export default function Progress() {
             </div>
           </CardContent>
         </Card>
+				<div className="px-4">
+					<Button variant="outline" onClick={() => setLocation("/dashboard")}>Voltar para o Dashboard</Button>
+				</div>
       </main>
 
       {/* Bottom Navigation */}
