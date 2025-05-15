@@ -1,0 +1,20 @@
+Warning: validateDOMNesting(...): %s cannot appear as a descendant of <%s>.%s <a> a 
+    at a
+    at a
+    at https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e810d14a:337:18
+    at NavItem (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/components/navigation/bottom-nav.tsx:147:20)
+    at div
+    at nav
+    at BottomNav (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/components/navigation/bottom-nav.tsx:19:29)
+    at div
+    at Dashboard (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/pages/dashboard/index.tsx?t=1747303302789:33:20)
+    at Route (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e810d14a:323:16)
+    at Switch (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=e810d14a:379:17)
+    at Router (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/App.tsx?t=1747303302789&v=6b0NT4Ik37CJnFw02n0Ge:41:29)
+    at Provider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-5AJU3CG7.js?v=e810d14a:38:15)
+    at TooltipProvider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=e810d14a:61:5)
+    at QueryClientProvider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=e810d14a:2805:3)
+    at App
+    at OnboardingProvider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/hooks/use-onboarding.tsx?t=1747303302789:33:38)
+    at AuthProvider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/hooks/use-auth.tsx?t=1747303302789:36:32)
+    at AuthProvider (https://01d84a83-a252-4f9d-a332-783f0e8e0233-00-jebsxr1vj9v7.janeway.replit.dev/src/providers/auth-provider.tsx?t=1747303302789&v=6b0NT4Ik37CJnFw02n0Ge:19:32)

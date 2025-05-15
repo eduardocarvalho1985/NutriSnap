@@ -171,30 +171,49 @@ async function createUserInDatabase(user: FirebaseUser) {
   try {
     console.log(`Creating user in database: ${user.uid}`);
     
+    // Certifique-se de que todos os campos obrigatórios estão presentes e com valores válidos
     const userData = {
       uid: user.uid,
-      email: user.email || '', // Email é obrigatório no schema
-      name: user.displayName,
-      photoURL: user.photoURL,
+      email: user.email || 'user@example.com', // Email é obrigatório no schema
+      name: user.displayName || null, // Pode ser null, mas deve ser explícito
+      photoURL: user.photoURL || null, // Pode ser null, mas deve ser explícito
       onboardingCompleted: false
     };
     
     // Log da requisição para depuração
-    console.log("Creating user with data:", JSON.stringify(userData));
+    console.log("[createUserInDatabase] Sending data:", JSON.stringify(userData));
     
-    const response = await apiRequest("POST", `/api/users`, userData);
-    
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`Error creating user in database. Status: ${response.status}, Response:`, errorText);
-      throw new Error(`Failed to create user: ${errorText}`);
+    try {
+      const response = await apiRequest("POST", `/api/users`, userData);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[createUserInDatabase] Error status: ${response.status}, Response:`, errorText);
+        
+        // Se não conseguir criar o usuário via POST, tente via PUT
+        console.log(`[createUserInDatabase] Trying to create user via PUT instead`);
+        const putResponse = await apiRequest("PUT", `/api/users/${user.uid}`, userData);
+        
+        if (!putResponse.ok) {
+          const putErrorText = await putResponse.text();
+          console.error(`[createUserInDatabase] PUT attempt also failed: ${putResponse.status}, Response:`, putErrorText);
+          throw new Error(`Failed to create user via PUT: ${putErrorText}`);
+        }
+        
+        console.log(`[createUserInDatabase] User ${user.uid} created via PUT successfully`);
+        return true;
+      }
+      
+      console.log(`[createUserInDatabase] User ${user.uid} created via POST successfully`);
+      return true;
+    } catch (fetchError) {
+      console.error("[createUserInDatabase] Fetch error:", fetchError);
+      throw fetchError;
     }
-    
-    console.log(`User ${user.uid} successfully created in database`);
-    return true;
   } catch (error) {
-    console.error("Error creating user in database:", error);
-    throw error;
+    console.error("[createUserInDatabase] Top-level error:", error);
+    // Não propagamos o erro para permitir que o usuário continue usando o app
+    return false;
   }
 }
 

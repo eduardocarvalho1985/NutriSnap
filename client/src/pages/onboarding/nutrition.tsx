@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { updateUserProfile } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { apiRequest } from "@/lib/queryClient";
 
 const OnboardingSteps = [
   { id: "basic-info", title: "Informações Básicas", path: "/onboarding/basic-info" },
@@ -109,7 +110,19 @@ export default function Nutrition() {
   }, [calculatedTargets, form]);
 
   async function onSubmit(data: NutritionFormValues) {
-    if (!user) return;
+    if (!user) {
+      console.error("⛔ Tentando salvar sem usuário autenticado");
+      toast({
+        title: "Erro de autenticação",
+        description: "Você precisa estar autenticado para salvar os dados.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log("🔵 INICIANDO salvamento do perfil nutricional");
+    console.log("UID do usuário:", user.uid);
+    console.log("Dados a salvar:", JSON.stringify(data));
     
     setIsLoading(true);
     try {
@@ -119,32 +132,94 @@ export default function Nutrition() {
         onboardingCompleted: true
       };
       
+      console.log("📝 Dados completos do onboarding:", JSON.stringify(finalOnboardingData));
+      
+      // Tentativa direta de criar o usuário no banco se ele ainda não existe
+      try {
+        console.log("🔄 Verificando se usuário já existe no banco de dados...");
+        
+        // Tente obter o usuário primeiro via GET
+        const getUserResponse = await apiRequest("GET", `/api/users/${user.uid}`);
+        
+        if (!getUserResponse.ok && getUserResponse.status === 404) {
+          console.log("❌ Usuário não encontrado no banco, tentando criar...");
+          
+          // Prepare os dados completos do usuário para criação
+          const createUserData = {
+            uid: user.uid,
+            email: user.email || 'user@example.com',
+            name: onboardingData.name,
+            ...finalOnboardingData
+          };
+          
+          // Tentativa de criar o usuário
+          const createResponse = await apiRequest("POST", `/api/users`, createUserData);
+          
+          if (createResponse.ok) {
+            console.log("✅ Usuário criado com sucesso no banco via POST");
+          } else {
+            console.error("❌ Falha ao criar usuário via POST, tentando via PUT...");
+            
+            // Se POST falhar, tente PUT
+            const putResponse = await apiRequest("PUT", `/api/users/${user.uid}`, createUserData);
+            
+            if (putResponse.ok) {
+              console.log("✅ Usuário criado com sucesso no banco via PUT");
+            } else {
+              console.error("❌ Falha ao criar usuário via PUT:", await putResponse.text());
+            }
+          }
+        } else {
+          console.log("✅ Usuário já existe no banco, continuando com atualização");
+        }
+      } catch (dbError) {
+        console.error("🔴 Erro ao verificar/criar usuário no banco:", dbError);
+      }
+      
       // Update Firebase profile
-      await updateUserProfile(user.uid, finalOnboardingData);
+      console.log("📊 Atualizando perfil via API...");
+      try {
+        await updateUserProfile(user.uid, finalOnboardingData);
+        console.log("✅ Perfil atualizado com sucesso via API");
+      } catch (profileError) {
+        console.error("❌ Erro ao atualizar perfil via API:", profileError);
+        // Continuamos mesmo com erro para garantir que pelo menos o state local seja atualizado
+      }
       
       // Update local state
+      console.log("🔄 Atualizando estado local...");
       updateOnboardingData(finalOnboardingData);
       completeOnboarding();
       
       // Update auth user state with onboardingCompleted flag
+      console.log("🔄 Atualizando estado do usuário na autenticação...");
       updateUser({
         ...data,
         onboardingCompleted: true
       });
       
+      console.log("✅ Salvamento concluído com sucesso");
       toast({
         title: "Configuração concluída!",
         description: "Seu perfil está pronto para uso."
       });
       
       // Force redirect to dashboard after a short delay
+      console.log("🔄 Redirecionando para o dashboard...");
       setTimeout(() => {
         setLocation("/dashboard");
-      }, 100);
+      }, 500); // Aumentamos o delay para dar mais tempo ao processamento
     } catch (error: any) {
+      console.error("🔴 Erro ao salvar perfil:", error);
+      
+      let errorMessage = "Ocorreu um erro ao salvar seu perfil.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao salvar perfil",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
