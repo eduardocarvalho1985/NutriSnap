@@ -3,6 +3,7 @@ import { X, Search, Plus, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,11 @@ export function SavedFoodsModal({
 
   const { data: savedFoods, isLoading, isError } = useQuery({
     queryKey: ["/api/users", user?.uid, "saved-foods"],
+    queryFn: async () => {
+      if (!user?.uid) return [];
+      const response = await apiRequest("GET", `/api/users/${user.uid}/saved-foods`);
+      return response.json();
+    },
     enabled: !!user?.uid && isOpen,
   });
 
