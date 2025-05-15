@@ -8,20 +8,26 @@ import { MacroProgress } from "@/components/dashboard/macro-progress";
 import { MealSection } from "@/components/food-log/meal-section";
 import { AddFoodModal } from "@/components/food-log/add-food-modal";
 import { getFoodLogs } from "@/lib/firebase";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
+import { AddFoodOptionsModal } from "@/components/food-log/add-food-options-modal";
+import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
+import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<string | null>(null);
-  
+  const [showAddFoodOptionsModal, setShowAddFoodOptionsModal] = useState(false);
+  const [showSavedFoodsModal, setShowSavedFoodsModal] = useState(false);
+  const [showFoodDatabaseModal, setShowFoodDatabaseModal] = useState(false);
+
   const formattedDate = format(currentDate, "yyyy-MM-dd");
   const displayDate = format(currentDate, "dd MMM", { locale: ptBR });
   const isToday = format(currentDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
-  
+
   const { data: foodLogs = [], isLoading: isLoadingFoodLogs } = useQuery({
     queryKey: ["/api/food-logs", user?.uid, formattedDate],
     queryFn: async () => {
@@ -30,55 +36,79 @@ export default function Dashboard() {
     },
     enabled: !!user?.uid
   });
-  
+
   // Group food logs by meal type
   const mealTypes = ["Café da Manhã", "Almoço", "Lanche", "Jantar", "Ceia"];
   const foodLogsByMeal = mealTypes.map(mealType => {
     const logs = foodLogs.filter(log => log.mealType === mealType);
     const calories = logs.reduce((sum, log) => sum + (log.calories || 0), 0);
-    
+
     return {
       type: mealType,
       foods: logs,
       calories
     };
   });
-  
+
   // Calculate totals
   const totalCaloriesConsumed = foodLogs.reduce((sum, log) => sum + (log.calories || 0), 0);
   const totalProteinConsumed = foodLogs.reduce((sum, log) => sum + (log.protein || 0), 0);
   const totalCarbsConsumed = foodLogs.reduce((sum, log) => sum + (log.carbs || 0), 0);
   const totalFatConsumed = foodLogs.reduce((sum, log) => sum + (log.fat || 0), 0);
-  
+
   // Get user targets
   const targetCalories = user?.calories || 2000;
   const targetProtein = user?.protein || 150;
   const targetCarbs = user?.carbs || 200;
   const targetFat = user?.fat || 70;
-  
+
   const remainingCalories = targetCalories - totalCaloriesConsumed;
   const caloriesProgress = (totalCaloriesConsumed / targetCalories) * 100;
-  
+
   function handlePreviousDay() {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() - 1);
     setCurrentDate(newDate);
   }
-  
+
   function handleNextDay() {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + 1);
     setCurrentDate(newDate);
   }
-  
+
   function handleAddFood(mealType: string) {
     setSelectedMeal(mealType);
-    setShowAddFoodModal(true);
+    setShowAddFoodOptionsModal(true); // Open options modal instead of directly adding food
   }
-  
+
   function handleAddMeal() {
     setSelectedMeal(null);
-    setShowAddFoodModal(true);
+    setShowAddFoodOptionsModal(true); // Open options modal instead of directly adding food
+  }
+
+  function handleAddFoodOptionSelect(option: string) {
+    setShowAddFoodOptionsModal(false);
+    switch (option) {
+      case "saved":
+        setShowSavedFoodsModal(true);
+        break;
+      case "database":
+        setShowFoodDatabaseModal(true);
+        break;
+      case "new":
+        setShowAddFoodModal(true);
+        break;
+      default:
+        break;
+    }
+  }
+
+  function handleFoodSelection(food: any) {
+    // Handle the selected food (e.g., add it to the food log)
+    console.log("Selected food:", food);
+    // Invalidate queries to update the food logs
+    invalidateQueries();
   }
 
   return (
@@ -121,7 +151,7 @@ export default function Dashboard() {
         {/* Progress Summary */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Resumo Diário</h3>
-          
+
           {/* Calories Progress Ring */}
           <div className="flex flex-col items-center justify-center mb-5">
             <ProgressRing 
@@ -142,7 +172,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-          
+
           {/* Macros Progress */}
           <div className="grid grid-cols-3 gap-4 mt-3">
             {/* Protein */}
@@ -153,7 +183,7 @@ export default function Dashboard() {
               unit="g"
               color="bg-blue-500"
             />
-            
+
             {/* Carbs */}
             <MacroProgress 
               label="Carbs"
@@ -162,7 +192,7 @@ export default function Dashboard() {
               unit="g"
               color="bg-yellow-500"
             />
-            
+
             {/* Fat */}
             <MacroProgress 
               label="Gordura"
@@ -177,7 +207,7 @@ export default function Dashboard() {
         {/* Food Log Section */}
         <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
           <h3 className="text-lg font-semibold mb-3">Refeições de {isToday ? 'Hoje' : format(currentDate, "dd 'de' MMMM", { locale: ptBR })}</h3>
-          
+
           {/* Meal sections */}
           <div className="space-y-5">
             {foodLogsByMeal.map((meal, index) => (
@@ -191,7 +221,7 @@ export default function Dashboard() {
               />
             ))}
           </div>
-          
+
           {/* Add meal button */}
           <Button
             variant="outline"
@@ -209,23 +239,62 @@ export default function Dashboard() {
         <Button
           size="icon"
           className="w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:bg-primary-dark"
-          onClick={() => setShowAddFoodModal(true)}
+          onClick={() => setShowAddFoodOptionsModal(true)}
         >
           <PlusIcon className="h-6 w-6" />
         </Button>
       </div>
 
-      {/* Add Food Modal */}
-      {showAddFoodModal && (
-        <AddFoodModal
+      {/* Food Adding Modals */}
+      {showAddFoodOptionsModal && (
+        <AddFoodOptionsModal
+          isOpen={showAddFoodOptionsModal}
+          onClose={() => setShowAddFoodOptionsModal(false)}
+          onSelectOption={handleAddFoodOptionSelect}
           date={formattedDate}
           selectedMeal={selectedMeal}
-          onClose={() => setShowAddFoodModal(false)}
         />
       )}
 
-      {/* Bottom Navigation */}
-      <BottomNav activePage="home" />
+      {showAddFoodModal && (
+        <AddFoodModal
+          onClose={() => setShowAddFoodModal(false)}
+          date={formattedDate}
+          selectedMeal={selectedMeal}
+        />
+      )}
+
+      {showSavedFoodsModal && (
+        <SavedFoodsModal
+          isOpen={showSavedFoodsModal}
+          onClose={() => setShowSavedFoodsModal(false)}
+          onSelectFood={(food) => {
+            handleFoodSelection(food);
+            setShowSavedFoodsModal(false);
+          }}
+        />
+      )}
+
+      {showFoodDatabaseModal && (
+        <FoodDatabaseModal
+          isOpen={showFoodDatabaseModal}
+          onClose={() => setShowFoodDatabaseModal(false)}
+          onSelectFood={(food) => {
+            handleFoodSelection(food);
+            setShowFoodDatabaseModal(false);
+          }}
+          onAddNewFood={() => {
+            setShowAddFoodModal(true);
+          }}
+        />
+      )}
     </div>
   );
+
+  function invalidateQueries() {
+    const queryClient = useQueryClient();
+    if (user?.uid) {
+      queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
+    }
+  }
 }

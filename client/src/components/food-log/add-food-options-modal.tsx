@@ -37,6 +37,16 @@ export function AddFoodOptionsModal({
         <div className="grid grid-cols-2 gap-4">
           <button
             className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
+            onClick={() => onSelectOption("manual-entry")}
+          >
+            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
+              <span className="text-gray-600">✏️</span>
+            </div>
+            <span className="text-sm font-medium">Entrada manual</span>
+          </button>
+          
+          <button
+            className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
             onClick={() => onSelectOption("recently-logged")}
           >
             <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
@@ -63,16 +73,6 @@ export function AddFoodOptionsModal({
               <span className="text-gray-600">🔍</span>
             </div>
             <span className="text-sm font-medium">Banco de alimentos</span>
-          </button>
-          
-          <button
-            className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
-            onClick={() => onSelectOption("scan-food")}
-          >
-            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
-              <span className="text-gray-600">📷</span>
-            </div>
-            <span className="text-sm font-medium">Escanear alimento</span>
           </button>
         </div>
       </DialogContent>
