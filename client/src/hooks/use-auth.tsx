@@ -86,13 +86,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log("User profile found in database, merging data:", userProfile);
                 
                 // Mapeamento explícito de snake_case para camelCase
+                // Inclui verificação muito mais rigorosa para valores booleanos e undefined
                 const mappedProfile = {
                   // Campos básicos
                   id: userProfile.id,
                   uid: userProfile.uid,
                   email: userProfile.email,
                   name: userProfile.name,
-                  photoURL: userProfile.photo_url || userProfile.photoURL,
+                  photoURL: userProfile.photo_url !== undefined ? userProfile.photo_url : userProfile.photoURL,
                   
                   // Campos de informações pessoais
                   age: userProfile.age,
@@ -101,10 +102,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   weight: userProfile.weight,
                   profession: userProfile.profession,
                   
-                  // Campos de objetivos
-                  targetWeight: userProfile.target_weight || userProfile.targetWeight,
-                  targetBodyFat: userProfile.target_body_fat || userProfile.targetBodyFat,
-                  activityLevel: userProfile.activity_level || userProfile.activityLevel,
+                  // Campos de objetivos - Usando verificação explícita para undefined
+                  targetWeight: userProfile.target_weight !== undefined ? userProfile.target_weight : 
+                                userProfile.targetWeight !== undefined ? userProfile.targetWeight : null,
+                  
+                  targetBodyFat: userProfile.target_body_fat !== undefined ? userProfile.target_body_fat : 
+                                 userProfile.targetBodyFat !== undefined ? userProfile.targetBodyFat : null,
+                  
+                  activityLevel: userProfile.activity_level !== undefined ? userProfile.activity_level : 
+                                 userProfile.activityLevel !== undefined ? userProfile.activityLevel : null,
+                  
                   goal: userProfile.goal,
                   
                   // Campos de nutrição
@@ -114,11 +121,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   fat: userProfile.fat,
                   
                   // Campos de Stripe
-                  stripeCustomerId: userProfile.stripe_customer_id || userProfile.stripeCustomerId,
-                  stripeSubscriptionId: userProfile.stripe_subscription_id || userProfile.stripeSubscriptionId,
+                  stripeCustomerId: userProfile.stripe_customer_id !== undefined ? userProfile.stripe_customer_id : 
+                                   userProfile.stripeCustomerId,
                   
-                  // Outros campos
-                  onboardingCompleted: userProfile.onboarding_completed || userProfile.onboardingCompleted,
+                  stripeSubscriptionId: userProfile.stripe_subscription_id !== undefined ? userProfile.stripe_subscription_id : 
+                                       userProfile.stripeSubscriptionId,
+                  
+                  // Outros campos - especial atenção ao booleano
+                  // Convertendo explicitamente para boolean para evitar problemas com valores 't' e 'f' do PostgreSQL
+                  onboardingCompleted: userProfile.onboarding_completed === true || 
+                                      userProfile.onboarding_completed === 't' || 
+                                      userProfile.onboardingCompleted === true,
+                  
                   createdAt: userProfile.created_at || userProfile.createdAt,
                   updatedAt: userProfile.updated_at || userProfile.updatedAt
                 };

@@ -36,31 +36,52 @@ export class DatabaseStorage implements IStorage {
   async createUser(userData: Partial<InsertUser>): Promise<User> {
     const now = new Date();
     
-    const [user] = await db.insert(users).values({
+    // Criando um objeto de inserção limpo, mapeando explicitamente cada campo
+    const insertData: Record<string, any> = {
       uid: userData.uid!,
       email: userData.email!,
+      
+      // Campos básicos
       name: userData.name || null,
-      photoURL: userData.photoURL || null,
+      photo_url: userData.photoURL || userData.photo_url || null,
+      
+      // Campos de informações pessoais
       age: userData.age || null,
       gender: userData.gender || null,
       height: userData.height || null,
       weight: userData.weight || null,
       profession: userData.profession || null,
-      targetWeight: userData.targetWeight || null,
-      targetBodyFat: userData.targetBodyFat || null,
-      activityLevel: userData.activityLevel || null,
+      
+      // Campos específicos que podem vir em ambos os formatos (camelCase e snake_case)
+      target_weight: userData.targetWeight || userData.target_weight || null,
+      target_body_fat: userData.targetBodyFat || userData.target_body_fat || null,
+      activity_level: userData.activityLevel || userData.activity_level || null,
+      
       goal: userData.goal || null,
       calories: userData.calories || null,
       protein: userData.protein || null,
       carbs: userData.carbs || null,
       fat: userData.fat || null,
-      stripeCustomerId: userData.stripeCustomerId || null,
-      stripeSubscriptionId: userData.stripeSubscriptionId || null,
-      onboardingCompleted: userData.onboardingCompleted || false,
-      createdAt: now,
-      updatedAt: now
-    }).returning();
+      
+      // Campos de Stripe
+      stripe_customer_id: userData.stripeCustomerId || userData.stripe_customer_id || null,
+      stripe_subscription_id: userData.stripeSubscriptionId || userData.stripe_subscription_id || null,
+      
+      // Conversão explícita para boolean
+      onboarding_completed: Boolean(userData.onboardingCompleted || userData.onboarding_completed || false),
+      
+      // Timestamps
+      created_at: now,
+      updated_at: now
+    };
     
+    // Log para depuração
+    console.log("Data validated successfully:", insertData);
+    
+    // Inserir usuário
+    const [user] = await db.insert(users).values(insertData).returning();
+    
+    console.log("User created successfully:", user);
     return user;
   }
 
@@ -71,11 +92,57 @@ export class DatabaseStorage implements IStorage {
       return undefined;
     }
     
+    // Vamos transformar o objeto para garantir que os campos estejam no formato correto
+    const formattedData: Record<string, any> = {};
+    
+    // Adicionando manualmente cada campo para garantir que estejam no formato correto
+    if ('name' in userData) formattedData.name = userData.name;
+    if ('email' in userData) formattedData.email = userData.email;
+    if ('photo_url' in userData) formattedData.photo_url = userData.photo_url;
+    if ('photoURL' in userData) formattedData.photo_url = userData.photoURL;
+    if ('age' in userData) formattedData.age = userData.age;
+    if ('gender' in userData) formattedData.gender = userData.gender;
+    if ('height' in userData) formattedData.height = userData.height;
+    if ('weight' in userData) formattedData.weight = userData.weight;
+    if ('profession' in userData) formattedData.profession = userData.profession;
+    
+    // Campos com snake_case
+    if ('target_weight' in userData) formattedData.target_weight = userData.target_weight;
+    if ('targetWeight' in userData) formattedData.target_weight = userData.targetWeight;
+    
+    if ('target_body_fat' in userData) formattedData.target_body_fat = userData.target_body_fat;
+    if ('targetBodyFat' in userData) formattedData.target_body_fat = userData.targetBodyFat;
+    
+    if ('activity_level' in userData) formattedData.activity_level = userData.activity_level;
+    if ('activityLevel' in userData) formattedData.activity_level = userData.activityLevel;
+    
+    if ('goal' in userData) formattedData.goal = userData.goal;
+    if ('calories' in userData) formattedData.calories = userData.calories;
+    if ('protein' in userData) formattedData.protein = userData.protein;
+    if ('carbs' in userData) formattedData.carbs = userData.carbs;
+    if ('fat' in userData) formattedData.fat = userData.fat;
+    
+    if ('stripe_customer_id' in userData) formattedData.stripe_customer_id = userData.stripe_customer_id;
+    if ('stripeCustomerId' in userData) formattedData.stripe_customer_id = userData.stripeCustomerId;
+    
+    if ('stripe_subscription_id' in userData) formattedData.stripe_subscription_id = userData.stripe_subscription_id;
+    if ('stripeSubscriptionId' in userData) formattedData.stripe_subscription_id = userData.stripeSubscriptionId;
+    
+    // Conversão manual e explícita do booleano
+    if ('onboarding_completed' in userData) {
+      formattedData.onboarding_completed = Boolean(userData.onboarding_completed);
+    }
+    if ('onboardingCompleted' in userData) {
+      formattedData.onboarding_completed = Boolean(userData.onboardingCompleted);
+    }
+    
+    // Adicionar timestamp de atualização
+    formattedData.updatedAt = new Date();
+    
+    console.log("Formatted data for database:", formattedData);
+    
     const [updatedUser] = await db.update(users)
-      .set({
-        ...userData,
-        updatedAt: new Date()
-      })
+      .set(formattedData)
       .where(eq(users.uid, uid))
       .returning();
     
