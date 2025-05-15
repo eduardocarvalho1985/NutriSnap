@@ -122,33 +122,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Function to update user data in state and in PostgreSQL via API
   const updateUser = (data: Partial<User>) => {
-    console.log("===== UPDATING USER DATA =====");
-    console.log("Data to update:", JSON.stringify(data));
+    // Log only em ambiente de desenvolvimento
+    if (import.meta.env.DEV) {
+      console.log("🔄 Atualizando dados do usuário");
+    }
     
     setUser(prevUser => {
       if (!prevUser) {
-        console.log("❌ No user to update, returning null");
+        console.warn("❌ Tentativa de atualizar usuário inexistente");
         return null;
       }
       
-      console.log("🔴 Current user state:", JSON.stringify(prevUser));
-      
       // Create updated user object with new values
       const updatedUser = { ...prevUser, ...data };
-      console.log("🟢 New user state:", JSON.stringify(updatedUser));
       
       // Persist changes to database via API
-      console.log(`📤 Sending update to API for user ${prevUser.uid}`);
       updateUserProfile(prevUser.uid, data)
         .then(() => {
-          console.log("✅ User profile updated successfully in database");
+          if (import.meta.env.DEV) {
+            console.log("✅ Perfil atualizado com sucesso");
+          }
         })
         .catch(err => {
-          console.error("❌ Failed to update user profile via API:", err);
+          console.error("❌ Erro ao atualizar perfil:", err.message || "Erro desconhecido");
           
           // Se tiver o erro de usuário não encontrado, tente criar
-          console.log("🔄 Attempting to create user in database since update failed");
-          // Tentamos criar um usuário básico com Firebase UID e email
           if (prevUser.uid && prevUser.email) {
             const basicUser = {
               uid: prevUser.uid,
@@ -159,16 +157,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             apiRequest("POST", `/api/users`, basicUser)
               .then(response => {
                 if (response.ok) {
-                  console.log("✅ User created successfully after update failed");
+                  if (import.meta.env.DEV) {
+                    console.log("✅ Usuário criado e atualizado com sucesso");
+                  }
+                  
                   // Agora que o usuário foi criado, tente a atualização novamente
                   updateUserProfile(prevUser.uid, data)
-                    .then(() => console.log("✅ User profile updated after creation"))
-                    .catch(updateErr => console.error("❌ Update after creation failed:", updateErr));
+                    .catch(updateErr => console.error("❌ Erro na atualização após criação"));
                 } else {
-                  console.error("❌ Failed to create user after update failed");
+                  console.error("❌ Falha ao criar usuário");
                 }
               })
-              .catch(createErr => console.error("❌ Error creating user after update failed:", createErr));
+              .catch(createErr => console.error("❌ Erro ao criar usuário:", createErr.message || "Erro desconhecido"));
           }
         });
       

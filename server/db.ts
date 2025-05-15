@@ -13,4 +13,5 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle(pool, { schema, logger: true });
+// Modificando para false para reduzir a verbosidade dos logs
+export const db = drizzle(pool, { schema, logger: false });

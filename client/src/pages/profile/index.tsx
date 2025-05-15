@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -33,6 +33,7 @@ export default function Profile() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
+  // Configurar o formulário com valores padrão
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
@@ -45,6 +46,26 @@ export default function Profile() {
       profession: user?.profession || ""
     }
   });
+  
+  // Atualizar o formulário quando o usuário for carregado
+  useEffect(() => {
+    if (user) {
+      // Reset do formulário com os valores do usuário
+      form.reset({
+        name: user.name || "",
+        email: user.email || "",
+        age: user.age || undefined,
+        gender: user.gender || undefined,
+        height: user.height || undefined,
+        weight: user.weight || undefined,
+        profession: user.profession || ""
+      });
+      
+      if (import.meta.env.DEV) {
+        console.log("Dados do usuário carregados no formulário:", user);
+      }
+    }
+  }, [user, form]);
 
   async function onSubmit(data: ProfileFormValues) {
     if (!user?.uid) return;
@@ -105,16 +126,30 @@ export default function Profile() {
             </div>
             
             <div className="flex flex-wrap gap-3 justify-center mb-4">
-              <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
-                <span className="font-medium">{user?.height} cm</span>
-              </div>
-              <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
-                <span className="font-medium">{user?.weight} kg</span>
-              </div>
-              <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
-                <CalendarIcon className="h-4 w-4 mr-1" />
-                <span className="font-medium">{user?.age} anos</span>
-              </div>
+              {user?.height ? (
+                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                  <span className="font-medium">{user.height} cm</span>
+                </div>
+              ) : null}
+              
+              {user?.weight ? (
+                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                  <span className="font-medium">{user.weight} kg</span>
+                </div>
+              ) : null}
+              
+              {user?.age ? (
+                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                  <CalendarIcon className="h-4 w-4 mr-1" />
+                  <span className="font-medium">{user.age} anos</span>
+                </div>
+              ) : null}
+              
+              {!user?.height && !user?.weight && !user?.age && (
+                <div className="text-gray-500 text-sm">
+                  Preencha seu perfil para mostrar suas informações
+                </div>
+              )}
             </div>
             
             <div className="bg-primary/10 p-3 rounded-md text-center mb-2">
