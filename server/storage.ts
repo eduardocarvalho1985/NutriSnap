@@ -1,4 +1,4 @@
-import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog } from "@shared/schema";
+import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog, savedFoods, SavedFood, InsertSavedFood } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 
@@ -19,6 +19,10 @@ export interface IStorage {
   // Weight log methods
   getWeightLogs(uid: string, limit?: number): Promise<WeightLog[]>;
   createWeightLog(uid: string, weightLog: Partial<InsertWeightLog>): Promise<WeightLog>;
+  
+  // Saved food methods
+  getSavedFoods(uid: string): Promise<SavedFood[]>;
+  saveFoodItem(uid: string, foodData: Partial<InsertSavedFood>): Promise<SavedFood>;
 }
 
 export class DatabaseStorage implements IStorage {

@@ -55,10 +55,25 @@ export const weightLogs = pgTable("weight_logs", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Saved foods table
+export const savedFoods = pgTable("saved_foods", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  quantity: real("quantity").notNull(),
+  unit: text("unit").notNull(),
+  calories: real("calories").notNull(),
+  protein: real("protein").default(0),
+  carbs: real("carbs").default(0),
+  fat: real("fat").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   foodLogs: many(foodLogs),
   weightLogs: many(weightLogs),
+  savedFoods: many(savedFoods),
 }));
 
 export const foodLogsRelations = relations(foodLogs, ({ one }) => ({
@@ -71,6 +86,13 @@ export const foodLogsRelations = relations(foodLogs, ({ one }) => ({
 export const weightLogsRelations = relations(weightLogs, ({ one }) => ({
   user: one(users, {
     fields: [weightLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const savedFoodsRelations = relations(savedFoods, ({ one }) => ({
+  user: one(users, {
+    fields: [savedFoods.userId],
     references: [users.id],
   }),
 }));
@@ -92,6 +114,11 @@ export const insertWeightLogSchema = createInsertSchema(weightLogs).omit({
   createdAt: true
 });
 
+export const insertSavedFoodSchema = createInsertSchema(savedFoods).omit({
+  id: true,
+  createdAt: true
+});
+
 // Types for database operations
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -101,3 +128,6 @@ export type FoodLog = typeof foodLogs.$inferSelect;
 
 export type InsertWeightLog = z.infer<typeof insertWeightLogSchema>;
 export type WeightLog = typeof weightLogs.$inferSelect;
+
+export type InsertSavedFood = z.infer<typeof insertSavedFoodSchema>;
+export type SavedFood = typeof savedFoods.$inferSelect;
