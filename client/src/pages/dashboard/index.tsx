@@ -127,31 +127,32 @@ export default function Dashboard() {
     }
   }
 
-  // Fixed function to handle food selection
-  function handleFoodSelection(food: SavedFood) {
+  // Function to handle food selection
+  async function handleFoodSelection(food: SavedFood) {
     if (!user?.uid) return;
 
     try {
+      // Determine which meal to use - if no meal is selected, use "Lanche" as default
+      const mealToUse = selectedMeal || "Lanche";
+      
       // Add selected food to log
-      if (selectedMeal) {
-        addFoodLog(user.uid, formattedDate, selectedMeal, {
-          name: food.name,
-          quantity: food.quantity,
-          unit: food.unit,
-          calories: food.calories,
-          protein: food.protein || 0,
-          carbs: food.carbs || 0,
-          fat: food.fat || 0
-        }).then(() => {
-          // Invalidate queries after the food is added
-          queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
+      await addFoodLog(user.uid, formattedDate, mealToUse, {
+        name: food.name,
+        quantity: food.quantity,
+        unit: food.unit,
+        calories: food.calories,
+        protein: food.protein || 0,
+        carbs: food.carbs || 0,
+        fat: food.fat || 0
+      });
+      
+      // Invalidate queries after the food is added
+      queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
 
-          toast({
-            title: "Alimento adicionado",
-            description: `${food.name} foi adicionado ao seu registro como ${selectedMeal}.`
-          });
-        });
-      }
+      toast({
+        title: "Alimento adicionado",
+        description: `${food.name} foi adicionado ao seu registro como ${mealToUse}.`
+      });
     } catch (error) {
       console.error("Error adding food from saved foods:", error);
       toast({
