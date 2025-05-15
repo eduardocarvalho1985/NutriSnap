@@ -191,6 +191,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  app.put("/api/users/:uid/food-logs/:id", async (req, res) => {
+    try {
+      const { uid, id } = req.params;
+      const foodData = req.body;
+      
+      console.log(`PUT /api/users/${uid}/food-logs/${id} - Request body:`, JSON.stringify(foodData));
+      
+      // Validate the food log data
+      const foodLogSchema = z.object({
+        name: z.string(),
+        quantity: z.number(),
+        unit: z.string(),
+        calories: z.number(),
+        protein: z.number().optional(),
+        carbs: z.number().optional(),
+        fat: z.number().optional(),
+        mealType: z.string(),
+        date: z.string()
+      });
+      
+      try {
+        const validatedData = foodLogSchema.parse(foodData);
+        const updatedFoodLog = await storage.updateFoodLog(uid, parseInt(id), validatedData);
+        
+        if (!updatedFoodLog) {
+          return res.status(404).json({ message: "Food log entry not found" });
+        }
+        
+        console.log(`Updated food log for user ${uid}, id ${id}:`, JSON.stringify(updatedFoodLog));
+        return res.json(updatedFoodLog);
+      } catch (validationError: any) {
+        console.error(`Validation error for food log update:`, validationError);
+        return res.status(400).json({ 
+          message: "Validation error", 
+          details: validationError.errors || validationError.message 
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error updating food log:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+  
   // API routes for weight logs
   app.get("/api/users/:uid/weight-logs", async (req, res) => {
     try {

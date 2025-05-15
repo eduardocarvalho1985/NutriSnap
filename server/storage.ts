@@ -15,6 +15,7 @@ export interface IStorage {
   // Food log methods
   getFoodLogsByDate(uid: string, date: string): Promise<FoodLog[]>;
   createFoodLog(uid: string, foodLog: Partial<InsertFoodLog>): Promise<FoodLog>;
+  updateFoodLog(uid: string, id: number, foodLogData: Partial<FoodLog>): Promise<FoodLog | undefined>;
   
   // Weight log methods
   getWeightLogs(uid: string, limit?: number): Promise<WeightLog[]>;
@@ -196,6 +197,56 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFoodLog(uid: string, foodLogData: Partial<InsertFoodLog>): Promise<FoodLog> {
+
+  async updateFoodLog(uid: string, id: number, foodLogData: Partial<FoodLog>): Promise<FoodLog | undefined> {
+    try {
+      console.log(`Updating food log for user ${uid}, id ${id} with data:`, foodLogData);
+      
+      // First, get the user's ID from their UID
+      const user = await this.getUserByUid(uid);
+      
+      if (!user) {
+        console.log(`User ${uid} not found when updating food log`);
+        return undefined;
+      }
+      
+      // Format the data for updating
+      const updateData: Partial<FoodLog> = {
+        name: foodLogData.name,
+        quantity: foodLogData.quantity,
+        unit: foodLogData.unit,
+        calories: foodLogData.calories,
+        protein: foodLogData.protein,
+        carbs: foodLogData.carbs,
+        fat: foodLogData.fat,
+        mealType: foodLogData.mealType
+      };
+      
+      // Update the food log entry
+      const [updatedFoodLog] = await db
+        .update(foodLogs)
+        .set(updateData)
+        .where(
+          and(
+            eq(foodLogs.id, id),
+            eq(foodLogs.userId, user.id)
+          )
+        )
+        .returning();
+      
+      if (!updatedFoodLog) {
+        console.log(`No food log found with id ${id} for user ${uid}`);
+        return undefined;
+      }
+      
+      console.log(`Food log updated successfully:`, updatedFoodLog);
+      return updatedFoodLog;
+    } catch (error) {
+      console.error(`Error updating food log:`, error);
+      throw error;
+    }
+  }
+
     const user = await this.getUserByUid(uid);
     
     if (!user) {

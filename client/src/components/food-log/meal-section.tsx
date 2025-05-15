@@ -41,22 +41,30 @@ interface MealSectionProps {
   foods: Food[];
   isLast?: boolean;
   onAddFood: () => void;
+  onEditFood?: (food: Food) => void;
 }
 
-export function MealSection({ title, calories, foods, isLast = false, onAddFood }: MealSectionProps) {
+export function MealSection({ 
+  title, 
+  calories, 
+  foods, 
+  isLast = false, 
+  onAddFood, 
+  onEditFood 
+}: MealSectionProps) {
   const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [isSavedFoodsModalOpen, setIsSavedFoodsModalOpen] = useState(false);
   const [isFoodDatabaseModalOpen, setIsFoodDatabaseModalOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  
+
   // Data atual
   const today = new Date().toISOString().split('T')[0];
 
   const handleSelectOption = (option: string) => {
     setIsOptionsModalOpen(false);
-    
+
     switch(option) {
       case "recently-logged":
         // Por enquanto, abrir o modal padrão para alimentos recentes
@@ -81,7 +89,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
   const handleAddFood = () => {
     setIsOptionsModalOpen(true);
   };
-  
+
   // Função para adicionar alimento do banco de dados ou salvos
   const handleSelectFood = async (food: any) => {
     try {
@@ -89,9 +97,9 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
         console.error("Alimento inválido", food);
         return;
       }
-      
+
       console.log("Alimento selecionado:", food);
-      
+
       if (!user || !user.uid) {
         console.error("Usuário não autenticado");
         toast({
@@ -101,7 +109,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
         });
         return;
       }
-      
+
       // Adicionar ao registro diário através da API
       await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
         date: today,
@@ -114,17 +122,17 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
         carbs: food.carbs || 0,
         fat: food.fat || 0
       });
-      
+
       toast({
         title: "Alimento adicionado",
         description: `${food.name} foi adicionado à sua refeição.`
       });
-      
+
       // Chamar a callback para atualizar a UI
       onAddFood();
     } catch (error: any) {
       console.error("Erro ao adicionar alimento:", error);
-      
+
       toast({
         title: "Erro ao adicionar alimento",
         description: error.message || "Ocorreu um erro ao adicionar este alimento",
@@ -132,7 +140,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
       });
     }
   };
-  
+
   return (
     <>
       <div className={`meal-section ${!isLast ? 'border-b border-gray-100 pb-4' : 'pb-4'}`}>
@@ -140,13 +148,14 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
           <h4 className="font-medium text-gray-800">{title}</h4>
           <span className="text-sm text-gray-500">{calories} kcal</span>
         </div>
-        
+
         {/* Food items list */}
         <div className="space-y-3">
           {foods.length > 0 ? (
             foods.map((food) => (
-              <FoodItem 
-                key={food.id} 
+              <FoodItem
+                key={food.id}
+                id={food.id}
                 name={food.name}
                 quantity={food.quantity}
                 unit={food.unit}
@@ -154,6 +163,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
                 protein={food.protein}
                 carbs={food.carbs}
                 fat={food.fat}
+                onEdit={() => onEditFood && onEditFood(food)}
               />
             ))
           ) : (
@@ -162,7 +172,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
             </div>
           )}
         </div>
-        
+
         <Button 
           variant="ghost" 
           size="sm"
@@ -173,7 +183,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
           Adicionar alimento
         </Button>
       </div>
-      
+
       {/* Modais */}
       {isOptionsModalOpen && (
         <AddFoodOptionsModal
@@ -184,7 +194,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
           selectedMeal={title}
         />
       )}
-      
+
       {isAddFoodModalOpen && (
         <AddFoodModal
           onClose={() => setIsAddFoodModalOpen(false)}
@@ -192,7 +202,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
           selectedMeal={title}
         />
       )}
-      
+
       {isSavedFoodsModalOpen && (
         <SavedFoodsModal
           isOpen={true}
@@ -200,7 +210,7 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
           onSelectFood={handleSelectFood}
         />
       )}
-      
+
       {isFoodDatabaseModalOpen && (
         <FoodDatabaseModal
           isOpen={true}

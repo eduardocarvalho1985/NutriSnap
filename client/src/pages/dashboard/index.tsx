@@ -15,6 +15,7 @@ import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-re
 import { AddFoodOptionsModal } from "@/components/food-log/add-food-options-modal";
 import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
+import { EditFoodModal } from "@/components/food-log/edit-food-modal";
 import { useToast } from "@/hooks/use-toast";
 
 // Define type for SavedFood
@@ -39,6 +40,8 @@ export default function Dashboard() {
   const [showAddFoodOptionsModal, setShowAddFoodOptionsModal] = useState(false);
   const [showSavedFoodsModal, setShowSavedFoodsModal] = useState(false);
   const [showFoodDatabaseModal, setShowFoodDatabaseModal] = useState(false);
+  const [showEditFoodModal, setShowEditFoodModal] = useState(false);
+  const [selectedFoodToEdit, setSelectedFoodToEdit] = useState<Food | null>(null);
 
   const formattedDate = format(currentDate, "yyyy-MM-dd");
   const displayDate = format(currentDate, "dd MMM", { locale: ptBR });
@@ -125,6 +128,15 @@ export default function Dashboard() {
       default:
         break;
     }
+  }
+
+  // Handler for editing a food entry
+  function handleEditFood(food: Food) {
+    setSelectedFoodToEdit({
+      ...food,
+      mealType: food.mealType
+    });
+    setShowEditFoodModal(true);
   }
 
   // Function to handle food selection
@@ -270,6 +282,7 @@ export default function Dashboard() {
                 foods={meal.foods}
                 isLast={index === foodLogsByMeal.length - 1}
                 onAddFood={() => handleAddFood(meal.type)}
+                onEditFood={handleEditFood}
               />
             ))}
           </div>
@@ -338,6 +351,19 @@ export default function Dashboard() {
           onAddNewFood={() => {
             setShowAddFoodModal(true);
           }}
+        />
+      )}
+
+      {/* Edit Food Modal */}
+      {showEditFoodModal && selectedFoodToEdit && (
+        <EditFoodModal
+          isOpen={showEditFoodModal}
+          onClose={() => {
+            setShowEditFoodModal(false);
+            setSelectedFoodToEdit(null);
+          }}
+          foodItem={selectedFoodToEdit}
+          date={formattedDate}
         />
       )}
 
