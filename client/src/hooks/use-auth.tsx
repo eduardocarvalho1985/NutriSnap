@@ -84,10 +84,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .then(userProfile => {
               if (userProfile) {
                 console.log("User profile found in database, merging data:", userProfile);
-                // Update user with profile data 
+                
+                // Mapeamento explícito de snake_case para camelCase
+                const mappedProfile = {
+                  // Campos básicos
+                  id: userProfile.id,
+                  uid: userProfile.uid,
+                  email: userProfile.email,
+                  name: userProfile.name,
+                  photoURL: userProfile.photo_url || userProfile.photoURL,
+                  
+                  // Campos de informações pessoais
+                  age: userProfile.age,
+                  gender: userProfile.gender,
+                  height: userProfile.height,
+                  weight: userProfile.weight,
+                  profession: userProfile.profession,
+                  
+                  // Campos de objetivos
+                  targetWeight: userProfile.target_weight || userProfile.targetWeight,
+                  targetBodyFat: userProfile.target_body_fat || userProfile.targetBodyFat,
+                  activityLevel: userProfile.activity_level || userProfile.activityLevel,
+                  goal: userProfile.goal,
+                  
+                  // Campos de nutrição
+                  calories: userProfile.calories,
+                  protein: userProfile.protein,
+                  carbs: userProfile.carbs,
+                  fat: userProfile.fat,
+                  
+                  // Campos de Stripe
+                  stripeCustomerId: userProfile.stripe_customer_id || userProfile.stripeCustomerId,
+                  stripeSubscriptionId: userProfile.stripe_subscription_id || userProfile.stripeSubscriptionId,
+                  
+                  // Outros campos
+                  onboardingCompleted: userProfile.onboarding_completed || userProfile.onboardingCompleted,
+                  createdAt: userProfile.created_at || userProfile.createdAt,
+                  updatedAt: userProfile.updated_at || userProfile.updatedAt
+                };
+                
+                // Log dos dados mapeados
+                if (import.meta.env.DEV) {
+                  console.log("Dados mapeados para o formato do frontend:", mappedProfile);
+                }
+                
+                // Update user with mapped profile data 
                 setUser(prevUser => ({
                   ...(prevUser || basicUserInfo),
-                  ...userProfile,
+                  ...mappedProfile,
                 }));
               } else {
                 console.log("No user profile found in database, keeping basic auth data");

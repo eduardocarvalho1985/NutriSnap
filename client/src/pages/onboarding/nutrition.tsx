@@ -144,11 +144,28 @@ export default function Nutrition() {
           }
           
           // Prepare os dados completos do usuário para criação
+          // Garantindo que os campos estejam no formato correto (snake_case para o banco)
           const createUserData = {
             uid: user.uid,
             email: user.email || 'user@example.com',
             name: onboardingData.name,
-            ...finalOnboardingData
+            age: onboardingData.age,
+            gender: onboardingData.gender,
+            height: onboardingData.height,
+            weight: onboardingData.weight,
+            profession: onboardingData.profession,
+            // Campos especiais que precisam ser convertidos
+            target_weight: onboardingData.targetWeight,
+            target_body_fat: onboardingData.targetBodyFat,
+            activity_level: onboardingData.activityLevel,
+            goal: onboardingData.goal,
+            // Dados de nutrição
+            calories: data.calories,
+            protein: data.protein,
+            carbs: data.carbs,
+            fat: data.fat,
+            // Flag de completude
+            onboarding_completed: true
           };
           
           // Tentativa de criar o usuário

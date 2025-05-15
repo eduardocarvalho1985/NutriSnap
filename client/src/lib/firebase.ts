@@ -231,8 +231,44 @@ export async function getUserProfile(uid: string) {
 
 export async function updateUserProfile(uid: string, userData: any) {
   try {
-    console.log(`Updating user profile for ${uid} via API:`, userData);
-    await apiRequest("PUT", `/api/users/${uid}`, userData);
+    if (import.meta.env.DEV) {
+      console.log(`Atualizando perfil para ${uid}`);
+    }
+    
+    // Converter campos camelCase para snake_case para compatibilidade com o backend
+    const formattedData: any = {...userData};
+    
+    // Verificar e converter os campos especiais
+    if ('targetWeight' in userData && userData.targetWeight !== undefined) {
+      formattedData.target_weight = userData.targetWeight;
+      delete formattedData.targetWeight;
+    }
+    
+    if ('targetBodyFat' in userData && userData.targetBodyFat !== undefined) {
+      formattedData.target_body_fat = userData.targetBodyFat;
+      delete formattedData.targetBodyFat;
+    }
+    
+    if ('activityLevel' in userData && userData.activityLevel !== undefined) {
+      formattedData.activity_level = userData.activityLevel;
+      delete formattedData.activityLevel;
+    }
+    
+    if ('onboardingCompleted' in userData && userData.onboardingCompleted !== undefined) {
+      formattedData.onboarding_completed = userData.onboardingCompleted;
+      delete formattedData.onboardingCompleted;
+    }
+    
+    if ('photoURL' in userData && userData.photoURL !== undefined) {
+      formattedData.photo_url = userData.photoURL;
+      delete formattedData.photoURL;
+    }
+    
+    if (import.meta.env.DEV) {
+      console.log("Dados formatados para envio:", formattedData);
+    }
+    
+    await apiRequest("PUT", `/api/users/${uid}`, formattedData);
     return true;
   } catch (error) {
     console.error("Error updating user profile via API:", error);
