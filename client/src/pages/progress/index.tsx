@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { addWeightLog } from "@/lib/firebase";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart } from "recharts";
 import { SlidersHorizontal, TrendingDown } from "lucide-react";
-import { useRouter } from 'next/navigation';
+import { useLocation } from 'wouter';
 
 type TimeRange = "7days" | "30days" | "3months";
 
@@ -21,11 +21,7 @@ export default function Progress() {
   const [timeRange, setTimeRange] = useState<TimeRange>("7days");
   const [newWeight, setNewWeight] = useState("");
   const { toast } = useToast();
-	const router = useRouter();
-
-  const setLocation = (path: string) => {
-		router.push(path);
-	}
+	const [, setLocation] = useLocation();
 
   // Get date range based on selected time range
   const getDateRange = () => {
