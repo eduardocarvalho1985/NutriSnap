@@ -1,3 +1,7 @@
+The code is modified to fix the React hooks rules violation in the SavedFoodsModal component by moving the useQueryClient hook outside of the handleFoodSelection function and invalidating queries after the food is added.
+```
+
+```replit_final_file
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -310,3 +314,63 @@ export default function Dashboard() {
     }
   }
 }
+// Get query client at the component level
+  const queryClient = useQueryClient();
+
+  function handleFoodSelection(food: SavedFood) {
+    if (!user?.uid) return;
+
+    try {
+      // Add selected food to log
+      if (selectedMeal) {
+        addFoodLog(user.uid, formattedDate, selectedMeal, {
+          name: food.name,
+          quantity: food.quantity,
+          unit: food.unit,
+          calories: food.calories,
+          protein: food.protein || 0,
+          carbs: food.carbs || 0,
+          fat: food.fat || 0
+        }).then(() => {
+          // Invalidate queries after the food is added
+          queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
+
+          toast({
+            title: "Alimento adicionado",
+            description: `${food.name} foi adicionado ao seu registro como ${selectedMeal}.`
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error adding food from saved foods:", error);
+      toast({
+        title: "Erro ao adicionar alimento",
+        description: "Ocorreu um erro ao adicionar este alimento ao seu registro.",
+        variant: "destructive"
+      });
+    }
+  }
+function handleAddFoodOptionSelect(option: string) {
+    setShowAddFoodOptionsModal(false);
+
+    switch(option) {
+      case "manual":
+        setShowAddFoodModal(true);
+        break;
+      case "saved":
+        setShowSavedFoodsModal(true);
+        break;
+      case "database":
+        setShowFoodDatabaseModal(true);
+        break;
+      case "scan":
+        // TODO: Implement barcode scanning
+        toast({
+          title: "Em breve",
+          description: "A funcionalidade de escanear código de barras estará disponível em breve."
+        });
+        break;
+      default:
+        break;
+    }
+  }
