@@ -6,6 +6,22 @@ import { AddFoodOptionsModal } from "./add-food-options-modal";
 import { AddFoodModal } from "./add-food-modal";
 import { SavedFoodsModal } from "./saved-foods-modal";
 import { FoodDatabaseModal } from "./food-database-modal";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { QueryClient } from "@tanstack/react-query";
+
+// Para tipagem da API Firebase
+declare global {
+  interface Window {
+    firebase?: {
+      auth?: () => {
+        currentUser: {
+          uid: string;
+        } | null;
+      };
+    };
+  }
+}
 
 interface Food {
   id: string;
@@ -64,11 +80,58 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
   };
   
   // Função para adicionar alimento do banco de dados ou salvos
-  const handleSelectFood = (food: any) => {
-    // Aqui implementaremos a adição do alimento salvado ao diário
-    console.log("Alimento selecionado:", food);
-    // Chamar a callback de adição
-    onAddFood();
+  const handleSelectFood = async (food: any) => {
+    try {
+      if (!food || !food.name) {
+        console.error("Alimento inválido", food);
+        return;
+      }
+      
+      console.log("Alimento selecionado:", food);
+      
+      // Obter referência ao usuário atual
+      const auth = window.firebase?.auth?.();
+      const currentUser = auth?.currentUser;
+      
+      if (!currentUser?.uid) {
+        console.error("Usuário não autenticado");
+        return;
+      }
+      
+      // Adicionar ao registro diário através da API
+      await apiRequest("POST", `/api/users/${currentUser.uid}/food-logs`, {
+        date: today,
+        mealType: title,
+        name: food.name,
+        quantity: food.quantity,
+        unit: food.unit,
+        calories: food.calories,
+        protein: food.protein || 0,
+        carbs: food.carbs || 0,
+        fat: food.fat || 0
+      });
+      
+      // Invalidar a consulta para atualizar os dados
+      const queryClient = new QueryClient();
+      queryClient.invalidateQueries({ queryKey: ["/api/food-logs", currentUser.uid, today] });
+      
+      // Notificar que o alimento foi adicionado
+      toast({
+        title: "Alimento adicionado",
+        description: `${food.name} foi adicionado à sua refeição.`
+      });
+      
+      // Chamar a callback para atualizar a UI
+      onAddFood();
+    } catch (error: any) {
+      console.error("Erro ao adicionar alimento:", error);
+      
+      toast({
+        title: "Erro ao adicionar alimento",
+        description: error.message || "Ocorreu um erro ao adicionar este alimento",
+        variant: "destructive"
+      });
+    }
   };
   
   return (

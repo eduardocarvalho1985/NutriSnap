@@ -39,16 +39,25 @@ export function SavedFoodsModal({
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: savedFoods, isLoading } = useQuery({
+  const { data: savedFoods, isLoading, isError } = useQuery({
     queryKey: ["/api/users", user?.uid, "saved-foods"],
     enabled: !!user?.uid && isOpen,
   });
 
-  const filteredFoods = savedFoods
+  const filteredFoods = savedFoods && Array.isArray(savedFoods)
     ? savedFoods.filter((food) =>
-        food.name.toLowerCase().includes(searchTerm.toLowerCase())
+        food.name?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
+    
+  // Se ocorrer algum erro, mostrar uma mensagem
+  if (isError) {
+    toast({
+      title: "Erro ao carregar alimentos",
+      description: "Não foi possível carregar seus alimentos salvos",
+      variant: "destructive",
+    });
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
