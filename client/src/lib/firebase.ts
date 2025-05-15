@@ -141,21 +141,29 @@ async function ensureUserInDatabase(user: FirebaseUser) {
     // First try to get the user
     const response = await apiRequest("GET", `/api/users/${user.uid}`);
     
-    // If status is 404, create the user
-    if (!response.ok && response.status === 404) {
-      await createUserInDatabase(user);
+    // If user exists, return true
+    if (response.ok) {
+      console.log(`User ${user.uid} found in database`);
+      return true;
     }
     
-    return true;
+    // If status is 404, create the user
+    if (response.status === 404) {
+      console.log(`User ${user.uid} not found in database, creating...`);
+      return await createUserInDatabase(user);
+    }
+    
+    throw new Error(`Unexpected response: ${response.status}`);
   } catch (error) {
     console.error("Error ensuring user in database:", error);
     // Create user if not found or other error (best effort)
     try {
-      await createUserInDatabase(user);
+      console.log(`Attempting to create user ${user.uid} after error...`);
+      return await createUserInDatabase(user);
     } catch (createError) {
       console.error("Error creating user:", createError);
+      return false;
     }
-    return false;
   }
 }
 
@@ -165,13 +173,24 @@ async function createUserInDatabase(user: FirebaseUser) {
     
     const userData = {
       uid: user.uid,
-      email: user.email,
+      email: user.email || '', // Email é obrigatório no schema
       name: user.displayName,
       photoURL: user.photoURL,
       onboardingCompleted: false
     };
     
-    await apiRequest("POST", `/api/users`, userData);
+    // Log da requisição para depuração
+    console.log("Creating user with data:", JSON.stringify(userData));
+    
+    const response = await apiRequest("POST", `/api/users`, userData);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Error creating user in database. Status: ${response.status}, Response:`, errorText);
+      throw new Error(`Failed to create user: ${errorText}`);
+    }
+    
+    console.log(`User ${user.uid} successfully created in database`);
     return true;
   } catch (error) {
     console.error("Error creating user in database:", error);
