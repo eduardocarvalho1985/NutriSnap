@@ -197,6 +197,38 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createFoodLog(uid: string, foodLogData: Partial<InsertFoodLog>): Promise<FoodLog> {
+    const user = await this.getUserByUid(uid);
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    // Format date as ISO string
+    const dateStr = foodLogData.date 
+      ? new Date(foodLogData.date).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0];
+    
+    // Create the food log
+    const insertValues = {
+      userId: user.id,
+      date: dateStr,
+      mealType: foodLogData.mealType!,
+      name: foodLogData.name!,
+      quantity: foodLogData.quantity!,
+      unit: foodLogData.unit!,
+      calories: foodLogData.calories!,
+      protein: foodLogData.protein || 0,
+      carbs: foodLogData.carbs || 0,
+      fat: foodLogData.fat || 0,
+    };
+    
+    const [foodLog] = await db.insert(foodLogs)
+      .values(insertValues)
+      .returning();
+    
+    return foodLog;
+  }
+
 
   async updateFoodLog(uid: string, id: number, foodLogData: Partial<FoodLog>): Promise<FoodLog | undefined> {
     try {
@@ -245,38 +277,6 @@ export class DatabaseStorage implements IStorage {
       console.error(`Error updating food log:`, error);
       throw error;
     }
-  }
-
-    const user = await this.getUserByUid(uid);
-    
-    if (!user) {
-      throw new Error("User not found");
-    }
-    
-    // Format date as ISO string
-    const dateStr = foodLogData.date 
-      ? new Date(foodLogData.date).toISOString().split('T')[0]
-      : new Date().toISOString().split('T')[0];
-    
-    // Create the food log
-    const insertValues = {
-      userId: user.id,
-      date: dateStr,
-      mealType: foodLogData.mealType!,
-      name: foodLogData.name!,
-      quantity: foodLogData.quantity!,
-      unit: foodLogData.unit!,
-      calories: foodLogData.calories!,
-      protein: foodLogData.protein || 0,
-      carbs: foodLogData.carbs || 0,
-      fat: foodLogData.fat || 0,
-    };
-    
-    const [foodLog] = await db.insert(foodLogs)
-      .values(insertValues)
-      .returning();
-    
-    return foodLog;
   }
 
   // Weight log methods
