@@ -273,6 +273,48 @@ export class DatabaseStorage implements IStorage {
     
     return weightLog;
   }
+
+  // Métodos para alimentos salvos
+  async getSavedFoods(uid: string): Promise<SavedFood[]> {
+    const user = await this.getUserByUid(uid);
+    
+    if (!user) {
+      return [];
+    }
+    
+    const savedFoodsList = await db.select()
+      .from(savedFoods)
+      .where(eq(savedFoods.userId, user.id))
+      .orderBy(desc(savedFoods.createdAt));
+    
+    return savedFoodsList;
+  }
+
+  async saveFoodItem(uid: string, foodData: Partial<InsertSavedFood>): Promise<SavedFood> {
+    const user = await this.getUserByUid(uid);
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+    
+    // Formatar os valores para inserção
+    const insertValues = {
+      userId: user.id,
+      name: foodData.name!,
+      quantity: foodData.quantity!,
+      unit: foodData.unit!,
+      calories: foodData.calories!,
+      protein: foodData.protein || 0,
+      carbs: foodData.carbs || 0,
+      fat: foodData.fat || 0,
+    };
+    
+    const [savedFood] = await db.insert(savedFoods)
+      .values(insertValues)
+      .returning();
+    
+    return savedFood;
+  }
 }
 
 export const storage = new DatabaseStorage();

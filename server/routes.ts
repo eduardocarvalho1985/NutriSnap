@@ -365,6 +365,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: error.message });
     }
   });
+  
+  // API routes for saved foods
+  app.get("/api/users/:uid/saved-foods", async (req, res) => {
+    try {
+      const { uid } = req.params;
+      console.log(`GET /api/users/${uid}/saved-foods`);
+      
+      // Verificamos se o usuário existe
+      const user = await storage.getUserByUid(uid);
+      
+      if (!user) {
+        console.log(`User ${uid} not found when getting saved foods`);
+        // Retornamos array vazio em vez de erro para maior robustez
+        return res.json([]);
+      }
+      
+      const savedFoods = await storage.getSavedFoods(uid);
+      console.log(`Retrieved ${savedFoods.length} saved foods for user ${uid}`);
+      
+      return res.json(savedFoods);
+    } catch (error: any) {
+      console.error(`Error getting saved foods:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+  
+  app.post("/api/users/:uid/saved-foods", async (req, res) => {
+    try {
+      const { uid } = req.params;
+      console.log(`POST /api/users/${uid}/saved-foods - Request body:`, JSON.stringify(req.body));
+      
+      // Verificamos se o usuário existe
+      let user = await storage.getUserByUid(uid);
+      
+      // Se o usuário não existe, criamos primeiro
+      if (!user) {
+        console.log(`User ${uid} not found when saving food, creating user first`);
+        
+        // Tentamos extrair email do token ou usamos um placeholder
+        const email = req.body.email || 'user@example.com';
+        
+        try {
+          user = await storage.createUser({
+            uid,
+            email,
+            onboardingCompleted: false
+          });
+          console.log(`Created user ${uid} for saving food`);
+        } catch (createError: any) {
+          console.error(`Failed to create user for saving food:`, createError);
+          return res.status(500).json({ 
+            message: "Failed to create user for saving food", 
+            details: createError.message 
+          });
+        }
+      }
+      
+      // Validamos os dados do alimento
+      const foodSchema = z.object({
+        name: z.string(),
+        quantity: z.number(),
+        unit: z.string(),
+        calories: z.number(),
+        protein: z.number().optional(),
+        carbs: z.number().optional(),
+        fat: z.number().optional()
+      });
+      
+      try {
+        const validatedData = foodSchema.parse(req.body);
+        const savedFood = await storage.saveFoodItem(uid, validatedData);
+        console.log(`Saved food for user ${uid}:`, JSON.stringify(savedFood));
+        
+        return res.status(201).json(savedFood);
+      } catch (validationError: any) {
+        console.error(`Validation error for saved food:`, validationError);
+        return res.status(400).json({ 
+          message: "Validation error", 
+          details: validationError.errors || validationError.message 
+        });
+      }
+    } catch (error: any) {
+      console.error(`Error saving food:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
 
   const httpServer = createServer(app);
 
