@@ -297,6 +297,9 @@ export default function Dashboard() {
           }}
         />
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNav activePage="home" />
     </div>
   );
 
