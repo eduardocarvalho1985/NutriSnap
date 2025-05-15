@@ -2,8 +2,10 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DumbbellIcon } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Workouts() {
+  const [, setLocation] = useLocation();
   return (
     <div className="app-container min-h-screen flex flex-col bg-neutral-light pb-16">
       {/* Header */}
@@ -25,7 +27,12 @@ export default function Workouts() {
               O módulo de treinos será disponibilizado em uma atualização futura. 
               Aguarde novidades!
             </p>
-            <Button variant="outline">Voltar para o Dashboard</Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setLocation("/dashboard")}
+            >
+              Voltar para o Dashboard
+            </Button>
           </CardContent>
         </Card>
       </main>
