@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { signUpWithEmail, createUserProfile, signInWithGoogle, signInWithApple, getUserProfile } from "@/lib/firebase";
+import { signUpWithEmail, signInWithGoogle, signInWithApple, getUserProfile } from "@/lib/firebase";
 
 const signupSchema = z.object({
   email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
@@ -38,31 +38,33 @@ export default function Signup() {
   async function onSubmit(data: SignupFormValues) {
     setIsLoading(true);
     try {
+      // Sign up with Firebase - user creation in PostgreSQL is handled inside this function
       const result = await signUpWithEmail(data.email, data.password);
       
       if (result && result.user) {
-        // Create user profile
-        await createUserProfile(result.user.uid, {
-          email: result.user.email,
-          onboardingCompleted: false
-        });
-        
         toast({
           title: "Conta criada com sucesso!",
           description: "Bem-vindo ao NutriSnap. Vamos configurar seu perfil.",
         });
         
-        // Delay navigation slightly to ensure Firebase has time to process
-        setTimeout(() => {
-          setLocation("/onboarding");
-        }, 500);
+        // Redirect user to onboarding
+        setLocation("/onboarding");
       } else {
         throw new Error("Falha ao criar usuário");
       }
     } catch (error: any) {
+      console.error("Error during signup:", error);
+      let errorMessage = "Houve um erro ao criar sua conta. Tente novamente.";
+      
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "Este email já está em uso. Tente fazer login ou use outro email.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao criar conta",
-        description: error.message || "Houve um erro ao criar sua conta. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
       setIsLoading(false);
@@ -72,62 +74,45 @@ export default function Signup() {
   async function handleGoogleSignIn() {
     setIsLoading(true);
     try {
+      // Sign in with Google - user creation in PostgreSQL is handled inside this function
       const result = await signInWithGoogle();
       
       if (result && result.user) {
         console.log("Google sign-in successful, user:", result.user);
         
-        // Check if user profile exists
+        // Check user profile to determine where to redirect
         const userProfile = await getUserProfile(result.user.uid);
-        console.log("User profile:", userProfile);
+        console.log("User profile from API:", userProfile);
         
-        if (!userProfile) {
-          console.log("Creating new user profile");
-          // Create user profile
-          await createUserProfile(result.user.uid, {
-            email: result.user.email,
-            name: result.user.displayName,
-            onboardingCompleted: false
-          });
-          
+        if (!userProfile || !userProfile.onboardingCompleted) {
           toast({
             title: "Login realizado com sucesso!",
-            description: "Bem-vindo ao NutriSnap. Vamos configurar seu perfil.",
+            description: "Vamos configurar seu perfil.",
           });
           
-          setTimeout(() => {
-            setLocation("/onboarding");
-          }, 500);
+          setLocation("/onboarding");
         } else {
-          console.log("User profile exists, checking onboarding status");
-          if (userProfile.onboardingCompleted) {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Bem-vindo de volta ao NutriSnap.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/dashboard");
-            }, 500);
-          } else {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Vamos finalizar a configuração do seu perfil.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/onboarding");
-            }, 500);
-          }
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Bem-vindo de volta ao NutriSnap.",
+          });
+          
+          setLocation("/dashboard");
         }
       } else {
         throw new Error("Falha ao fazer login com Google");
       }
     } catch (error: any) {
       console.error("Google sign-in error:", error);
+      
+      let errorMessage = "Houve um erro ao fazer login com Google. Tente novamente.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer login com Google",
-        description: error.message || "Houve um erro ao fazer login. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
       setIsLoading(false);
@@ -137,56 +122,48 @@ export default function Signup() {
   async function handleAppleSignIn() {
     setIsLoading(true);
     try {
+      toast({
+        title: "Função não disponível",
+        description: "Login com Apple ainda não foi implementado.",
+        variant: "destructive"
+      });
+      setIsLoading(false);
+      
+      /* Código comentado até a implementação do login com Apple
       const result = await signInWithApple();
       
       if (result && result.user) {
-        // Check if user profile exists
+        // Check user profile to determine where to redirect
         const userProfile = await getUserProfile(result.user.uid);
         
-        if (!userProfile) {
-          // Create user profile
-          await createUserProfile(result.user.uid, {
-            email: result.user.email,
-            name: result.user.displayName,
-            onboardingCompleted: false
-          });
-          
+        if (!userProfile || !userProfile.onboardingCompleted) {
           toast({
             title: "Login realizado com sucesso!",
-            description: "Bem-vindo ao NutriSnap. Vamos configurar seu perfil.",
+            description: "Vamos configurar seu perfil.",
           });
           
-          setTimeout(() => {
-            setLocation("/onboarding");
-          }, 500);
+          setLocation("/onboarding");
         } else {
-          if (userProfile.onboardingCompleted) {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Bem-vindo de volta ao NutriSnap.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/dashboard");
-            }, 500);
-          } else {
-            toast({
-              title: "Login realizado com sucesso!",
-              description: "Vamos finalizar a configuração do seu perfil.",
-            });
-            
-            setTimeout(() => {
-              setLocation("/onboarding");
-            }, 500);
-          }
+          toast({
+            title: "Login realizado com sucesso!",
+            description: "Bem-vindo de volta ao NutriSnap.",
+          });
+          
+          setLocation("/dashboard");
         }
-      } else {
-        throw new Error("Falha ao fazer login com Apple");
       }
+      */
     } catch (error: any) {
+      console.error("Apple sign-in error:", error);
+      
+      let errorMessage = "Houve um erro ao fazer login com Apple. Tente novamente.";
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Erro ao fazer login com Apple",
-        description: error.message || "Houve um erro ao fazer login. Tente novamente.",
+        description: errorMessage,
         variant: "destructive"
       });
       setIsLoading(false);

@@ -10,20 +10,7 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User as FirebaseAuthUser
 } from "firebase/auth";
-import { 
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
-  serverTimestamp
-} from "firebase/firestore";
+import { apiRequest } from "./queryClient";
 
 // Firebase User type
 export type FirebaseUser = {
@@ -47,13 +34,7 @@ const firebaseConfig = {
 console.log('Initializing Firebase with real configuration');
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app);
 console.log('Firebase initialized successfully');
-
-// Collection names
-const USERS_COLLECTION = 'users';
-const FOOD_LOGS_COLLECTION = 'food_logs';
-const WEIGHT_LOGS_COLLECTION = 'weight_logs';
 
 // Helper to convert Firebase User object to our simplified type
 const convertUser = (user: FirebaseAuthUser | null): FirebaseUser | null => {
@@ -67,11 +48,18 @@ const convertUser = (user: FirebaseAuthUser | null): FirebaseUser | null => {
   };
 };
 
-// Auth functions - real implementations only
+// Auth functions - Firebase authentication only
 export async function signInWithEmail(email: string, password: string) {
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
-    return { user: convertUser(result.user) };
+    const convertedUser = convertUser(result.user);
+    
+    // Ensure user exists in PostgreSQL
+    if (convertedUser) {
+      await ensureUserInDatabase(convertedUser);
+    }
+    
+    return { user: convertedUser };
   } catch (error: any) {
     console.error("Email sign-in error:", error);
     throw error;
@@ -81,7 +69,14 @@ export async function signInWithEmail(email: string, password: string) {
 export async function signUpWithEmail(email: string, password: string) {
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
-    return { user: convertUser(result.user) };
+    const convertedUser = convertUser(result.user);
+    
+    // Create user in PostgreSQL
+    if (convertedUser) {
+      await createUserInDatabase(convertedUser);
+    }
+    
+    return { user: convertedUser };
   } catch (error: any) {
     console.error("Email sign-up error:", error);
     throw error;
@@ -92,7 +87,14 @@ export async function signInWithGoogle() {
   try {
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
-    return { user: convertUser(result.user) };
+    const convertedUser = convertUser(result.user);
+    
+    // Ensure user exists in PostgreSQL
+    if (convertedUser) {
+      await ensureUserInDatabase(convertedUser);
+    }
+    
+    return { user: convertedUser };
   } catch (error: any) {
     console.error("Google sign-in error:", error);
     throw error;
@@ -131,56 +133,71 @@ export function listenToAuthChanges(callback: (user: FirebaseUser | null) => voi
   });
 }
 
-// User profile functions
-export async function createUserProfile(uid: string, userData: any) {
+// User Profile API Functions
+async function ensureUserInDatabase(user: FirebaseUser) {
   try {
-    console.log(`Creating user profile for ${uid}:`, userData);
-    const userRef = doc(db, USERS_COLLECTION, uid);
-    const newProfile = {
-      ...userData,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    await setDoc(userRef, newProfile);
-    console.log(`User profile created successfully for ${uid}`);
+    console.log(`Ensuring user exists in database: ${user.uid}`);
+    
+    // First try to get the user
+    const response = await apiRequest("GET", `/api/users/${user.uid}`);
+    
+    // If status is 404, create the user
+    if (!response.ok && response.status === 404) {
+      await createUserInDatabase(user);
+    }
+    
     return true;
-  } catch (error: any) {
-    console.error("Create user profile error:", error);
+  } catch (error) {
+    console.error("Error ensuring user in database:", error);
+    // Create user if not found or other error (best effort)
+    try {
+      await createUserInDatabase(user);
+    } catch (createError) {
+      console.error("Error creating user:", createError);
+    }
+    return false;
+  }
+}
+
+async function createUserInDatabase(user: FirebaseUser) {
+  try {
+    console.log(`Creating user in database: ${user.uid}`);
+    
+    const userData = {
+      uid: user.uid,
+      email: user.email,
+      name: user.displayName,
+      photoURL: user.photoURL,
+      onboardingCompleted: false
+    };
+    
+    await apiRequest("POST", `/api/users`, userData);
+    return true;
+  } catch (error) {
+    console.error("Error creating user in database:", error);
     throw error;
   }
 }
 
 export async function getUserProfile(uid: string) {
   try {
-    console.log(`Getting user profile for ${uid}`);
-    const userRef = doc(db, USERS_COLLECTION, uid);
-    const docSnap = await getDoc(userRef);
-    
-    if (docSnap.exists()) {
-      const profileData = { id: uid, ...docSnap.data() };
-      console.log(`User profile found for ${uid}:`, profileData);
-      return profileData;
-    }
-    console.log(`No user profile found for ${uid}`);
+    console.log(`Getting user profile for ${uid} from API`);
+    const response = await apiRequest("GET", `/api/users/${uid}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting user profile from API:", error);
     return null;
-  } catch (error: any) {
-    console.error("Get user profile error:", error);
-    throw error;
   }
 }
 
 export async function updateUserProfile(uid: string, userData: any) {
   try {
-    console.log(`Updating user profile for ${uid}:`, userData);
-    const userRef = doc(db, USERS_COLLECTION, uid);
-    await updateDoc(userRef, {
-      ...userData,
-      updatedAt: serverTimestamp()
-    });
-    console.log(`User profile updated successfully for ${uid}`);
+    console.log(`Updating user profile for ${uid} via API:`, userData);
+    await apiRequest("PUT", `/api/users/${uid}`, userData);
     return true;
-  } catch (error: any) {
-    console.error("Update user profile error:", error);
+  } catch (error) {
+    console.error("Error updating user profile via API:", error);
     throw error;
   }
 }
@@ -193,99 +210,64 @@ export async function updateNutritionTargets(uid: string, targets: any) {
 // Food logging functions
 export async function addFoodLog(uid: string, date: string, mealType: string, foodData: any) {
   try {
-    console.log(`Adding food log for ${uid} on ${date}:`, foodData);
-    const foodLogsCollectionRef = collection(db, FOOD_LOGS_COLLECTION);
-    const newDocRef = doc(foodLogsCollectionRef);
-    const newLog = {
-      userId: uid,
+    console.log(`Adding food log for ${uid} on ${date} via API:`, foodData);
+    
+    const payload = {
       date,
       mealType,
-      ...foodData,
-      createdAt: serverTimestamp()
+      ...foodData
     };
-    await setDoc(newDocRef, newLog);
-    console.log(`Food log added successfully with ID: ${newDocRef.id}`);
-    return { id: newDocRef.id };
-  } catch (error: any) {
-    console.error("Add food log error:", error);
+    
+    const response = await apiRequest("POST", `/api/users/${uid}/food-logs`, payload);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error adding food log via API:", error);
     throw error;
   }
 }
 
 export async function getFoodLogs(uid: string, date: string) {
   try {
-    console.log(`Getting food logs for ${uid} on ${date}`);
-    const foodLogsRef = collection(db, FOOD_LOGS_COLLECTION);
-    const q = query(
-      foodLogsRef,
-      where("userId", "==", uid),
-      where("date", "==", date)
-    );
-    const querySnapshot = await getDocs(q);
-    const logs: any[] = [];
-    querySnapshot.forEach((doc) => {
-      logs.push({ id: doc.id, ...doc.data() });
-    });
-    console.log(`Found ${logs.length} food logs for ${uid} on ${date}`);
-    return logs;
-  } catch (error: any) {
-    console.error("Get food logs error:", error);
-    throw error;
+    console.log(`Getting food logs for ${uid} on ${date} via API`);
+    const response = await apiRequest("GET", `/api/users/${uid}/food-logs/${date}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting food logs via API:", error);
+    return [];
   }
 }
 
 // Weight tracking functions
 export async function addWeightLog(uid: string, date: string, weight: number) {
   try {
-    console.log(`Adding weight log for ${uid} on ${date}: ${weight}kg`);
-    // Add the weight log
-    const weightLogsCollectionRef = collection(db, WEIGHT_LOGS_COLLECTION);
-    const newDocRef = doc(weightLogsCollectionRef);
-    const newLog = {
-      userId: uid,
+    console.log(`Adding weight log for ${uid} on ${date} via API: ${weight}kg`);
+    
+    const payload = {
       date,
-      weight,
-      createdAt: serverTimestamp()
+      weight
     };
-    await setDoc(newDocRef, newLog);
     
-    // Update user's current weight
-    const userRef = doc(db, USERS_COLLECTION, uid);
-    await updateDoc(userRef, {
-      weight,
-      updatedAt: serverTimestamp()
-    });
-    
-    console.log(`Weight log added successfully with ID: ${newDocRef.id}`);
-    return { id: newDocRef.id };
-  } catch (error: any) {
-    console.error("Add weight log error:", error);
+    const response = await apiRequest("POST", `/api/users/${uid}/weight-logs`, payload);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error adding weight log via API:", error);
     throw error;
   }
 }
 
 export async function getWeightLogs(uid: string, limitCount = 30) {
   try {
-    console.log(`Getting weight logs for ${uid} (limit: ${limitCount})`);
-    const weightLogsRef = collection(db, WEIGHT_LOGS_COLLECTION);
-    const q = query(
-      weightLogsRef,
-      where("userId", "==", uid),
-      orderBy("date", "desc"),
-      limit(limitCount)
-    );
-    const querySnapshot = await getDocs(q);
-    const logs: any[] = [];
-    querySnapshot.forEach((doc) => {
-      logs.push({ id: doc.id, ...doc.data() });
-    });
-    console.log(`Found ${logs.length} weight logs for ${uid}`);
-    return logs;
-  } catch (error: any) {
-    console.error("Get weight logs error:", error);
-    throw error;
+    console.log(`Getting weight logs for ${uid} (limit: ${limitCount}) via API`);
+    const response = await apiRequest("GET", `/api/users/${uid}/weight-logs?limit=${limitCount}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting weight logs via API:", error);
+    return [];
   }
 }
 
 export { auth };
-export { db };

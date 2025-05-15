@@ -1,0 +1,66 @@
+User Information Management in Nutri Snap
+Your application is using a hybrid approach for user management, combining Firebase Authentication with a PostgreSQL database. Let me break down how user information is currently managed:
+
+Firebase Authentication
+Firebase handles the core authentication functions:
+
+User signup/login with email/password
+Social login (Google)
+Password reset
+Authentication state management
+User auth data stored in Firebase includes:
+
+UID (unique identifier)
+Email
+Display name
+Profile photo URL
+Database Architecture
+You have two parallel systems for user data:
+
+1. Firebase Firestore
+The firebase.ts file shows that you're using Firestore collections for:
+
+users: Basic profile and nutrition data
+food_logs: User's food consumption records
+weight_logs: Weight tracking over time
+2. PostgreSQL with Drizzle ORM
+Your schema.ts defines similar tables in PostgreSQL:
+
+users: Profile data with nutrition targets
+foodLogs: Meal records
+weightLogs: Weight tracking
+Current Flow
+Here's how the data flow works currently:
+
+User authenticates via Firebase Auth
+Authentication state is managed in use-auth.tsx hook
+When a user signs up or logs in, the app:
+Checks if a user profile exists in Firestore
+Creates one if it doesn't exist
+Updates the UI based on the user's onboarding status
+When a user adds food or weight logs:
+
+Data is written to Firestore collections
+Some operations also update the user document directly (e.g., weight updates)
+Duplicated Data Concern
+The main issue I'm seeing is that you appear to have duplicated user data storage across:
+
+Firebase Firestore
+PostgreSQL database
+This can lead to synchronization problems and inconsistent data. Your server routes are set up to work with the PostgreSQL database, but your client-side code is primarily interacting with Firestore.
+
+Recommendations
+There are two main approaches you could take:
+
+Option 1: Use Firebase as primary data store
+Make Firebase the source of truth for all user data. This means:
+
+Keep using Firebase Auth for authentication
+Store all user profiles, food logs, and weight logs in Firestore
+Remove or repurpose the PostgreSQL tables
+Option 2: Use PostgreSQL as primary data store
+Use Firebase only for authentication, then:
+
+When a user signs up, create their profile in PostgreSQL
+Store all user data (profiles, logs) only in PostgreSQL
+Update your client code to call your Express API endpoints instead of Firestore directly

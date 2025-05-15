@@ -23,6 +23,7 @@ export type User = {
   carbs?: number;
   fat?: number;
   createdAt?: any;
+  id?: number; // Added for PostgreSQL ID
 };
 
 // Define the shape of our Authentication context
@@ -76,24 +77,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(basicUserInfo);
           setLoading(false);
           
-          // Try to fetch profile in background without blocking auth flow
-          console.log("Fetching user profile for:", firebaseUser.uid);
+          // Try to fetch profile from API without blocking auth flow
+          console.log("Fetching user profile from API for:", firebaseUser.uid);
           getUserProfile(firebaseUser.uid)
             .then(userProfile => {
               if (userProfile) {
-                console.log("User profile found, merging data");
+                console.log("User profile found in database, merging data:", userProfile);
                 // Update user with profile data 
                 setUser(prevUser => ({
                   ...(prevUser || basicUserInfo),
                   ...userProfile,
                 }));
               } else {
-                console.log("No user profile found, keeping basic auth data");
+                console.log("No user profile found in database, keeping basic auth data");
                 // Basic user info already set, nothing to do
               }
             })
             .catch(profileError => {
-              console.error("Error fetching user profile:", profileError);
+              console.error("Error fetching user profile from API:", profileError);
               // We already set basic user info, so authentication still works
             });
         } else {
@@ -118,7 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Function to update user data in state and optionally in Firebase
+  // Function to update user data in state and in PostgreSQL via API
   const updateUser = (data: Partial<User>) => {
     console.log("Updating user data:", data);
     
@@ -131,12 +132,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Create updated user object with new values
       const updatedUser = { ...prevUser, ...data };
       
-      // If onboarding completed flag is being set, persist to Firebase
-      if (data.onboardingCompleted) {
-        console.log("Onboarding completed, updating Firebase profile");
-        updateUserProfile(prevUser.uid, { onboardingCompleted: true })
-          .catch(err => console.error("Failed to update user profile:", err));
-      }
+      // Persist changes to database via API
+      updateUserProfile(prevUser.uid, data)
+        .catch(err => console.error("Failed to update user profile via API:", err));
       
       return updatedUser;
     });

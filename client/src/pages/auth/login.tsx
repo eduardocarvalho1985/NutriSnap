@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { signInWithEmail, signInWithGoogle, signInWithApple, getUserProfile, createUserProfile } from "@/lib/firebase";
+import { signInWithEmail, signInWithGoogle, signInWithApple, getUserProfile } from "@/lib/firebase";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido").min(1, "Email é obrigatório"),
