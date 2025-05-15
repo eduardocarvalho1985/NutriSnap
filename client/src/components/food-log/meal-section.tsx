@@ -175,35 +175,43 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
       </div>
       
       {/* Modais */}
-      <AddFoodOptionsModal
-        isOpen={isOptionsModalOpen}
-        onClose={() => setIsOptionsModalOpen(false)}
-        onSelectOption={handleSelectOption}
-        date={today}
-        selectedMeal={title}
-      />
+      {isOptionsModalOpen && (
+        <AddFoodOptionsModal
+          isOpen={true}
+          onClose={() => setIsOptionsModalOpen(false)}
+          onSelectOption={handleSelectOption}
+          date={today}
+          selectedMeal={title}
+        />
+      )}
       
-      <AddFoodModal
-        onClose={() => setIsAddFoodModalOpen(false)}
-        date={today}
-        selectedMeal={title}
-      />
+      {isAddFoodModalOpen && (
+        <AddFoodModal
+          onClose={() => setIsAddFoodModalOpen(false)}
+          date={today}
+          selectedMeal={title}
+        />
+      )}
       
-      <SavedFoodsModal
-        isOpen={isSavedFoodsModalOpen}
-        onClose={() => setIsSavedFoodsModalOpen(false)}
-        onSelectFood={handleSelectFood}
-      />
+      {isSavedFoodsModalOpen && (
+        <SavedFoodsModal
+          isOpen={true}
+          onClose={() => setIsSavedFoodsModalOpen(false)}
+          onSelectFood={handleSelectFood}
+        />
+      )}
       
-      <FoodDatabaseModal
-        isOpen={isFoodDatabaseModalOpen}
-        onClose={() => setIsFoodDatabaseModalOpen(false)}
-        onSelectFood={handleSelectFood}
-        onAddNewFood={() => {
-          setIsFoodDatabaseModalOpen(false);
-          setIsAddFoodModalOpen(true);
-        }}
-      />
+      {isFoodDatabaseModalOpen && (
+        <FoodDatabaseModal
+          isOpen={true}
+          onClose={() => setIsFoodDatabaseModalOpen(false)}
+          onSelectFood={handleSelectFood}
+          onAddNewFood={() => {
+            setIsFoodDatabaseModalOpen(false);
+            setIsAddFoodModalOpen(true);
+          }}
+        />
+      )}
     </>
   );
 }

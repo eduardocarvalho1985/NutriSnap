@@ -111,6 +111,7 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
         description: `${data.name} foi adicionado ao seu registro.`
       });
       
+      // Fechar o modal após a submissão bem-sucedida
       onClose();
     } catch (error: any) {
       toast({
@@ -139,14 +140,20 @@ export function AddFoodModal({ onClose, date, selectedMeal }: AddFoodModalProps)
   ];
 
   return (
-    <Dialog open={true} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={true} onOpenChange={(open) => {
+      if (!open) onClose();
+    }}>
       <DialogContent className="max-w-md p-0">
         <DialogHeader className="p-4 border-b sticky top-0 bg-white z-10">
           <div className="flex justify-between items-center">
             <DialogTitle className="text-xl font-bold">Adicionar Alimento</DialogTitle>
-            <DialogClose className="text-gray-500 hover:text-gray-700">
+            <button 
+              type="button"
+              className="text-gray-500 hover:text-gray-700"
+              onClick={() => onClose()}
+            >
               <XIcon className="h-6 w-6" />
-            </DialogClose>
+            </button>
           </div>
         </DialogHeader>
         
