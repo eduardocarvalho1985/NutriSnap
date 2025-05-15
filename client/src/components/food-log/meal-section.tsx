@@ -7,6 +7,7 @@ import { AddFoodModal } from "./add-food-modal";
 import { SavedFoodsModal } from "./saved-foods-modal";
 import { FoodDatabaseModal } from "./food-database-modal";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -47,6 +48,8 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [isSavedFoodsModalOpen, setIsSavedFoodsModalOpen] = useState(false);
   const [isFoodDatabaseModalOpen, setIsFoodDatabaseModalOpen] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
   
   // Data atual
   const today = new Date().toISOString().split('T')[0];
@@ -89,17 +92,18 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
       
       console.log("Alimento selecionado:", food);
       
-      // Obter referência ao usuário atual
-      const auth = window.firebase?.auth?.();
-      const currentUser = auth?.currentUser;
-      
-      if (!currentUser?.uid) {
+      if (!user || !user.uid) {
         console.error("Usuário não autenticado");
+        toast({
+          title: "Erro ao adicionar alimento",
+          description: "Você precisa estar logado para adicionar alimentos",
+          variant: "destructive"
+        });
         return;
       }
       
       // Adicionar ao registro diário através da API
-      await apiRequest("POST", `/api/users/${currentUser.uid}/food-logs`, {
+      await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
         date: today,
         mealType: title,
         name: food.name,
@@ -111,11 +115,6 @@ export function MealSection({ title, calories, foods, isLast = false, onAddFood 
         fat: food.fat || 0
       });
       
-      // Invalidar a consulta para atualizar os dados
-      const queryClient = new QueryClient();
-      queryClient.invalidateQueries({ queryKey: ["/api/food-logs", currentUser.uid, today] });
-      
-      // Notificar que o alimento foi adicionado
       toast({
         title: "Alimento adicionado",
         description: `${food.name} foi adicionado à sua refeição.`
