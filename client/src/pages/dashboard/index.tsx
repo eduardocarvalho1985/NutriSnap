@@ -14,9 +14,11 @@ import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-re
 import { AddFoodOptionsModal } from "@/components/food-log/add-food-options-modal";
 import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<string | null>(null);
@@ -90,14 +92,21 @@ export default function Dashboard() {
   function handleAddFoodOptionSelect(option: string) {
     setShowAddFoodOptionsModal(false);
     switch (option) {
-      case "saved":
+      case "manual-entry":
+        setShowAddFoodModal(true);
+        break;
+      case "saved-foods":
         setShowSavedFoodsModal(true);
         break;
-      case "database":
+      case "food-database":
         setShowFoodDatabaseModal(true);
         break;
-      case "new":
-        setShowAddFoodModal(true);
+      case "recently-logged":
+        // This will be implemented later
+        toast({
+          title: "Em breve",
+          description: "Esta funcionalidade será implementada em breve.",
+        });
         break;
       default:
         break;
