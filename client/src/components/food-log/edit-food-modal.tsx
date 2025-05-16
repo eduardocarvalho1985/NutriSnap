@@ -157,24 +157,9 @@ export function EditFoodModal({
             <DialogTitle className="text-center text-xl font-semibold">
               Editar Alimento
             </DialogTitle>
-            <div className="flex items-center space-x-2">
-              {onDelete && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => {
-                    onDelete();
-                    onClose();
-                  }}
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              )}
-              <DialogClose className="absolute right-4 top-4">
-                <X className="h-4 w-4" />
-              </DialogClose>
-            </div>
+            <DialogClose className="absolute right-4 top-4">
+              <X className="h-4 w-4" />
+            </DialogClose>
           </div>
         </DialogHeader>
 
