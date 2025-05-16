@@ -16,6 +16,7 @@ export interface IStorage {
   getFoodLogsByDate(uid: string, date: string): Promise<FoodLog[]>;
   createFoodLog(uid: string, foodLog: Partial<InsertFoodLog>): Promise<FoodLog>;
   updateFoodLog(uid: string, id: number, foodLogData: Partial<FoodLog>): Promise<FoodLog | undefined>;
+  deleteFoodLog(uid: string, id: number): Promise<boolean>;
   
   // Weight log methods
   getWeightLogs(uid: string, limit?: number): Promise<WeightLog[]>;
@@ -275,6 +276,42 @@ export class DatabaseStorage implements IStorage {
       return updatedFoodLog;
     } catch (error) {
       console.error(`Error updating food log:`, error);
+      throw error;
+    }
+  }
+  
+  async deleteFoodLog(uid: string, id: number): Promise<boolean> {
+    try {
+      console.log(`Deleting food log for user ${uid}, id ${id}`);
+      
+      // First, get the user's ID from their UID
+      const user = await this.getUserByUid(uid);
+      
+      if (!user) {
+        console.log(`User ${uid} not found when deleting food log`);
+        return false;
+      }
+      
+      // Delete the food log entry
+      const result = await db
+        .delete(foodLogs)
+        .where(
+          and(
+            eq(foodLogs.id, id),
+            eq(foodLogs.userId, user.id)
+          )
+        );
+      
+      // If affected rows is 0, no food log was found/deleted
+      if (result.rowCount === 0) {
+        console.log(`No food log found with id ${id} for user ${uid}`);
+        return false;
+      }
+      
+      console.log(`Food log deleted successfully for user ${uid}, id ${id}`);
+      return true;
+    } catch (error) {
+      console.error(`Error deleting food log:`, error);
       throw error;
     }
   }

@@ -250,6 +250,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // DELETE endpoint for food logs
+  app.delete("/api/users/:uid/food-logs/:id", async (req, res) => {
+    try {
+      const { uid, id } = req.params;
+      console.log(`DELETE /api/users/${uid}/food-logs/${id}`);
+      
+      // Check if user exists
+      const user = await storage.getUserByUid(uid);
+      
+      if (!user) {
+        console.log(`User ${uid} not found when deleting food log`);
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Call storage method to delete the food log
+      const deleted = await storage.deleteFoodLog(uid, parseInt(id));
+      
+      if (!deleted) {
+        return res.status(404).json({ message: "Food log entry not found" });
+      }
+      
+      console.log(`Deleted food log for user ${uid}, id ${id}`);
+      return res.json({ success: true, message: "Food log deleted successfully" });
+    } catch (error: any) {
+      console.error(`Error deleting food log:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+  
   // API routes for weight logs
   app.get("/api/users/:uid/weight-logs", async (req, res) => {
     try {
