@@ -41,8 +41,7 @@ export default function Profile() {
         duration: 5000,
       });
     }
-  }, [user]);
-  const { toast } = useToast();
+  }, [user, toast]);
   const [isLoading, setIsLoading] = useState(false);
   
   // Configurar o formulário com valores padrão
