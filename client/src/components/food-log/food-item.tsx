@@ -80,15 +80,23 @@ export function FoodItem(props: FoodItemProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
+    
     console.log("Delete food clicked:", food);
-    if (onDeleteFood && typeof onDeleteFood === 'function') {
-      try {
-        onDeleteFood(food);
-      } catch (error) {
-        console.error("Error in delete handler:", error);
-      }
-    }
+    
+    // Close the swipe first to prevent UI issues
     setSwipeOffset(0);
+    
+    // Small delay to ensure the UI has time to reset
+    setTimeout(() => {
+      if (onDeleteFood && typeof onDeleteFood === 'function') {
+        try {
+          onDeleteFood(food);
+        } catch (error) {
+          console.error("Error in delete handler:", error);
+        }
+      }
+    }, 50);
   };
 
   return (

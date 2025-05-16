@@ -295,39 +295,52 @@ export function EditFoodModal({
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
-          <div className="flex w-full justify-between sm:w-auto">
+          <DialogFooter className="flex flex-col space-y-2">
             <Button 
-              type="button" 
-              variant="destructive" 
-              onClick={() => onDelete && onDelete()}
-              className="sm:order-1"
+              type="submit" 
+              disabled={isLoading}
+              className="w-full"
             >
-              <Trash2Icon className="mr-2 h-4 w-4" />
-              Excluir
+              {isLoading ? (
+                <>
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : "Atualizar Alimento"}
             </Button>
-            <Button 
-              type="button" 
-              variant="ghost" 
-              onClick={() => onClose()}
-              className="order-2 sm:order-2"
-            >
-              Cancelar
-            </Button>
-          </div>
-          <Button 
-            type="submit" 
-            disabled={isLoading}
-            className="order-1 sm:order-3"
-          >
-            {isLoading ? (
-              <>
-                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
-                Salvando...
-              </>
-            ) : "Atualizar Alimento"}
-          </Button>
-        </DialogFooter>
+            
+            <div className="flex w-full justify-between gap-2">
+              <Button 
+                type="button" 
+                variant="destructive" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (onDelete && typeof onDelete === 'function') {
+                    try {
+                      onDelete();
+                    } catch (error) {
+                      console.error("Error in delete handler:", error);
+                    }
+                  }
+                  onClose();
+                }}
+                className="flex-1"
+              >
+                <Trash2Icon className="mr-2 h-4 w-4" />
+                Excluir
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => onClose()}
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
