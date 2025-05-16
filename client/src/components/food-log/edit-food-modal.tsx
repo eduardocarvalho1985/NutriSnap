@@ -46,12 +46,13 @@ interface EditFoodModalProps {
 }
 
 export function EditFoodModal({
-  isOpen,
+  isOpen = false,
   onClose,
   foodItem,
   date,
   onDelete,
 }: EditFoodModalProps) {
+  console.log("EditFoodModal opened with:", { isOpen, foodItem, date });
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();

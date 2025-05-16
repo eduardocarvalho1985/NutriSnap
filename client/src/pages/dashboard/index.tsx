@@ -18,6 +18,19 @@ import { EditFoodModal } from "@/components/food-log/edit-food-modal";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
+// Define type for Food
+type Food = {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  mealType?: string;
+};
+
 // Define type for SavedFood
 type SavedFood = {
   id: number;
@@ -132,10 +145,32 @@ export default function Dashboard() {
 
   // Handler for editing a food entry
   function handleEditFood(food: Food) {
-    setSelectedFoodToEdit({
-      ...food,
-      mealType: food.mealType
-    });
+    console.log("Dashboard: Edit food triggered with:", food);
+    
+    if (!food || !food.id) {
+      console.error("Dashboard: Received invalid food for editing", food);
+      toast({
+        title: "Erro",
+        description: "Não foi possível editar este alimento. Dados inválidos.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Create a properly formatted food object for editing
+    const foodForEdit = {
+      id: food.id,
+      name: food.name || "Item sem nome",
+      quantity: food.quantity || 0,
+      unit: food.unit || "g",
+      calories: food.calories || 0,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      mealType: food.mealType || ""
+    };
+    
+    setSelectedFoodToEdit(foodForEdit);
     setShowEditFoodModal(true);
   }
 
@@ -385,7 +420,9 @@ export default function Dashboard() {
       {/* Edit Food Modal */}
       {showEditFoodModal && selectedFoodToEdit && (
         <EditFoodModal
-          food={selectedFoodToEdit}
+          isOpen={showEditFoodModal}
+          foodItem={selectedFoodToEdit}
+          date={formattedDate}
           onClose={() => {
             setShowEditFoodModal(false);
             setSelectedFoodToEdit(null);
