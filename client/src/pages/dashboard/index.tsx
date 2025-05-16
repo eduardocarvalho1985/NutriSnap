@@ -179,11 +179,15 @@ export default function Dashboard() {
     if (!user?.uid) return;
 
     try {
+      console.log("Handling food selection:", food);
+      
       // Determine which meal to use - if no meal is selected, use "Lanche" as default
       const mealToUse = selectedMeal || "Lanche";
 
-      // Add selected food to log
-      await addFoodLog(user.uid, formattedDate, mealToUse, {
+      // Add selected food to log using the API
+      await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
+        date: formattedDate,
+        mealType: mealToUse,
         name: food.name,
         quantity: food.quantity,
         unit: food.unit,
