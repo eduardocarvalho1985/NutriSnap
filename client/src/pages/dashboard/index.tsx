@@ -80,7 +80,11 @@ export default function Dashboard() {
   });
 
   // Group food logs by meal type
-  const mealTypes = ["Café da Manhã", "Almoço", "Lanche", "Jantar", "Ceia"];
+  const mealTypes = ["Café da Manhã", "Lanche da Manhã", "Almoço", "Lanche da Tarde", "Lanche", "Jantar", "Ceia"];
+  
+  // Log the mealTypes for debugging
+  console.log("All food logs:", foodLogs); 
+  
   const foodLogsByMeal = mealTypes.map(mealType => {
     const logs = foodLogs.filter(log => log.mealType === mealType);
     const calories = logs.reduce((sum, log) => sum + (log.calories || 0), 0);
