@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Search, Plus, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -44,26 +44,40 @@ export function SavedFoodsModal({
     queryKey: ["/api/users", user?.uid, "saved-foods"],
     queryFn: async () => {
       if (!user?.uid) return [];
-      const response = await apiRequest("GET", `/api/users/${user.uid}/saved-foods`);
-      return response.json();
+      try {
+        const response = await apiRequest("GET", `/api/users/${user.uid}/saved-foods`);
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Erro ao buscar alimentos salvos:", error);
+        return [];
+      }
     },
     enabled: !!user?.uid && isOpen,
+    staleTime: 30000, // 30 segundos
+    refetchOnWindowFocus: false,
+    retry: 1
   });
 
-  const filteredFoods = savedFoods && Array.isArray(savedFoods)
-    ? savedFoods.filter((food) =>
+  // Garantir que temos um array válido para trabalhar
+  const safeData = savedFoods || [];
+  
+  const filteredFoods = searchTerm.trim() === '' 
+    ? safeData 
+    : safeData.filter((food) => 
         food.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : [];
+      );
     
-  // Se ocorrer algum erro, mostrar uma mensagem
-  if (isError) {
-    toast({
-      title: "Erro ao carregar alimentos",
-      description: "Não foi possível carregar seus alimentos salvos",
-      variant: "destructive",
-    });
-  }
+  // Mostrar mensagem de erro em um useEffect para evitar problemas de renderização
+  useEffect(() => {
+    if (isError && isOpen) {
+      toast({
+        title: "Erro ao carregar alimentos",
+        description: "Não foi possível carregar seus alimentos salvos",
+        variant: "destructive",
+      });
+    }
+  }, [isError, isOpen, toast]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
