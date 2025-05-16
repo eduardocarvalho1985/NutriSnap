@@ -4,6 +4,16 @@ import { storage } from "./storage";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint
+  app.get("/api/health", (req, res) => {
+    console.log("Health check endpoint called");
+    return res.json({ 
+      status: "ok", 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || "development"
+    });
+  });
+
   // API routes for users
   app.get("/api/users/:uid", async (req, res) => {
     try {
@@ -118,12 +128,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
       
-      const foodLogs = await storage.getFoodLogsByDate(uid, date);
-      console.log(`Retrieved ${foodLogs.length} food logs for user ${uid} on ${date}`);
-      
-      return res.json(foodLogs);
+      try {
+        const foodLogs = await storage.getFoodLogsByDate(uid, date);
+        console.log(`Retrieved ${foodLogs.length} food logs for user ${uid} on ${date}`);
+        return res.json(foodLogs);
+      } catch (dbError: any) {
+        console.error(`Database error getting food logs: ${dbError.message}`);
+        console.error(`Stack: ${dbError.stack}`);
+        return res.status(500).json({ message: "Database error retrieving food logs", details: dbError.message });
+      }
     } catch (error: any) {
-      console.error(`Error getting food logs:`, error);
+      console.error(`Unexpected error getting food logs:`, error);
+      console.error(`Stack: ${error.stack}`);
       return res.status(500).json({ message: error.message });
     }
   });
