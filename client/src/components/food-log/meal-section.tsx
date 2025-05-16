@@ -164,6 +164,32 @@ export function MealSection({
                 carbs={food.carbs}
                 fat={food.fat}
                 onEdit={() => onEditFood && onEditFood(food)}
+                onDelete={async () => {
+                  try {
+                    if (!user || !user.uid) return;
+                    
+                    await apiRequest(
+                      "DELETE", 
+                      `/api/users/${user.uid}/food-logs/${food.id}`
+                    );
+                    
+                    // Show success toast
+                    toast({
+                      title: "Alimento removido",
+                      description: "O alimento foi removido com sucesso"
+                    });
+                    
+                    // Call the callback to refresh the UI
+                    onAddFood();
+                  } catch (error: any) {
+                    console.error("Erro ao deletar alimento:", error);
+                    toast({
+                      title: "Erro ao remover alimento",
+                      description: error.message || "Ocorreu um erro ao remover este alimento",
+                      variant: "destructive"
+                    });
+                  }
+                }}
               />
             ))
           ) : (

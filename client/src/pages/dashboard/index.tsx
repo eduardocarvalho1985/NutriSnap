@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -17,6 +16,7 @@ import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
 import { EditFoodModal } from "@/components/food-log/edit-food-modal";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/api";
 
 // Define type for SavedFood
 type SavedFood = {
@@ -146,7 +146,7 @@ export default function Dashboard() {
     try {
       // Determine which meal to use - if no meal is selected, use "Lanche" as default
       const mealToUse = selectedMeal || "Lanche";
-      
+
       // Add selected food to log
       await addFoodLog(user.uid, formattedDate, mealToUse, {
         name: food.name,
@@ -157,7 +157,7 @@ export default function Dashboard() {
         carbs: food.carbs || 0,
         fat: food.fat || 0
       });
-      
+
       // Invalidate queries after the food is added
       queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
 
@@ -357,13 +357,39 @@ export default function Dashboard() {
       {/* Edit Food Modal */}
       {showEditFoodModal && selectedFoodToEdit && (
         <EditFoodModal
-          isOpen={showEditFoodModal}
+          food={selectedFoodToEdit}
           onClose={() => {
             setShowEditFoodModal(false);
             setSelectedFoodToEdit(null);
           }}
-          foodItem={selectedFoodToEdit}
-          date={formattedDate}
+          onDelete={async () => {
+            if (!user?.uid || !selectedFoodToEdit?.id) return;
+
+            try {
+              await apiRequest(
+                "DELETE", 
+                `/api/users/${user.uid}/food-logs/${selectedFoodToEdit.id}`
+              );
+
+              // Show success toast
+              toast({
+                title: "Alimento removido",
+                description: "O alimento foi removido com sucesso"
+              });
+
+              // Invalidate queries to refresh the data
+              queryClient.invalidateQueries({
+                queryKey: ["/api/food-logs", user.uid, formattedDate]
+              });
+            } catch (error: any) {
+              console.error("Erro ao deletar alimento:", error);
+              toast({
+                title: "Erro ao remover alimento",
+                description: error.message || "Ocorreu um erro ao remover este alimento",
+                variant: "destructive"
+              });
+            }
+          }}
         />
       )}
 

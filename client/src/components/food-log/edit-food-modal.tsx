@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import {
@@ -23,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Trash } from "lucide-react";
 
 interface FoodItem {
   id: string | number;
@@ -41,6 +41,7 @@ interface EditFoodModalProps {
   onClose: () => void;
   foodItem: FoodItem | null;
   date: string;
+  onDelete?: () => void;
 }
 
 export function EditFoodModal({
@@ -48,11 +49,12 @@ export function EditFoodModal({
   onClose,
   foodItem,
   date,
+  onDelete,
 }: EditFoodModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [unit, setUnit] = useState("");
@@ -92,12 +94,12 @@ export function EditFoodModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!user?.uid || !foodItem) return;
-    
+
     try {
       setIsSubmitting(true);
-      
+
       // Prepare the updated food data
       const updatedFood = {
         id: foodItem.id,
@@ -111,26 +113,26 @@ export function EditFoodModal({
         mealType: mealType,
         date
       };
-      
+
       // Call API to update the food log
       const response = await apiRequest(
         "PUT", 
         `/api/users/${user.uid}/food-logs/${foodItem.id}`, 
         updatedFood
       );
-      
+
       if (!response.ok) {
         throw new Error("Failed to update food entry");
       }
-      
+
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, date] });
-      
+
       toast({
         title: "Alimento atualizado",
         description: `${name} foi atualizado com sucesso.`,
       });
-      
+
       onClose();
     } catch (error) {
       console.error("Error updating food:", error);
@@ -148,12 +150,29 @@ export function EditFoodModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md mx-auto rounded-lg">
         <DialogHeader className="mb-4">
-          <DialogTitle className="text-center text-xl font-semibold">
-            Editar Alimento
-          </DialogTitle>
-          <DialogClose className="absolute right-4 top-4">
-            <X className="h-4 w-4" />
-          </DialogClose>
+          <div className="flex justify-between items-center">
+            <DialogTitle className="text-center text-xl font-semibold">
+              Editar Alimento
+            </DialogTitle>
+            <div className="flex items-center space-x-2">
+              {onDelete && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => {
+                    onDelete();
+                    onClose();
+                  }}
+                >
+                  <Trash className="h-4 w-4" />
+                </Button>
+              )}
+              <DialogClose className="absolute right-4 top-4">
+                <X className="h-4 w-4" />
+              </DialogClose>
+            </div>
+          </div>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
