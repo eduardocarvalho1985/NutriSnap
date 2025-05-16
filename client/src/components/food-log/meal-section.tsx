@@ -157,16 +157,19 @@ export function MealSection({
             foods.filter(food => food !== undefined && food !== null).map((food) => (
               <FoodItem
                 key={food.id}
-                id={food.id}
-                name={food.name}
-                quantity={food.quantity}
-                unit={food.unit}
-                calories={food.calories}
-                protein={food.protein}
-                carbs={food.carbs}
-                fat={food.fat}
-                onEdit={() => onEditFood && onEditFood(food)}
-                onDelete={async () => {
+                food={{
+                  id: food.id,
+                  name: food.name || "Untitled Food",
+                  quantity: food.quantity || 0,
+                  unit: food.unit || "g",
+                  calories: food.calories || 0,
+                  protein: food.protein || 0,
+                  carbs: food.carbs || 0,
+                  fat: food.fat || 0,
+                  mealType: food.mealType || ""
+                }}
+                onEditFood={() => onEditFood && onEditFood(food)}
+                onDeleteFood={async () => {
                   try {
                     if (!user || !user.uid) return;
 
@@ -193,7 +196,7 @@ export function MealSection({
                   }
                 }}
               />
-            ))
+            )).filter(Boolean)
           ) : (
             <div className="py-3 text-center text-gray-500 text-sm border-b border-gray-50">
               Nenhum alimento registrado
