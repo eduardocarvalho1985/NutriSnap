@@ -154,7 +154,7 @@ export function MealSection({
         {/* Food items list */}
         <div className="space-y-3">
           {foods.length > 0 ? (
-            foods.map((food) => (
+            foods.filter(food => food !== undefined && food !== null).map((food) => (
               <FoodItem
                 key={food.id}
                 id={food.id}

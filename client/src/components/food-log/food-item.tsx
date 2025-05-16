@@ -1,6 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { ChevronRightIcon, Trash2Icon } from "lucide-react";
 
+// Define Food type to ensure proper typing
+type Food = {
+  id?: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  calories: number;
+  protein?: number;
+  carbs?: number;
+  fat?: number;
+  mealType: string;
+};
+
 type FoodItemProps = {
   food: Food;
   onEditFood: (food: Food) => void;
