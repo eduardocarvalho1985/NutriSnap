@@ -40,9 +40,9 @@ function Router() {
       } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute) {
         // New user, take them through onboarding
         setLocation("/onboarding");
-      } else if (user && !user.onboardingCompleted && !isNewUser && !isAuthRoute && location !== "/profile") {
-        // Existing user without onboarding data, take them to profile
-        setLocation("/profile");
+      } else if (user && !user.onboardingCompleted && !isNewUser && !isAuthRoute) {
+        // Existing user without onboarding data, redirect to dashboard instead of profile
+        setLocation("/dashboard");
       } else if (user && user.onboardingCompleted && isAuthRoute) {
         // Logged in user on auth page, redirect to dashboard
         setLocation("/dashboard");
