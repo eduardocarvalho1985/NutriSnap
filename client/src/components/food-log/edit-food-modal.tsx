@@ -16,6 +16,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface FoodItem {
   id: string | number;
@@ -53,7 +60,21 @@ export function EditFoodModal({
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
+  const [mealType, setMealType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Common units for food measurements
+  const commonUnits = ["g", "kg", "ml", "l", "oz", "lb", "unidade", "porção", "colher", "xícara"];
+
+  // Available meal types
+  const mealTypes = [
+    "Café da Manhã",
+    "Lanche da Manhã", 
+    "Almoço", 
+    "Lanche da Tarde", 
+    "Jantar", 
+    "Ceia"
+  ];
 
   // Populate form with food data when opened
   useEffect(() => {
@@ -65,6 +86,7 @@ export function EditFoodModal({
       setProtein(foodItem.protein?.toString() || "0");
       setCarbs(foodItem.carbs?.toString() || "0");
       setFat(foodItem.fat?.toString() || "0");
+      setMealType(foodItem.mealType || "");
     }
   }, [foodItem]);
 
@@ -86,7 +108,7 @@ export function EditFoodModal({
         protein: parseFloat(protein),
         carbs: parseFloat(carbs),
         fat: parseFloat(fat),
-        mealType: foodItem.mealType,
+        mealType: mealType,
         date
       };
       
@@ -147,6 +169,25 @@ export function EditFoodModal({
               />
             </div>
 
+            <div>
+              <Label htmlFor="mealType">Refeição</Label>
+              <Select 
+                value={mealType} 
+                onValueChange={setMealType}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione a refeição" />
+                </SelectTrigger>
+                <SelectContent>
+                  {mealTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="quantity">Quantidade</Label>
@@ -163,13 +204,21 @@ export function EditFoodModal({
 
               <div>
                 <Label htmlFor="unit">Unidade</Label>
-                <Input
-                  id="unit"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  placeholder="Ex: g"
-                  required
-                />
+                <Select 
+                  value={unit} 
+                  onValueChange={setUnit}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione a unidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {commonUnits.map((unitOption) => (
+                      <SelectItem key={unitOption} value={unitOption}>
+                        {unitOption}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
