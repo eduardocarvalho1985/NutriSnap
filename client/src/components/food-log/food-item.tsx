@@ -20,7 +20,14 @@ type FoodItemProps = {
   onDeleteFood?: (food: Food) => void;
 };
 
-export function FoodItem({ food, onEditFood, onDeleteFood }: FoodItemProps) {
+export function FoodItem(props: FoodItemProps) {
+  const { food, onEditFood, onDeleteFood } = props;
+  
+  // Safety check to prevent undefined food object
+  if (!food || typeof food !== 'object') {
+    console.error("Invalid food item received:", food);
+    return null;
+  }
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isSwiping, setIsSwiping] = useState(false);
   const itemRef = useRef<HTMLDivElement>(null);
@@ -73,8 +80,13 @@ export function FoodItem({ food, onEditFood, onDeleteFood }: FoodItemProps) {
 
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onDeleteFood) {
-      onDeleteFood(food);
+    console.log("Delete food clicked:", food);
+    if (onDeleteFood && typeof onDeleteFood === 'function') {
+      try {
+        onDeleteFood(food);
+      } catch (error) {
+        console.error("Error in delete handler:", error);
+      }
     }
     setSwipeOffset(0);
   };
@@ -101,7 +113,12 @@ export function FoodItem({ food, onEditFood, onDeleteFood }: FoodItemProps) {
           transform: `translateX(${swipeOffset}px)`,
           transition: isSwiping ? 'none' : 'transform 0.3s ease'
         }}
-        onClick={() => onEditFood(food)}
+        onClick={() => {
+          console.log("Edit food clicked:", food);
+          if (onEditFood && typeof onEditFood === 'function') {
+            onEditFood(food);
+          }
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}

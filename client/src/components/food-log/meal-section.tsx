@@ -33,6 +33,7 @@ interface Food {
   protein: number;
   carbs: number;
   fat: number;
+  mealType?: string;
 }
 
 interface MealSectionProps {
@@ -166,34 +167,53 @@ export function MealSection({
                   protein: food.protein || 0,
                   carbs: food.carbs || 0,
                   fat: food.fat || 0,
-                  mealType: food.mealType || ""
+                  mealType: title // Use the current meal section title as the mealType
                 }}
-                onEditFood={() => onEditFood && onEditFood(food)}
-                onDeleteFood={async () => {
-                  try {
-                    if (!user || !user.uid) return;
-
-                    await apiRequest(
-                      "DELETE", 
-                      `/api/users/${user.uid}/food-logs/${food.id}`
-                    );
-
-                    // Show success toast
-                    toast({
-                      title: "Alimento removido",
-                      description: "O alimento foi removido com sucesso"
-                    });
-
-                    // Call the callback to refresh the UI
-                    onAddFood();
-                  } catch (error: any) {
-                    console.error("Erro ao deletar alimento:", error);
-                    toast({
-                      title: "Erro ao remover alimento",
-                      description: error.message || "Ocorreu um erro ao remover este alimento",
-                      variant: "destructive"
-                    });
+                onEditFood={(foodItem) => {
+                  console.log("Edit food called from MealSection:", foodItem);
+                  if (onEditFood && typeof onEditFood === 'function') {
+                    onEditFood(food);
                   }
+                }}
+                onDeleteFood={(foodItem) => {
+                  console.log("Delete food called from MealSection:", foodItem);
+                  const deleteFood = async () => {
+                    try {
+                      if (!user || !user.uid) {
+                        console.error("No user found for delete operation");
+                        return;
+                      }
+                      
+                      if (!food.id) {
+                        console.error("No food ID found for delete operation");
+                        return;
+                      }
+
+                      console.log("Deleting food with ID:", food.id);
+                      await apiRequest(
+                        "DELETE", 
+                        `/api/users/${user.uid}/food-logs/${food.id}`
+                      );
+
+                      // Show success toast
+                      toast({
+                        title: "Alimento removido",
+                        description: "O alimento foi removido com sucesso"
+                      });
+
+                      // Call the callback to refresh the UI
+                      onAddFood();
+                    } catch (error: any) {
+                      console.error("Erro ao deletar alimento:", error);
+                      toast({
+                        title: "Erro ao remover alimento",
+                        description: error.message || "Ocorreu um erro ao remover este alimento",
+                        variant: "destructive"
+                      });
+                    }
+                  };
+                  
+                  deleteFood().catch(err => console.error("Error in delete handler:", err));
                 }}
               />
             )).filter(Boolean)
