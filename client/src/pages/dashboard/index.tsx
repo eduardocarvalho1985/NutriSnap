@@ -60,11 +60,21 @@ export default function Dashboard() {
   const displayDate = format(currentDate, "dd MMM", { locale: ptBR });
   const isToday = format(currentDate, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
 
-  const { data: foodLogs = [], isLoading: isLoadingFoodLogs } = useQuery({
+  const { data: foodLogs = [], isLoading: isLoadingFoodLogs, refetch: refetchFoodLogs } = useQuery({
     queryKey: ["/api/food-logs", user?.uid, formattedDate],
     queryFn: async () => {
       if (!user?.uid) return [];
-      return getFoodLogs(user.uid, formattedDate);
+      
+      // Use the API directly instead of Firebase
+      try {
+        const response = await apiRequest("GET", `/api/users/${user.uid}/food-logs/${formattedDate}`);
+        const data = await response.json();
+        console.log("Fetched food logs:", data);
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.error("Error fetching food logs:", error);
+        return [];
+      }
     },
     enabled: !!user?.uid
   });
@@ -180,12 +190,13 @@ export default function Dashboard() {
 
     try {
       console.log("Handling food selection:", food);
+      setShowSavedFoodsModal(false);
       
       // Determine which meal to use - if no meal is selected, use "Lanche" as default
       const mealToUse = selectedMeal || "Lanche";
 
       // Add selected food to log using the API
-      await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
+      const response = await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
         date: formattedDate,
         mealType: mealToUse,
         name: food.name,
@@ -197,13 +208,18 @@ export default function Dashboard() {
         fat: food.fat || 0
       });
 
-      // Invalidate queries after the food is added
-      queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, formattedDate] });
-
-      toast({
-        title: "Alimento adicionado",
-        description: `${food.name} foi adicionado ao seu registro como ${mealToUse}.`
-      });
+      // Ensure the food was added successfully
+      if (response.ok) {
+        // Explicitly refetch the food logs instead of just invalidating the query
+        await refetchFoodLogs();
+        
+        toast({
+          title: "Alimento adicionado",
+          description: `${food.name} foi adicionado ao seu registro como ${mealToUse}.`
+        });
+      } else {
+        throw new Error("Failed to add food to log");
+      }
     } catch (error) {
       console.error("Error adding food from saved foods:", error);
       toast({
