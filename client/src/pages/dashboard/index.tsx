@@ -16,7 +16,7 @@ import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
 import { EditFoodModal } from "@/components/food-log/edit-food-modal";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/api";
+import { apiRequest } from "@/lib/queryClient";
 
 // Define type for SavedFood
 type SavedFood = {
@@ -283,6 +283,34 @@ export default function Dashboard() {
                 isLast={index === foodLogsByMeal.length - 1}
                 onAddFood={() => handleAddFood(meal.type)}
                 onEditFood={handleEditFood}
+                onDeleteFood={async (food) => {
+                  if (!user?.uid || !food.id) return;
+
+                  try {
+                    await apiRequest(
+                      "DELETE", 
+                      `/api/users/${user.uid}/food-logs/${food.id}`
+                    );
+
+                    // Show success toast
+                    toast({
+                      title: "Alimento removido",
+                      description: "O alimento foi removido com sucesso"
+                    });
+
+                    // Invalidate queries to refresh the data
+                    queryClient.invalidateQueries({
+                      queryKey: ["/api/food-logs", user.uid, formattedDate]
+                    });
+                  } catch (error: any) {
+                    console.error("Erro ao deletar alimento:", error);
+                    toast({
+                      title: "Erro ao remover alimento",
+                      description: error.message || "Ocorreu um erro ao remover este alimento",
+                      variant: "destructive"
+                    });
+                  }
+                }}
               />
             ))}
           </div>

@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Trash } from "lucide-react";
+import { Loader2Icon, Trash2Icon } from "lucide-react";
 
 interface FoodItem {
   id: string | number;
@@ -64,6 +65,7 @@ export function EditFoodModal({
   const [fat, setFat] = useState("");
   const [mealType, setMealType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Common units for food measurements
   const commonUnits = ["g", "kg", "ml", "l", "oz", "lb", "unidade", "porção", "colher", "xícara"];
@@ -98,7 +100,7 @@ export function EditFoodModal({
     if (!user?.uid || !foodItem) return;
 
     try {
-      setIsSubmitting(true);
+      setIsLoading(true);
 
       // Prepare the updated food data
       const updatedFood = {
@@ -142,7 +144,7 @@ export function EditFoodModal({
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -292,15 +294,39 @@ export function EditFoodModal({
             </div>
           </div>
 
-          <DialogFooter className="mt-6">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          <div className="flex w-full justify-between sm:w-auto">
+            <Button 
+              type="button" 
+              variant="destructive" 
+              onClick={() => onDelete && onDelete()}
+              className="sm:order-1"
             >
-              {isSubmitting ? "Atualizando..." : "Atualizar Alimento"}
+              <Trash2Icon className="mr-2 h-4 w-4" />
+              Excluir
             </Button>
-          </DialogFooter>
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={() => onClose()}
+              className="order-2 sm:order-2"
+            >
+              Cancelar
+            </Button>
+          </div>
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            className="order-1 sm:order-3"
+          >
+            {isLoading ? (
+              <>
+                <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : "Atualizar Alimento"}
+          </Button>
+        </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

@@ -42,6 +42,7 @@ interface MealSectionProps {
   isLast?: boolean;
   onAddFood: () => void;
   onEditFood?: (food: Food) => void;
+  onDeleteFood?: (food: Food) => void;
 }
 
 export function MealSection({ 
@@ -50,7 +51,8 @@ export function MealSection({
   foods, 
   isLast = false, 
   onAddFood, 
-  onEditFood 
+  onEditFood,
+  onDeleteFood
 }: MealSectionProps) {
   const [isOptionsModalOpen, setIsOptionsModalOpen] = useState(false);
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
@@ -167,18 +169,18 @@ export function MealSection({
                 onDelete={async () => {
                   try {
                     if (!user || !user.uid) return;
-                    
+
                     await apiRequest(
                       "DELETE", 
                       `/api/users/${user.uid}/food-logs/${food.id}`
                     );
-                    
+
                     // Show success toast
                     toast({
                       title: "Alimento removido",
                       description: "O alimento foi removido com sucesso"
                     });
-                    
+
                     // Call the callback to refresh the UI
                     onAddFood();
                   } catch (error: any) {

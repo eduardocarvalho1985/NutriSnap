@@ -1,140 +1,109 @@
+import React, { useState, useRef, useEffect } from "react";
+import { ChevronRightIcon, Trash2Icon } from "lucide-react";
 
-import { Trash, X } from "lucide-react";
-import { useState, useRef, TouchEvent } from "react";
+type FoodItemProps = {
+  food: Food;
+  onEditFood: (food: Food) => void;
+  onDeleteFood?: (food: Food) => void;
+};
 
-interface FoodItemProps {
-  id: string | number;
-  name: string;
-  quantity: number;
-  unit: string;
-  calories: number;
-  protein?: number;
-  carbs?: number;
-  fat?: number;
-  onDelete?: () => void;
-  onEdit?: () => void;
-}
-
-export function FoodItem({ 
-  name, 
-  quantity, 
-  unit, 
-  calories,
-  protein,
-  carbs,
-  fat,
-  onDelete,
-  onEdit
-}: FoodItemProps) {
+export function FoodItem({ food, onEditFood, onDeleteFood }: FoodItemProps) {
   const [swipeOffset, setSwipeOffset] = useState(0);
-  const startXRef = useRef<number | null>(null);
-  const isSwipingRef = useRef(false);
-  const deleteButtonWidth = 70; // Width of delete button in pixels
-  
-  // Handle touch start
-  const handleTouchStart = (e: TouchEvent) => {
+  const [isSwiping, setIsSwiping] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
+  const startXRef = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
     startXRef.current = e.touches[0].clientX;
-    isSwipingRef.current = true;
+    setIsSwiping(true);
   };
-  
-  // Handle touch move
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isSwipingRef.current || startXRef.current === null) return;
-    
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isSwiping) return;
+
     const currentX = e.touches[0].clientX;
-    const diff = startXRef.current - currentX;
-    
-    // Only allow swiping left (positive diff)
-    if (diff > 0) {
-      // Limit max swipe to delete button width
-      const newOffset = Math.min(diff, deleteButtonWidth);
+    const diff = currentX - startXRef.current;
+
+    // Only allow swiping left (negative values)
+    if (diff < 0) {
+      // Limit swipe to -80px
+      const newOffset = Math.max(diff, -80);
       setSwipeOffset(newOffset);
     }
   };
-  
-  // Handle touch end
+
   const handleTouchEnd = () => {
-    isSwipingRef.current = false;
-    
-    // If swiped more than halfway, snap to fully open
-    if (swipeOffset > deleteButtonWidth / 2) {
-      setSwipeOffset(deleteButtonWidth);
+    setIsSwiping(false);
+
+    // If swiped more than halfway, snap to delete button width (-80px)
+    // Otherwise snap back to original position
+    if (swipeOffset < -40) {
+      setSwipeOffset(-80);
     } else {
-      // Otherwise snap back
       setSwipeOffset(0);
     }
   };
 
-  // Close swipe
-  const handleCloseSwipe = () => {
+  // Reset swipe position when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (itemRef.current && !itemRef.current.contains(event.target as Node) && swipeOffset !== 0) {
+        setSwipeOffset(0);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [swipeOffset]);
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onDeleteFood) {
+      onDeleteFood(food);
+    }
     setSwipeOffset(0);
   };
-  
+
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden" ref={itemRef}>
+      {/* Delete button (positioned behind the item) */}
       <div 
-        className="flex justify-between items-center py-2 cursor-pointer hover:bg-gray-50 rounded px-1"
+        className="absolute right-0 top-0 h-full flex items-center justify-center bg-red-500 text-white"
+        style={{ width: '80px' }}
+      >
+        <button 
+          className="h-full w-full flex items-center justify-center"
+          onClick={handleDelete}
+        >
+          <Trash2Icon className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Main food item content */}
+      <div 
+        className="flex items-center justify-between py-2 cursor-pointer hover:bg-gray-50 transition-colors rounded-md px-1 bg-white"
         style={{ 
-          transform: `translateX(-${swipeOffset}px)`,
-          transition: isSwipingRef.current ? 'none' : 'transform 0.3s ease'
+          transform: `translateX(${swipeOffset}px)`,
+          transition: isSwiping ? 'none' : 'transform 0.3s ease'
         }}
-        onClick={() => {
-          if (swipeOffset > 0) {
-            setSwipeOffset(0);
-          } else if (onEdit) {
-            onEdit();
-          }
-        }}
+        onClick={() => onEditFood(food)}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-1">
-            <span className="font-medium text-gray-800">{name}</span>
-            <span className="text-sm font-medium ml-2">{calories} kcal</span>
-          </div>
-          <div className="flex items-center text-xs text-gray-500">
-            <span>{quantity} {unit}</span>
-            {(protein || carbs || fat) && (
-              <span className="ml-2">
-                {protein ? `P: ${protein}g` : ''} 
-                {carbs ? `${protein ? ' • ' : ''}C: ${carbs}g` : ''}
-                {fat ? `${protein || carbs ? ' • ' : ''}G: ${fat}g` : ''}
-              </span>
-            )}
+          <h4 className="text-sm font-medium text-gray-800">{food.name}</h4>
+          <div className="flex text-xs text-gray-500 mt-0.5">
+            <span>{food.quantity} {food.unit}</span>
           </div>
         </div>
-        {onDelete && swipeOffset === 0 && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent triggering parent onClick
-              onDelete();
-            }}
-            className="p-1 ml-3 text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <div className="flex items-center">
+          <span className="text-sm font-medium text-gray-600 mr-1">{food.calories} kcal</span>
+          <ChevronRightIcon className="h-4 w-4 text-gray-400" />
+        </div>
       </div>
-      
-      {/* Delete button that appears when swiped */}
-      {onDelete && (
-        <div 
-          className="absolute top-0 right-0 bottom-0 flex items-center justify-center bg-red-500 text-white"
-          style={{ 
-            width: `${deleteButtonWidth}px`,
-            opacity: swipeOffset / deleteButtonWidth
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-            handleCloseSwipe();
-          }}
-        >
-          <Trash className="h-5 w-5" />
-        </div>
-      )}
     </div>
   );
 }
