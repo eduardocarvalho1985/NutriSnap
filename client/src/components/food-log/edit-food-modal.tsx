@@ -280,11 +280,11 @@ export function EditFoodModal({
             </div>
           </div>
 
-          <DialogFooter className="flex flex-col space-y-2">
+          <DialogFooter className="flex flex-col space-y-3 mt-4">
             <Button 
               type="submit" 
               disabled={isLoading}
-              className="w-full"
+              className="w-full h-10"
             >
               {isLoading ? (
                 <>
@@ -294,7 +294,7 @@ export function EditFoodModal({
               ) : "Atualizar Alimento"}
             </Button>
             
-            <div className="flex w-full justify-between gap-2">
+            <div className="grid grid-cols-2 gap-3 w-full">
               <Button 
                 type="button" 
                 variant="destructive" 
@@ -310,7 +310,7 @@ export function EditFoodModal({
                   }
                   onClose();
                 }}
-                className="flex-1"
+                className="h-10 w-full"
               >
                 <Trash2Icon className="mr-2 h-4 w-4" />
                 Excluir
@@ -320,7 +320,7 @@ export function EditFoodModal({
                 type="button" 
                 variant="outline" 
                 onClick={() => onClose()}
-                className="flex-1"
+                className="h-10 w-full"
               >
                 Cancelar
               </Button>
