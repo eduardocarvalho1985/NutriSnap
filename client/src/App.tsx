@@ -29,12 +29,22 @@ function Router() {
     if (!loading) {
       const isAuthRoute = location.startsWith("/auth") || location === "/";
       const isOnboardingRoute = location.startsWith("/onboarding");
+      
+      // Determine if this is a new signup or an existing user login
+      const isNewUser = user?.createdAt && 
+                      (new Date().getTime() - new Date(user.createdAt).getTime()) < 5 * 60 * 1000; // 5 minutes
 
       if (!user && !isAuthRoute) {
+        // Not logged in, redirect to login
         setLocation("/auth/login");
-      } else if (user && !user.onboardingCompleted && !isOnboardingRoute && !isAuthRoute) {
+      } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute) {
+        // New user, take them through onboarding
         setLocation("/onboarding");
+      } else if (user && !user.onboardingCompleted && !isNewUser && !isAuthRoute && location !== "/profile") {
+        // Existing user without onboarding data, take them to profile
+        setLocation("/profile");
       } else if (user && user.onboardingCompleted && isAuthRoute) {
+        // Logged in user on auth page, redirect to dashboard
         setLocation("/dashboard");
       }
     }

@@ -31,6 +31,18 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 export default function Profile() {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
+  
+  // Show a notification if the user hasn't completed onboarding
+  useEffect(() => {
+    if (user && !user.onboardingCompleted) {
+      toast({
+        title: "Complete seu perfil",
+        description: "Por favor, complete as informações do seu perfil para uma experiência personalizada.",
+        duration: 5000,
+      });
+    }
+  }, [user]);
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   
   // Configurar o formulário com valores padrão
