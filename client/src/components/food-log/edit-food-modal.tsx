@@ -294,7 +294,7 @@ export function EditFoodModal({
               ) : "Atualizar Alimento"}
             </Button>
             
-            <div className="grid grid-cols-2 gap-3 w-full">
+            <div className="flex gap-3 w-full">
               <Button 
                 type="button" 
                 variant="destructive" 
@@ -310,7 +310,7 @@ export function EditFoodModal({
                   }
                   onClose();
                 }}
-                className="h-10 w-full"
+                className="h-10 flex-1"
               >
                 <Trash2Icon className="mr-2 h-4 w-4" />
                 Excluir
@@ -320,7 +320,7 @@ export function EditFoodModal({
                 type="button" 
                 variant="outline" 
                 onClick={() => onClose()}
-                className="h-10 w-full"
+                className="h-10 flex-1"
               >
                 Cancelar
               </Button>
