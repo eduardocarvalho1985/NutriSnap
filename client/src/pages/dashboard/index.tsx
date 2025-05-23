@@ -489,6 +489,15 @@ export default function Dashboard() {
         />
       )}
 
+      {/* Brazilian Food Search Modal */}
+      {showFoodSearchModal && (
+        <FoodSearchModal
+          isOpen={showFoodSearchModal}
+          onClose={() => setShowFoodSearchModal(false)}
+          onSelectFood={handleFoodDatabaseSelection}
+        />
+      )}
+
       {/* Edit Food Modal */}
       {showEditFoodModal && selectedFoodToEdit && (
         <EditFoodModal
