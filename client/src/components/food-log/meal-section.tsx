@@ -298,7 +298,10 @@ export function MealSection({
         <AddFoodOptionsModal
           isOpen={true}
           onClose={() => setIsOptionsModalOpen(false)}
-          onSelectOption={handleSelectOption}
+          onSelectOption={(option) => {
+            console.log("MealSection received option:", option);
+            handleSelectOption(option);
+          }}
           date={today}
           selectedMeal={title}
         />
