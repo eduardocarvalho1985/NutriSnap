@@ -52,6 +52,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
+      // Disable caching for user data to ensure fresh responses
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       return res.json(mapUserToFrontend(user));
     } catch (error: any) {
       return res.status(500).json({ message: error.message });
