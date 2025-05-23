@@ -197,9 +197,11 @@ export default function Nutrition() {
       completeOnboarding();
       
       // Update auth user state with onboardingCompleted flag
+      // Force explicit setting of onboardingCompleted to true in both formats for consistency
       updateUser({
         ...data,
-        onboardingCompleted: true
+        onboardingCompleted: true,
+        onboarding_completed: true
       });
       
       toast({

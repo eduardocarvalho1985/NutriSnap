@@ -130,7 +130,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   // Outros campos - especial atenção ao booleano
                   // Convertendo explicitamente para boolean para evitar problemas com valores 't' e 'f' do PostgreSQL
                   onboardingCompleted: userProfile.onboarding_completed === true || 
-                                      userProfile.onboarding_completed === 't' || 
+                                      userProfile.onboarding_completed === 't' ||
+                                      userProfile.onboarding_completed === 1 ||
+                                      String(userProfile.onboarding_completed).toLowerCase() === 'true' ||
                                       userProfile.onboardingCompleted === true,
                   
                   createdAt: userProfile.created_at || userProfile.createdAt,

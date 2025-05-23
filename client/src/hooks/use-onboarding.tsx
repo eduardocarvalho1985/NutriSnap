@@ -54,8 +54,23 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   // Initialize onboarding data from user profile (if available)
   useEffect(() => {
     if (user) {
+      // Do a more robust check for onboardingCompleted
+      const isOnboardingCompleted = 
+        user.onboardingCompleted === true || 
+        user.onboardingCompleted === 't' ||
+        user.onboardingCompleted === 1 ||
+        String(user.onboardingCompleted).toLowerCase() === 'true' ||
+        user.onboarding_completed === true ||
+        user.onboarding_completed === 't' ||
+        user.onboarding_completed === 1;
+        
+      console.log("Onboarding check in useOnboarding:", {
+        original: user.onboardingCompleted,
+        parsed: isOnboardingCompleted
+      });
+        
       setOnboardingData({
-        currentStep: user.onboardingCompleted ? "completed" : "basic-info",
+        currentStep: isOnboardingCompleted ? "completed" : "basic-info",
         name: user.name,
         age: user.age,
         gender: user.gender,
@@ -70,7 +85,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         protein: user.protein,
         carbs: user.carbs,
         fat: user.fat,
-        onboardingCompleted: user.onboardingCompleted
+        onboardingCompleted: isOnboardingCompleted
       });
     }
   }, [user]);
@@ -82,11 +97,16 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   
   // Complete onboarding
   const completeOnboarding = () => {
-    setOnboardingData(prevData => ({ 
-      ...prevData, 
-      currentStep: "completed",
-      onboardingCompleted: true 
-    }));
+    console.log("Completing onboarding - setting onboardingCompleted to true");
+    setOnboardingData(prevData => {
+      const updatedData = { 
+        ...prevData, 
+        currentStep: "completed",
+        onboardingCompleted: true 
+      };
+      console.log("Updated onboarding data:", updatedData);
+      return updatedData;
+    });
   };
   
   const value = {

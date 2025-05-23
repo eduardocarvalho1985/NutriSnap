@@ -15,13 +15,16 @@ export function BottomNav({ activePage }: BottomNavProps) {
     
     console.log("Profile clicked - user onboarding status:", user?.onboardingCompleted);
     
-    // For users who might have just completed onboarding, check the database directly
+    // For users who might have just completed onboarding, check the database directly with cache busting
     if (user?.uid) {
       try {
-        const response = await fetch(`/api/users/${user.uid}`, {
+        // Add timestamp to URL to prevent caching
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/users/${user.uid}?_t=${timestamp}`, {
           headers: {
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           }
         });
         if (response.ok) {
