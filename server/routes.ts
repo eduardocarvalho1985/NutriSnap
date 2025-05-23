@@ -111,6 +111,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log(`PUT /api/users/${uid} - Request body:`, JSON.stringify(userData));
       
+      // Normalizar explicitamente o campo de onboarding_completed para garantir consistência
+      if (userData.onboardingCompleted === true || userData.onboarding_completed === true) {
+        userData.onboarding_completed = true;
+        userData.onboardingCompleted = true;
+        console.log(`Normalized onboarding completion status to TRUE for user ${uid}`);
+      }
+      
       // Primeiro verificamos se o usuário existe
       let user = await storage.getUserByUid(uid);
       
@@ -123,7 +130,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           uid: uid,
           email: userData.email || 'user@example.com', // Precisamos de um email padrão se não tiver
           name: userData.name,
-          onboardingCompleted: userData.onboardingCompleted || false
+          onboarding_completed: userData.onboardingCompleted === true || userData.onboarding_completed === true || false
         };
         
         try {

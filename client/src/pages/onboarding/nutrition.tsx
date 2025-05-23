@@ -164,8 +164,10 @@ export default function Nutrition() {
             protein: data.protein,
             carbs: data.carbs,
             fat: data.fat,
-            // Flag de completude
-            onboarding_completed: true
+            // Flag de completude - garantir que seja tratado como booleano verdadeiro no banco
+            onboarding_completed: true,
+            // Incluir também no formato camelCase para maior compatibilidade
+            onboardingCompleted: true
           };
           
           // Tentativa de criar o usuário
@@ -195,6 +197,17 @@ export default function Nutrition() {
       // Update local state
       updateOnboardingData(finalOnboardingData);
       completeOnboarding();
+      
+      // Garantir atualização direta no banco de dados com a flag onboarding_completed
+      try {
+        const directDbUpdate = await apiRequest("PUT", `/api/users/${user.uid}`, {
+          onboarding_completed: true,
+          onboardingCompleted: true
+        });
+        console.log("Atualização direta do status de onboarding no banco:", directDbUpdate.ok);
+      } catch (dbUpdateError) {
+        console.error("❌ Erro na atualização direta do status de onboarding:", dbUpdateError);
+      }
       
       // Update auth user state with onboardingCompleted flag
       // Force explicit setting of onboardingCompleted to true in both formats for consistency
