@@ -3,6 +3,13 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import chalk from "chalk";
+import OpenAI from "openai";
+
+// Initialize OpenAI
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error('Missing required OpenAI API key: OPENAI_API_KEY');
+}
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
