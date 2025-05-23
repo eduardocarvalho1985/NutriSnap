@@ -10,19 +10,39 @@ export function BottomNav({ activePage }: BottomNavProps) {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  const handleProfileClick = (e: React.MouseEvent) => {
+  const handleProfileClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     
     console.log("Profile clicked - user onboarding status:", user?.onboardingCompleted);
     
-    // Check if user has completed onboarding
+    // For users who might have just completed onboarding, check the database directly
+    if (user?.uid) {
+      try {
+        const response = await fetch(`/api/users/${user.uid}`);
+        if (response.ok) {
+          const latestUserData = await response.json();
+          console.log("Latest user data from database:", latestUserData.onboardingCompleted);
+          
+          if (!latestUserData.onboardingCompleted) {
+            console.log("Redirecting to onboarding");
+            window.location.href = "/onboarding";
+          } else {
+            console.log("Redirecting to profile");
+            window.location.href = "/profile";
+          }
+          return;
+        }
+      } catch (error) {
+        console.log("Error checking user status, falling back to cached data");
+      }
+    }
+    
+    // Fallback to cached user data
     if (!user?.onboardingCompleted) {
-      // New user - redirect to onboarding
-      console.log("Redirecting to onboarding");
+      console.log("Redirecting to onboarding (fallback)");
       window.location.href = "/onboarding";
     } else {
-      // Existing user - go to profile
-      console.log("Redirecting to profile");
+      console.log("Redirecting to profile (fallback)");
       window.location.href = "/profile";
     }
   };
