@@ -69,6 +69,18 @@ export const savedFoods = pgTable("saved_foods", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Food database table (shared across all users)
+export const foodDatabase = pgTable("food_database", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  calories: real("calories").notNull(), // per 100g
+  protein: real("protein").notNull(), // per 100g
+  carbs: real("carbs").notNull(), // per 100g
+  fat: real("fat").notNull(), // per 100g
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   foodLogs: many(foodLogs),
@@ -119,6 +131,11 @@ export const insertSavedFoodSchema = createInsertSchema(savedFoods).omit({
   createdAt: true
 });
 
+export const insertFoodDatabaseSchema = createInsertSchema(foodDatabase).omit({
+  id: true,
+  createdAt: true
+});
+
 // Types for database operations
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -131,3 +148,6 @@ export type WeightLog = typeof weightLogs.$inferSelect;
 
 export type InsertSavedFood = z.infer<typeof insertSavedFoodSchema>;
 export type SavedFood = typeof savedFoods.$inferSelect;
+
+export type InsertFoodDatabase = z.infer<typeof insertFoodDatabaseSchema>;
+export type FoodDatabase = typeof foodDatabase.$inferSelect;
