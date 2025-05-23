@@ -24,7 +24,7 @@ export function BottomNav({ activePage }: BottomNavProps) {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
       <div className="flex justify-around">
         <NavItem 
           href="/dashboard" 
@@ -82,7 +82,9 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
   
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log(`Navigating to: ${href}`);
+    e.stopPropagation();
+    console.log(`🚀 Button clicked! Navigating to: ${href}`);
+    alert(`Clicking ${label} button - going to ${href}`); // Visual confirmation
     setLocation(href);
   };
 
