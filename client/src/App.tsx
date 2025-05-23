@@ -43,10 +43,7 @@ function Router() {
         // Logged in user with completed onboarding on auth page, redirect to dashboard
         console.log("Redirecting to dashboard - user logged in and onboarded");
         setLocation("/dashboard");
-      } else if (user && isProfileRoute && !user.onboardingCompleted) {
-        // User trying to access profile but hasn't completed onboarding
-        console.log("Redirecting to onboarding - profile access with incomplete onboarding");
-        setLocation("/onboarding");
+      // Removed profile redirect logic - users can always access profile page
       } else if (user && isAuthRoute) {
         // Logged in user on auth page, redirect to dashboard
         console.log("Redirecting to dashboard - user logged in");
