@@ -62,12 +62,47 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         String(user.onboardingCompleted).toLowerCase() === 'true' ||
         user.onboarding_completed === true ||
         user.onboarding_completed === 't' ||
-        user.onboarding_completed === 1;
+        user.onboarding_completed === 1 ||
+        String(user.onboarding_completed).toLowerCase() === 'true';
         
       console.log("Onboarding check in useOnboarding:", {
         original: user.onboardingCompleted,
-        parsed: isOnboardingCompleted
+        original_snake: user.onboarding_completed,
+        parsed: isOnboardingCompleted,
+        user_object: JSON.stringify(user)
       });
+      
+      // If user exists but we're unsure about onboarding status, verify with API
+      if (user.uid && !isOnboardingCompleted) {
+        // Add cache busting
+        const timestamp = new Date().getTime();
+        fetch(`/api/users/${user.uid}?_t=${timestamp}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        })
+        .then(response => response.json())
+        .then(latestUserData => {
+          console.log("Fresh user data from API:", latestUserData);
+          const apiOnboardingStatus = 
+            latestUserData.onboardingCompleted === true || 
+            latestUserData.onboarding_completed === true;
+            
+          if (apiOnboardingStatus) {
+            console.log("API reports onboarding as completed, updating local state");
+            setOnboardingData(prevData => ({
+              ...prevData,
+              currentStep: "completed",
+              onboardingCompleted: true
+            }));
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching fresh user data:", error);
+        });
+      }
         
       setOnboardingData({
         currentStep: isOnboardingCompleted ? "completed" : "basic-info",

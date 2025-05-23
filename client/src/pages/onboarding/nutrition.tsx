@@ -200,11 +200,38 @@ export default function Nutrition() {
       
       // Garantir atualização direta no banco de dados com a flag onboarding_completed
       try {
+        console.log("Iniciando atualização direta do status de onboarding no banco de dados");
+        
+        // Primeira tentativa com mais campos para garantir consistência
         const directDbUpdate = await apiRequest("PUT", `/api/users/${user.uid}`, {
           onboarding_completed: true,
-          onboardingCompleted: true
+          onboardingCompleted: true,
+          // Adicionar o resto dos dados para garantir que tudo seja salvo corretamente
+          calories: data.calories,
+          protein: data.protein,
+          carbs: data.carbs,
+          fat: data.fat
         });
-        console.log("Atualização direta do status de onboarding no banco:", directDbUpdate.ok);
+        
+        console.log("Resposta da atualização direta:", directDbUpdate);
+        
+        if (!directDbUpdate.ok) {
+          // Segunda tentativa com apenas a flag de onboarding
+          const retryUpdate = await apiRequest("PUT", `/api/users/${user.uid}`, {
+            onboarding_completed: true
+          });
+          console.log("Segunda tentativa de atualização:", retryUpdate.ok);
+        }
+        
+        // Verificar se a atualização foi bem-sucedida realizando um GET
+        const verifyUpdate = await apiRequest("GET", `/api/users/${user.uid}?t=${Date.now()}`);
+        if (verifyUpdate.ok) {
+          const userData = await verifyUpdate.json();
+          console.log("Verificação da atualização de onboarding:", {
+            onboardingCompleted: userData.onboardingCompleted,
+            onboarding_completed: userData.onboarding_completed
+          });
+        }
       } catch (dbUpdateError) {
         console.error("❌ Erro na atualização direta do status de onboarding:", dbUpdateError);
       }

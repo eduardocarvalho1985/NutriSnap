@@ -14,6 +14,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
       environment: process.env.NODE_ENV || "development"
     });
   });
+  
+  // Debug endpoint for checking onboarding status
+  app.get("/api/debug/onboarding/:uid", async (req, res) => {
+    const { uid } = req.params;
+    console.log(chalk.blue(`🔍 Debug onboarding status for user ${uid}`));
+    
+    try {
+      // Get user directly from database
+      const [rawUser] = await db.select().from(users).where(eq(users.uid, uid));
+      
+      if (!rawUser) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Get the raw value direct from DB
+      const rawValue = rawUser.onboarding_completed;
+      
+      // Return detailed info about the value
+      return res.json({
+        rawValue,
+        type: typeof rawValue,
+        asBoolean: Boolean(rawValue),
+        stringRep: String(rawValue),
+        recommendation: "If needed, manually set with: PUT /api/users/:uid with body {\"onboarding_completed\": true}"
+      });
+    } catch (error) {
+      console.error("Error in debug endpoint:", error);
+      return res.status(500).json({ message: "Error retrieving user data" });
+    }
+  });
 
   // Helper function to convert database fields to frontend format
   function mapUserToFrontend(user: any) {
@@ -22,12 +52,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       user.onboarding_completed === true || 
       user.onboarding_completed === 't' || 
       user.onboarding_completed === 1 ||
+      String(user.onboarding_completed).toLowerCase() === 'true' ||
       user.onboardingCompleted === true;
     
     const mapped = {
       ...user,
       // Convert snake_case to camelCase for frontend with proper boolean conversion
       onboardingCompleted: isOnboardingCompleted,
+      // Also keep the snake_case version for consistency
+      onboarding_completed: isOnboardingCompleted,
       targetWeight: user.target_weight || user.targetWeight,
       targetBodyFat: user.target_body_fat || user.targetBodyFat,
       activityLevel: user.activity_level || user.activityLevel,
@@ -118,6 +151,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`Normalized onboarding completion status to TRUE for user ${uid}`);
       }
       
+      // Verificar se este é um pedido específico de atualização de onboarding
+      const isOnboardingUpdate = 
+        'onboardingCompleted' in userData || 
+        'onboarding_completed' in userData;
+      
+      if (isOnboardingUpdate) {
+        console.log(`Detected explicit onboarding update request for user ${uid}`);
+      }
+      
       // Primeiro verificamos se o usuário existe
       let user = await storage.getUserByUid(uid);
       
@@ -146,6 +188,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Se for uma atualização específica de onboarding, garantimos que o campo seja atualizado diretamente
+      if (isOnboardingUpdate && (userData.onboardingCompleted === true || userData.onboarding_completed === true)) {
+        console.log(`Ensuring onboarding status is explicitly set to TRUE for user ${uid}`);
+        // Executar uma atualização direta
+        try {
+          const result = await db.update(users)
+            .set({ onboarding_completed: true, updated_at: new Date() })
+            .where(eq(users.uid, uid))
+            .returning();
+            
+          if (result.length > 0) {
+            console.log(`Direct DB update for onboarding status successful for user ${uid}`);
+          }
+        } catch (directUpdateError) {
+          console.error(`Error in direct onboarding status update:`, directUpdateError);
+        }
+      }
+      
       // Atualizamos o usuário com os dados recebidos
       const updatedUser = await storage.updateUser(uid, userData);
       
@@ -153,7 +213,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Failed to update user" });
       }
       
-      console.log(`User ${uid} updated successfully`);
+      // Verificar se a atualização foi bem-sucedida
+      const verifyUser = await storage.getUserByUid(uid);
+      console.log(`User ${uid} updated status:`, {
+        updateSuccessful: !!updatedUser,
+        onboarding_completed: verifyUser?.onboarding_completed
+      });
+      
+      // Desabilitar cache para garantir resposta fresca
+      res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.set('Pragma', 'no-cache');
+      res.set('Expires', '0');
+      
       return res.json(mapUserToFrontend(updatedUser));
     } catch (error: any) {
       console.error(`Error updating user:`, error);
