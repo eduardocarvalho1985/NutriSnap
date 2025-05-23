@@ -61,6 +61,9 @@ export function MealSection({
   const [isSavedFoodsModalOpen, setIsSavedFoodsModalOpen] = useState(false);
   const [isFoodDatabaseModalOpen, setIsFoodDatabaseModalOpen] = useState(false);
   const [isAIAnalysisModalOpen, setIsAIAnalysisModalOpen] = useState(false);
+  
+  // Debug: Log AI modal state changes
+  console.log("AI Modal state:", isAIAnalysisModalOpen);
   const { toast } = useToast();
   const { user } = useAuth();
 
