@@ -1,4 +1,4 @@
-import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog, savedFoods, SavedFood, InsertSavedFood } from "@shared/schema";
+import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog, savedFoods, SavedFood, InsertSavedFood, foodDatabase, FoodDatabase, InsertFoodDatabase } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 
@@ -25,6 +25,11 @@ export interface IStorage {
   // Saved food methods
   getSavedFoods(uid: string): Promise<SavedFood[]>;
   saveFoodItem(uid: string, foodData: Partial<InsertSavedFood>): Promise<SavedFood>;
+  
+  // Food database methods (shared across all users)
+  searchFoodDatabase(query: string): Promise<FoodDatabase[]>;
+  getFoodDatabaseByCategory(category: string): Promise<FoodDatabase[]>;
+  getAllFoodCategories(): Promise<string[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -402,6 +407,32 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return savedFood;
+  }
+
+  // Food database methods (shared across all users)
+  async searchFoodDatabase(query: string): Promise<FoodDatabase[]> {
+    const foods = await db.select()
+      .from(foodDatabase)
+      .where(sql`LOWER(${foodDatabase.name}) LIKE LOWER(${`%${query}%`})`)
+      .limit(20);
+    
+    return foods;
+  }
+
+  async getFoodDatabaseByCategory(category: string): Promise<FoodDatabase[]> {
+    const foods = await db.select()
+      .from(foodDatabase)
+      .where(eq(foodDatabase.category, category));
+    
+    return foods;
+  }
+
+  async getAllFoodCategories(): Promise<string[]> {
+    const categories = await db.select({ category: foodDatabase.category })
+      .from(foodDatabase)
+      .groupBy(foodDatabase.category);
+    
+    return categories.map(c => c.category);
   }
 }
 
