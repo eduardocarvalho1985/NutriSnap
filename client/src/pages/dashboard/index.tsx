@@ -98,11 +98,11 @@ export default function Dashboard() {
     };
   });
 
-  // Calculate totals
-  const totalCaloriesConsumed = foodLogs.reduce((sum, log) => sum + (log.calories || 0), 0);
-  const totalProteinConsumed = foodLogs.reduce((sum, log) => sum + (log.protein || 0), 0);
-  const totalCarbsConsumed = foodLogs.reduce((sum, log) => sum + (log.carbs || 0), 0);
-  const totalFatConsumed = foodLogs.reduce((sum, log) => sum + (log.fat || 0), 0);
+  // Calculate totals with proper rounding (1 decimal place max)
+  const totalCaloriesConsumed = Math.round(foodLogs.reduce((sum, log) => sum + (log.calories || 0), 0) * 10) / 10;
+  const totalProteinConsumed = Math.round(foodLogs.reduce((sum, log) => sum + (log.protein || 0), 0) * 10) / 10;
+  const totalCarbsConsumed = Math.round(foodLogs.reduce((sum, log) => sum + (log.carbs || 0), 0) * 10) / 10;
+  const totalFatConsumed = Math.round(foodLogs.reduce((sum, log) => sum + (log.fat || 0), 0) * 10) / 10;
 
   // Get user targets
   const targetCalories = user?.calories || 2000;
@@ -110,7 +110,7 @@ export default function Dashboard() {
   const targetCarbs = user?.carbs || 200;
   const targetFat = user?.fat || 70;
 
-  const remainingCalories = targetCalories - totalCaloriesConsumed;
+  const remainingCalories = Math.round((targetCalories - totalCaloriesConsumed) * 10) / 10;
   const caloriesProgress = (totalCaloriesConsumed / targetCalories) * 100;
 
   function handlePreviousDay() {
