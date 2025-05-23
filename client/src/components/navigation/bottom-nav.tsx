@@ -13,13 +13,17 @@ export function BottomNav({ activePage }: BottomNavProps) {
   const handleProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
     
+    console.log("Profile clicked - user onboarding status:", user?.onboardingCompleted);
+    
     // Check if user has completed onboarding
     if (!user?.onboardingCompleted) {
       // New user - redirect to onboarding
-      setLocation("/onboarding");
+      console.log("Redirecting to onboarding");
+      window.location.href = "/onboarding";
     } else {
       // Existing user - go to profile
-      setLocation("/profile");
+      console.log("Redirecting to profile");
+      window.location.href = "/profile";
     }
   };
 
