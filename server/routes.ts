@@ -17,10 +17,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Helper function to convert database fields to frontend format
   function mapUserToFrontend(user: any) {
-    return {
+    const mapped = {
       ...user,
       // Convert snake_case to camelCase for frontend
-      onboardingCompleted: user.onboarding_completed || user.onboardingCompleted || false,
+      onboardingCompleted: user.onboarding_completed === true || user.onboarding_completed === 't' || user.onboardingCompleted === true,
       targetWeight: user.target_weight || user.targetWeight,
       targetBodyFat: user.target_body_fat || user.targetBodyFat,
       activityLevel: user.activity_level || user.activityLevel,
@@ -30,6 +30,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       createdAt: user.created_at || user.createdAt,
       updatedAt: user.updated_at || user.updatedAt
     };
+    
+    console.log("Original user from DB:", JSON.stringify({
+      onboarding_completed: user.onboarding_completed,
+      onboardingCompleted: user.onboardingCompleted
+    }));
+    console.log("Mapped user for frontend:", JSON.stringify({
+      onboardingCompleted: mapped.onboardingCompleted
+    }));
+    
+    return mapped;
   }
 
   // API routes for users
