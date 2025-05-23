@@ -1,6 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { populateFoodDatabase } from "./populate-food-database";
 import http from "http";
 import chalk from "chalk";
 
@@ -72,6 +73,13 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 (async () => {
   await registerRoutes(app);
+  
+  // Initialize food database with Brazilian nutritional data
+  try {
+    await populateFoodDatabase();
+  } catch (error) {
+    console.error("Failed to populate food database:", error);
+  }
 
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route

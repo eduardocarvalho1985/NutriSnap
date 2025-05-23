@@ -541,6 +541,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Food database routes (shared across all users)
+  app.get("/api/food-database/search", async (req, res) => {
+    const { q } = req.query;
+    
+    if (!q || typeof q !== 'string') {
+      return res.status(400).json({ error: "Query parameter 'q' is required" });
+    }
+    
+    try {
+      const foods = await storage.searchFoodDatabase(q);
+      res.json(foods);
+    } catch (error: any) {
+      console.error("Error searching food database:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/food-database/categories", async (req, res) => {
+    try {
+      const categories = await storage.getAllFoodCategories();
+      res.json(categories);
+    } catch (error: any) {
+      console.error("Error getting food categories:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/food-database/category/:category", async (req, res) => {
+    const { category } = req.params;
+    
+    try {
+      const foods = await storage.getFoodDatabaseByCategory(category);
+      res.json(foods);
+    } catch (error: any) {
+      console.error("Error getting foods by category:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
