@@ -236,6 +236,52 @@ export default function Dashboard() {
     }
   }
 
+  // Function to handle Brazilian food database selection
+  async function handleFoodDatabaseSelection(food: any) {
+    if (!user?.uid) return;
+
+    try {
+      console.log("Handling Brazilian food database selection:", food);
+      setShowFoodSearchModal(false);
+      
+      // Determine which meal to use - if no meal is selected, use "Lanche" as default
+      const mealToUse = selectedMeal || "Lanche";
+
+      // Add selected food to log using the API (defaults to 100g since database shows per 100g)
+      const response = await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
+        date: formattedDate,
+        mealType: mealToUse,
+        name: food.name,
+        quantity: 100,
+        unit: "g",
+        calories: food.calories,
+        protein: food.protein || 0,
+        carbs: food.carbs || 0,
+        fat: food.fat || 0
+      });
+
+      // Ensure the food was added successfully
+      if (response.ok) {
+        // Explicitly refetch the food logs instead of just invalidating the query
+        await refetchFoodLogs();
+        
+        toast({
+          title: "Alimento adicionado!",
+          description: `${food.name} foi adicionado ao seu diário.`,
+        });
+      } else {
+        throw new Error("Failed to add food to log");
+      }
+    } catch (error) {
+      console.error("Error adding food from database:", error);
+      toast({
+        title: "Erro",
+        description: "Erro ao adicionar alimento do banco de dados. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  }
+
   return (
     <div className="app-container min-h-screen flex flex-col bg-neutral-light pb-16">
       {/* Header */}
