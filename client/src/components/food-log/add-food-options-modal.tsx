@@ -37,6 +37,16 @@ export function AddFoodOptionsModal({
         <div className="grid grid-cols-2 gap-4">
           <button
             className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
+            onClick={() => onSelectOption("ai-analysis")}
+          >
+            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-2">
+              <span className="text-white">🤖</span>
+            </div>
+            <span className="text-sm font-medium">Análise por IA</span>
+          </button>
+          
+          <button
+            className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
             onClick={() => onSelectOption("manual-entry")}
           >
             <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">

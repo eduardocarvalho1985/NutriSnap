@@ -392,6 +392,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AI Food Image Analysis endpoint
+  app.post("/api/users/:uid/food-image", async (req, res) => {
+    try {
+      const { uid } = req.params;
+      const { image, mealType, date } = req.body;
+
+      console.log(`POST /api/users/${uid}/food-image - AI analysis requested`);
+
+      // Validate user exists
+      const user = await storage.getUserByUid(uid);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Validate input
+      if (!image) {
+        return res.status(400).json({ message: "Image data is required" });
+      }
+
+      // Extract base64 data (remove data:image/jpeg;base64, prefix if present)
+      const base64Image = image.replace(/^data:image\/[a-z]+;base64,/, '');
+
+      try {
+        console.log("🤖 Sending image to OpenAI GPT-4o for analysis...");
+        
+        // Call OpenAI API with the image
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `Analyze this food image and return a JSON response with the following structure:
+{
+  "food": "Name of the food dish",
+  "calories": estimated_calories_per_serving,
+  "protein": estimated_protein_grams,
+  "carbs": estimated_carbs_grams,
+  "fat": estimated_fat_grams,
+  "quantity": estimated_serving_size,
+  "unit": "serving_unit (g, ml, unidade, etc)"
+}
+
+Please provide realistic nutritional estimates for a typical serving of this food. Focus on Brazilian foods when possible.`
+                },
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:image/jpeg;base64,${base64Image}`
+                  }
+                }
+              ]
+            }
+          ],
+          response_format: { type: "json_object" },
+          max_tokens: 500
+        });
+
+        const aiResult = response.choices[0].message.content;
+        console.log("🤖 OpenAI response:", aiResult);
+
+        // Parse the JSON response
+        const foodData = JSON.parse(aiResult || '{}');
+
+        // Validate the response has required fields
+        if (!foodData.food || !foodData.calories) {
+          throw new Error("Invalid response from AI - missing required fields");
+        }
+
+        // Return the structured result
+        const result = {
+          food: foodData.food,
+          calories: Math.round(foodData.calories),
+          protein: Math.round(foodData.protein || 0),
+          carbs: Math.round(foodData.carbs || 0),
+          fat: Math.round(foodData.fat || 0),
+          quantity: foodData.quantity || 1,
+          unit: foodData.unit || "porção",
+          mealType: mealType || "Lanche",
+          date: date || new Date().toISOString().split('T')[0]
+        };
+
+        console.log("✅ AI analysis complete:", JSON.stringify(result));
+        return res.json(result);
+
+      } catch (aiError: any) {
+        console.error("❌ OpenAI API error:", aiError.message);
+        return res.status(500).json({ 
+          message: "Failed to analyze image", 
+          error: aiError.message 
+        });
+      }
+
+    } catch (error: any) {
+      console.error("❌ Error in food image analysis:", error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+
   // API routes for weight logs
   app.get("/api/users/:uid/weight-logs", async (req, res) => {
     try {

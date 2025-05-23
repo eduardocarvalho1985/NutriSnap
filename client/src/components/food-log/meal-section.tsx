@@ -6,6 +6,7 @@ import { AddFoodOptionsModal } from "./add-food-options-modal";
 import { AddFoodModal } from "./add-food-modal";
 import { SavedFoodsModal } from "./saved-foods-modal";
 import { FoodDatabaseModal } from "./food-database-modal";
+import { AIFoodAnalysisModal } from "./ai-food-analysis-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
@@ -59,6 +60,7 @@ export function MealSection({
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [isSavedFoodsModalOpen, setIsSavedFoodsModalOpen] = useState(false);
   const [isFoodDatabaseModalOpen, setIsFoodDatabaseModalOpen] = useState(false);
+  const [isAIAnalysisModalOpen, setIsAIAnalysisModalOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -69,6 +71,9 @@ export function MealSection({
     setIsOptionsModalOpen(false);
 
     switch(option) {
+      case "ai-analysis":
+        setIsAIAnalysisModalOpen(true);
+        break;
       case "recently-logged":
         // Por enquanto, abrir o modal padrão para alimentos recentes
         setIsAddFoodModalOpen(true);
