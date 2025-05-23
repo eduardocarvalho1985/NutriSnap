@@ -27,6 +27,7 @@ export function AIFoodAnalysisModal({
   date,
   selectedMeal,
 }: AIFoodAnalysisModalProps) {
+  console.log("AI Modal rendered - isOpen:", isOpen);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

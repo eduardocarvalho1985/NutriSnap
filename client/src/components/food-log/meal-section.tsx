@@ -68,10 +68,12 @@ export function MealSection({
   const today = new Date().toISOString().split('T')[0];
 
   const handleSelectOption = (option: string) => {
+    console.log("Option selected:", option);
     setIsOptionsModalOpen(false);
 
     switch(option) {
       case "ai-analysis":
+        console.log("Opening AI analysis modal");
         setIsAIAnalysisModalOpen(true);
         break;
       case "recently-logged":
