@@ -10,7 +10,7 @@ import { AddFoodModal } from "@/components/food-log/add-food-modal";
 import { getFoodLogs, addFoodLog } from "@/lib/firebase";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-react";
+import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon, Flame } from "lucide-react";
 import { AddFoodOptionsModal } from "@/components/food-log/add-food-options-modal";
 import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
@@ -333,7 +333,10 @@ export default function Dashboard() {
               backgroundColor="var(--muted)"
             >
               <div className="text-center">
-                <span className="block text-3xl font-semibold font-body">{totalCaloriesConsumed}</span>
+                <div className="flex items-center justify-center gap-2 mb-1">
+                  <Flame className="h-6 w-6 text-orange-500" />
+                  <span className="text-3xl font-semibold font-body">{totalCaloriesConsumed}</span>
+                </div>
                 <span className="block text-sm text-gray-500">/ {targetCalories} kcal</span>
               </div>
             </ProgressRing>

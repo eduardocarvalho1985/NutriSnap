@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronRightIcon, Trash2Icon } from "lucide-react";
+import { ChevronRightIcon, Trash2Icon, Flame, Beef, Wheat, Droplets } from "lucide-react";
 
 // Define Food type to ensure proper typing
 type Food = {
@@ -136,9 +136,41 @@ export function FoodItem(props: FoodItemProps) {
           <div className="flex text-xs text-gray-500 mt-0.5">
             <span>{food.quantity} {food.unit}</span>
           </div>
+          
+          {/* Nutritional info with icons */}
+          <div className="flex items-center gap-3 mt-2">
+            {/* Calories */}
+            <div className="flex items-center gap-1">
+              <Flame className="h-3 w-3 text-orange-500" />
+              <span className="text-xs font-medium text-gray-700">{Math.round(food.calories * 10) / 10}</span>
+            </div>
+            
+            {/* Protein */}
+            {(food.protein || 0) > 0 && (
+              <div className="flex items-center gap-1">
+                <Beef className="h-3 w-3 text-blue-500" />
+                <span className="text-xs text-gray-600">{Math.round((food.protein || 0) * 10) / 10}g</span>
+              </div>
+            )}
+            
+            {/* Carbs */}
+            {(food.carbs || 0) > 0 && (
+              <div className="flex items-center gap-1">
+                <Wheat className="h-3 w-3 text-amber-500" />
+                <span className="text-xs text-gray-600">{Math.round((food.carbs || 0) * 10) / 10}g</span>
+              </div>
+            )}
+            
+            {/* Fat */}
+            {(food.fat || 0) > 0 && (
+              <div className="flex items-center gap-1">
+                <Droplets className="h-3 w-3 text-red-500" />
+                <span className="text-xs text-gray-600">{Math.round((food.fat || 0) * 10) / 10}g</span>
+              </div>
+            )}
+          </div>
         </div>
         <div className="flex items-center">
-          <span className="text-sm font-medium text-gray-600 mr-1">{food.calories} kcal</span>
           <ChevronRightIcon className="h-4 w-4 text-gray-400" />
         </div>
       </div>
