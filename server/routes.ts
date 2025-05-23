@@ -15,6 +15,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Helper function to convert database fields to frontend format
+  function mapUserToFrontend(user: any) {
+    return {
+      ...user,
+      // Convert snake_case to camelCase for frontend
+      onboardingCompleted: user.onboarding_completed || user.onboardingCompleted || false,
+      targetWeight: user.target_weight || user.targetWeight,
+      targetBodyFat: user.target_body_fat || user.targetBodyFat,
+      activityLevel: user.activity_level || user.activityLevel,
+      stripeCustomerId: user.stripe_customer_id || user.stripeCustomerId,
+      stripeSubscriptionId: user.stripe_subscription_id || user.stripeSubscriptionId,
+      photoURL: user.photo_url || user.photoURL,
+      createdAt: user.created_at || user.createdAt,
+      updatedAt: user.updated_at || user.updatedAt
+    };
+  }
+
   // API routes for users
   app.get("/api/users/:uid", async (req, res) => {
     try {
@@ -25,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "User not found" });
       }
       
-      return res.json(user);
+      return res.json(mapUserToFrontend(user));
     } catch (error: any) {
       return res.status(500).json({ message: error.message });
     }
@@ -50,7 +67,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const user = await storage.createUser(validatedData);
         console.log("User created successfully:", JSON.stringify(user));
         
-        return res.status(201).json(user);
+        return res.status(201).json(mapUserToFrontend(user));
       } catch (validationError: any) {
         console.error("Validation error:", validationError);
         return res.status(400).json({ 
@@ -107,7 +124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`User ${uid} updated successfully`);
-      return res.json(updatedUser);
+      return res.json(mapUserToFrontend(updatedUser));
     } catch (error: any) {
       console.error(`Error updating user:`, error);
       return res.status(500).json({ message: error.message });
