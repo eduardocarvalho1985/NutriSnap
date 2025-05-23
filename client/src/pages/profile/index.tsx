@@ -32,13 +32,13 @@ export default function Profile() {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
   
-  // Show a notification if the user hasn't completed onboarding
+  // Show a notification for users to complete their profile if key information is missing
   useEffect(() => {
-    if (user && !user.onboardingCompleted) {
+    if (user && (!user.height || !user.weight || !user.age || !user.gender || !user.goal)) {
       toast({
         title: "Complete seu perfil",
-        description: "Por favor, complete as informações do seu perfil para uma experiência personalizada.",
-        duration: 5000,
+        description: "Por favor, preencha suas informações básicas para uma experiência personalizada.",
+        duration: 7000,
       });
     }
   }, [user, toast]);

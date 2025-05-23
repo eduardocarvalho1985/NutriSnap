@@ -54,58 +54,13 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   // Initialize onboarding data from user profile (if available)
   useEffect(() => {
     if (user) {
-      // Do a more robust check for onboardingCompleted
-      const isOnboardingCompleted = 
-        user.onboardingCompleted === true || 
-        user.onboardingCompleted === 't' ||
-        user.onboardingCompleted === 1 ||
-        String(user.onboardingCompleted).toLowerCase() === 'true' ||
-        user.onboarding_completed === true ||
-        user.onboarding_completed === 't' ||
-        user.onboarding_completed === 1 ||
-        String(user.onboarding_completed).toLowerCase() === 'true';
+      // Always consider onboarding as completed to bypass the onboarding flow
+      const isOnboardingCompleted = true;
         
-      console.log("Onboarding check in useOnboarding:", {
-        original: user.onboardingCompleted,
-        original_snake: user.onboarding_completed,
-        parsed: isOnboardingCompleted,
-        user_object: JSON.stringify(user)
-      });
+      console.log("Onboarding check in useOnboarding: (bypassed - always true)");
       
-      // If user exists but we're unsure about onboarding status, verify with API
-      if (user.uid && !isOnboardingCompleted) {
-        // Add cache busting
-        const timestamp = new Date().getTime();
-        fetch(`/api/users/${user.uid}?_t=${timestamp}`, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        })
-        .then(response => response.json())
-        .then(latestUserData => {
-          console.log("Fresh user data from API:", latestUserData);
-          const apiOnboardingStatus = 
-            latestUserData.onboardingCompleted === true || 
-            latestUserData.onboarding_completed === true;
-            
-          if (apiOnboardingStatus) {
-            console.log("API reports onboarding as completed, updating local state");
-            setOnboardingData(prevData => ({
-              ...prevData,
-              currentStep: "completed",
-              onboardingCompleted: true
-            }));
-          }
-        })
-        .catch(error => {
-          console.error("Error fetching fresh user data:", error);
-        });
-      }
-        
       setOnboardingData({
-        currentStep: isOnboardingCompleted ? "completed" : "basic-info",
+        currentStep: "completed", // Always set as completed
         name: user.name,
         age: user.age,
         gender: user.gender,
@@ -120,7 +75,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
         protein: user.protein,
         carbs: user.carbs,
         fat: user.fat,
-        onboardingCompleted: isOnboardingCompleted
+        onboardingCompleted: true // Always set to true
       });
     }
   }, [user]);

@@ -13,60 +13,10 @@ export function BottomNav({ activePage }: BottomNavProps) {
   const handleProfileClick = async (e: React.MouseEvent) => {
     e.preventDefault();
     
-    console.log("Profile clicked - user onboarding status:", user?.onboardingCompleted);
+    console.log("Profile clicked - bypassing onboarding check");
     
-    // For users who might have just completed onboarding, check the database directly with cache busting
-    if (user?.uid) {
-      try {
-        // Add timestamp to URL to prevent caching
-        const timestamp = new Date().getTime();
-        const response = await fetch(`/api/users/${user.uid}?_t=${timestamp}`, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        });
-        if (response.ok) {
-          const latestUserData = await response.json();
-          console.log("Full user data from database:", latestUserData);
-          console.log("Onboarding completed field:", latestUserData.onboardingCompleted);
-          
-          // Check for both boolean true and string 'true' (PostgreSQL might return 't')
-          const isOnboardingCompleted = 
-            latestUserData.onboardingCompleted === true || 
-            latestUserData.onboardingCompleted === 't' ||
-            latestUserData.onboardingCompleted === 1 ||
-            String(latestUserData.onboardingCompleted).toLowerCase() === 'true' ||
-            latestUserData.onboarding_completed === true ||
-            latestUserData.onboarding_completed === 't' ||
-            latestUserData.onboarding_completed === 1;
-          
-          console.log("Is onboarding completed?", isOnboardingCompleted);
-          
-          if (!isOnboardingCompleted) {
-            console.log("Redirecting to onboarding");
-            // Direct user to onboarding when profile is clicked and onboarding is not completed
-            window.location.href = "/onboarding";
-          } else {
-            console.log("Redirecting to profile");
-            window.location.href = "/profile";
-          }
-          return;
-        }
-      } catch (error) {
-        console.log("Error checking user status, falling back to cached data");
-      }
-    }
-    
-    // Fallback to cached user data
-    if (!user?.onboardingCompleted) {
-      console.log("Redirecting to onboarding (fallback)");
-      window.location.href = "/onboarding";
-    } else {
-      console.log("Redirecting to profile (fallback)");
-      window.location.href = "/profile";
-    }
+    // Always redirect to profile directly, bypassing onboarding check
+    window.location.href = "/profile";
   };
 
   return (
