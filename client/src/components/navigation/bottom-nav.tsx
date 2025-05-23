@@ -18,7 +18,12 @@ export function BottomNav({ activePage }: BottomNavProps) {
     // For users who might have just completed onboarding, check the database directly
     if (user?.uid) {
       try {
-        const response = await fetch(`/api/users/${user.uid}`);
+        const response = await fetch(`/api/users/${user.uid}`, {
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
         if (response.ok) {
           const latestUserData = await response.json();
           console.log("Full user data from database:", latestUserData);
@@ -26,10 +31,14 @@ export function BottomNav({ activePage }: BottomNavProps) {
           console.log("Type of onboardingCompleted:", typeof latestUserData.onboardingCompleted);
           
           // Check for both boolean true and string 'true' (PostgreSQL might return 't')
-          const isOnboardingCompleted = latestUserData.onboardingCompleted === true || 
-                                       latestUserData.onboardingCompleted === 't' ||
-                                       latestUserData.onboarding_completed === true ||
-                                       latestUserData.onboarding_completed === 't';
+          const isOnboardingCompleted = 
+            latestUserData.onboardingCompleted === true || 
+            latestUserData.onboardingCompleted === 't' ||
+            latestUserData.onboardingCompleted === 1 ||
+            String(latestUserData.onboardingCompleted).toLowerCase() === 'true' ||
+            latestUserData.onboarding_completed === true ||
+            latestUserData.onboarding_completed === 't' ||
+            latestUserData.onboarding_completed === 1;
           
           console.log("Is onboarding completed?", isOnboardingCompleted);
           

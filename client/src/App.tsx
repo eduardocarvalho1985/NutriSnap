@@ -29,7 +29,7 @@ function Router() {
     if (!loading) {
       const isAuthRoute = location.startsWith("/auth") || location === "/";
       const isOnboardingRoute = location.startsWith("/onboarding");
-      
+
       // Determine if this is a new signup or an existing user login
       const isNewUser = user?.createdAt && 
                       (new Date().getTime() - new Date(user.createdAt).getTime()) < 5 * 60 * 1000; // 5 minutes
@@ -40,9 +40,17 @@ function Router() {
       } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute && location === "/profile") {
         // New user trying to access profile, take them through onboarding
         setLocation("/onboarding");
-      } else if (user && !user.onboardingCompleted && !isNewUser && !isAuthRoute && location === "/profile") {
-        // Existing user trying to access profile without onboarding, redirect to dashboard
-        setLocation("/dashboard");
+      } else if (user && (!user.onboardingCompleted || user.onboardingCompleted === false) && !isNewUser && !isAuthRoute) {
+        // Check more thoroughly for onboarding completion
+        const isActuallyCompleted = 
+          user.onboardingCompleted === true || 
+          user.onboardingCompleted === 't' || 
+          String(user.onboardingCompleted).toLowerCase() === 'true';
+
+        if (!isActuallyCompleted) {
+          console.log("Redirecting to dashboard - user onboarding not completed");
+          setLocation("/dashboard");
+        }
       } else if (user && user.onboardingCompleted && isAuthRoute) {
         // Logged in user on auth page, redirect to dashboard
         setLocation("/dashboard");
@@ -65,20 +73,20 @@ function Router() {
       <Route path="/auth/login" component={Login} />
       <Route path="/auth/signup" component={Signup} />
       <Route path="/auth/reset-password" component={ResetPassword} />
-      
+
       {/* Onboarding routes */}
       <Route path="/onboarding" component={Onboarding} />
       <Route path="/onboarding/basic-info" component={BasicInfo} />
       <Route path="/onboarding/goals" component={Goals} />
       <Route path="/onboarding/nutrition" component={Nutrition} />
-      
+
       {/* Main app routes */}
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/progress" component={Progress} />
       <Route path="/workouts" component={Workouts} />
       <Route path="/settings" component={Settings} />
       <Route path="/profile" component={Profile} />
-      
+
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
