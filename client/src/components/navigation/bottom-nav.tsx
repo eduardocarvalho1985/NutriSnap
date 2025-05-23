@@ -21,9 +21,19 @@ export function BottomNav({ activePage }: BottomNavProps) {
         const response = await fetch(`/api/users/${user.uid}`);
         if (response.ok) {
           const latestUserData = await response.json();
-          console.log("Latest user data from database:", latestUserData.onboardingCompleted);
+          console.log("Full user data from database:", latestUserData);
+          console.log("Onboarding completed field:", latestUserData.onboardingCompleted);
+          console.log("Type of onboardingCompleted:", typeof latestUserData.onboardingCompleted);
           
-          if (!latestUserData.onboardingCompleted) {
+          // Check for both boolean true and string 'true' (PostgreSQL might return 't')
+          const isOnboardingCompleted = latestUserData.onboardingCompleted === true || 
+                                       latestUserData.onboardingCompleted === 't' ||
+                                       latestUserData.onboarding_completed === true ||
+                                       latestUserData.onboarding_completed === 't';
+          
+          console.log("Is onboarding completed?", isOnboardingCompleted);
+          
+          if (!isOnboardingCompleted) {
             console.log("Redirecting to onboarding");
             window.location.href = "/onboarding";
           } else {
