@@ -103,6 +103,13 @@ export function MealSection({
     setIsOptionsModalOpen(true);
   };
 
+  // Direct AI handler
+  const handleAIAnalysis = () => {
+    console.log("Direct AI analysis called");
+    setIsOptionsModalOpen(false);
+    setIsAIAnalysisModalOpen(true);
+  };
+
   // Função para lidar com dados analisados pela IA
   const handleFoodAnalyzed = async (foodData: any) => {
     try {
@@ -302,6 +309,7 @@ export function MealSection({
             console.log("MealSection received option:", option);
             handleSelectOption(option);
           }}
+          onAIAnalysis={handleAIAnalysis}
           date={today}
           selectedMeal={title}
         />

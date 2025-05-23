@@ -11,6 +11,7 @@ type AddFoodOptionsModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSelectOption: (option: string) => void;
+  onAIAnalysis?: () => void;
   date: string;
   selectedMeal: string | null;
 };
@@ -19,6 +20,7 @@ export function AddFoodOptionsModal({
   isOpen,
   onClose,
   onSelectOption,
+  onAIAnalysis,
   date,
   selectedMeal,
 }: AddFoodOptionsModalProps) {
@@ -41,15 +43,13 @@ export function AddFoodOptionsModal({
               e.preventDefault();
               e.stopPropagation();
               console.log("AI button clicked!");
-              console.log("Closing options modal");
-              onClose();
-              console.log("Options modal closed");
-              // Directly trigger AI modal in a simple way
-              setTimeout(() => {
-                console.log("About to call onSelectOption with ai-analysis");
+              if (onAIAnalysis) {
+                console.log("Calling direct AI analysis function");
+                onAIAnalysis();
+              } else {
+                console.log("Fallback to onSelectOption");
                 onSelectOption("ai-analysis");
-                console.log("Called onSelectOption");
-              }, 100);
+              }
             }}
           >
             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-2">
