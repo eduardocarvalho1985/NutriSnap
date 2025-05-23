@@ -78,13 +78,24 @@ type NavItemProps = {
 };
 
 function NavItem({ href, icon, label, isActive }: NavItemProps) {
+  const [, setLocation] = useLocation();
+  
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log(`Navigating to: ${href}`);
+    setLocation(href);
+  };
+
   return (
-    <Link href={href} className={`flex flex-col items-center py-2 px-3 ${isActive ? 'text-primary' : 'text-gray-500'} relative`}>
+    <div 
+      onClick={handleClick}
+      className={`flex flex-col items-center py-2 px-3 cursor-pointer ${isActive ? 'text-primary' : 'text-gray-500'} relative`}
+    >
       {icon}
       <span className="text-xs mt-1">{label}</span>
       {isActive && (
         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
       )}
-    </Link>
+    </div>
   );
 }
