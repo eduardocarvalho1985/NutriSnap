@@ -289,15 +289,29 @@ export function MealSection({
           )}
         </div>
 
-        <Button 
-          variant="ghost" 
-          size="sm"
-          className="mt-3 text-primary text-sm font-medium flex items-center w-full justify-center"
-          onClick={handleAddFood}
-        >
-          <PlusIcon className="h-4 w-4 mr-1" />
-          Adicionar alimento
-        </Button>
+        <div className="mt-3 space-y-2">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-primary text-sm font-medium flex items-center w-full justify-center"
+            onClick={handleAddFood}
+          >
+            <PlusIcon className="h-4 w-4 mr-1" />
+            Adicionar alimento
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium flex items-center w-full justify-center hover:from-purple-600 hover:to-pink-600 border-0"
+            onClick={() => {
+              console.log("Direct AI button clicked!");
+              setIsAIAnalysisModalOpen(true);
+            }}
+          >
+            🤖 Análise por IA
+          </Button>
+        </div>
       </div>
 
       {/* Modais */}
