@@ -19,11 +19,21 @@ import { UserIcon, CalendarIcon, ChevronDownIcon } from "lucide-react";
 const profileSchema = z.object({
   name: z.string().min(2, "Nome deve ter pelo menos 2 caracteres"),
   email: z.string().email("Email inválido").optional(),
-  age: z.coerce.number().min(14, "Idade mínima: 14 anos").max(120, "Idade máxima: 120 anos"),
-  gender: z.enum(["male", "female", "other"]),
-  height: z.coerce.number().min(100, "Altura mínima: 100 cm").max(250, "Altura máxima: 250 cm"),
-  weight: z.coerce.number().min(30, "Peso mínimo: 30 kg").max(300, "Peso máximo: 300 kg"),
-  profession: z.string().optional()
+  age: z.coerce.number().min(14, "Idade mínima: 14 anos").max(120, "Idade máxima: 120 anos").optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+  height: z.coerce.number().min(100, "Altura mínima: 100 cm").max(250, "Altura máxima: 250 cm").optional(),
+  weight: z.coerce.number().min(30, "Peso mínimo: 30 kg").max(300, "Peso máximo: 300 kg").optional(),
+  profession: z.string().optional(),
+  // Meta/Objetivos
+  goal: z.string().optional(),
+  targetWeight: z.coerce.number().min(30, "Peso alvo mínimo: 30 kg").max(300, "Peso alvo máximo: 300 kg").optional(),
+  targetBodyFat: z.coerce.number().min(3, "% gordura mínima: 3%").max(50, "% gordura máxima: 50%").optional(),
+  activityLevel: z.string().optional(),
+  // Nutrição
+  calories: z.coerce.number().min(800, "Calorias mínimas: 800").max(5000, "Calorias máximas: 5000").optional(),
+  protein: z.coerce.number().min(30, "Proteína mínima: 30g").max(500, "Proteína máxima: 500g").optional(),
+  carbs: z.coerce.number().min(50, "Carboidratos mínimos: 50g").max(800, "Carboidratos máximos: 800g").optional(),
+  fat: z.coerce.number().min(20, "Gordura mínima: 20g").max(300, "Gordura máxima: 300g").optional()
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -54,7 +64,17 @@ export default function Profile() {
       gender: user?.gender || undefined,
       height: user?.height || undefined,
       weight: user?.weight || undefined,
-      profession: user?.profession || ""
+      profession: user?.profession || "",
+      // Meta/Objetivos
+      goal: user?.goal || undefined,
+      targetWeight: user?.targetWeight || undefined,
+      targetBodyFat: user?.targetBodyFat || undefined,
+      activityLevel: user?.activityLevel || undefined,
+      // Nutrição
+      calories: user?.calories || undefined,
+      protein: user?.protein || undefined,
+      carbs: user?.carbs || undefined,
+      fat: user?.fat || undefined
     }
   });
   
@@ -69,7 +89,17 @@ export default function Profile() {
         gender: user.gender || undefined,
         height: user.height || undefined,
         weight: user.weight || undefined,
-        profession: user.profession || ""
+        profession: user.profession || "",
+        // Meta/Objetivos
+        goal: user.goal || undefined,
+        targetWeight: user.targetWeight || undefined,
+        targetBodyFat: user.targetBodyFat || undefined,
+        activityLevel: user.activityLevel || undefined,
+        // Nutrição
+        calories: user.calories || undefined,
+        protein: user.protein || undefined,
+        carbs: user.carbs || undefined,
+        fat: user.fat || undefined
       });
       
       if (import.meta.env.DEV) {
@@ -367,13 +397,200 @@ export default function Profile() {
                     </FormItem>
                   )}
                 />
+
+                {/* Seção de Metas */}
+                <div className="border-t pt-6 mt-6">
+                  <h4 className="text-md font-semibold mb-4 text-primary">🎯 Metas e Objetivos</h4>
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="goal"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Objetivo Principal</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                            disabled={isLoading}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione seu objetivo" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="lose_weight">Perder Peso</SelectItem>
+                              <SelectItem value="maintain">Manter Peso</SelectItem>
+                              <SelectItem value="gain_muscle">Ganhar Massa Muscular</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <FormField
+                        control={form.control}
+                        name="targetWeight"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Peso Alvo (kg)</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                step="0.1"
+                                {...field} 
+                                placeholder="75.0" 
+                                disabled={isLoading}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={form.control}
+                        name="targetBodyFat"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>% Gordura Alvo</FormLabel>
+                            <FormControl>
+                              <Input 
+                                type="number" 
+                                {...field} 
+                                placeholder="15" 
+                                disabled={isLoading}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="activityLevel"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nível de Atividade</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            defaultValue={field.value}
+                            disabled={isLoading}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Selecione seu nível de atividade" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="sedentary">Sedentário (pouco/nenhum exercício)</SelectItem>
+                              <SelectItem value="light">Leve (exercício leve 1-3 dias/semana)</SelectItem>
+                              <SelectItem value="moderate">Moderado (exercício moderado 3-5 dias/semana)</SelectItem>
+                              <SelectItem value="active">Ativo (exercício intenso 6-7 dias/semana)</SelectItem>
+                              <SelectItem value="very_active">Muito Ativo (exercício muito intenso, trabalho físico)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {/* Seção de Nutrição */}
+                <div className="border-t pt-6 mt-6">
+                  <h4 className="text-md font-semibold mb-4 text-primary">🍎 Metas Nutricionais</h4>
+                  
+                  <FormField
+                    control={form.control}
+                    name="calories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Calorias Diárias (kcal)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            {...field} 
+                            placeholder="2000" 
+                            disabled={isLoading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="grid grid-cols-3 gap-4 mt-4">
+                    <FormField
+                      control={form.control}
+                      name="protein"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Proteína (g)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              placeholder="150" 
+                              disabled={isLoading}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="carbs"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Carboidratos (g)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              placeholder="200" 
+                              disabled={isLoading}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="fat"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Gordura (g)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              {...field} 
+                              placeholder="67" 
+                              disabled={isLoading}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
                 
                 <Button 
                   type="submit" 
-                  className="w-full mt-2"
+                  className="w-full mt-6"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Salvando..." : "Salvar Alterações"}
+                  {isLoading ? "Salvando..." : "Salvar Todas as Alterações"}
                 </Button>
               </form>
             </Form>
