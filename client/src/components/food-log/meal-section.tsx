@@ -98,6 +98,54 @@ export function MealSection({
     setIsOptionsModalOpen(true);
   };
 
+  // Função para lidar com dados analisados pela IA
+  const handleFoodAnalyzed = async (foodData: any) => {
+    try {
+      if (!user || !user.uid) {
+        toast({
+          title: "Erro de autenticação",
+          description: "Você precisa estar logado para adicionar alimentos",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log("Dados analisados pela IA:", foodData);
+
+      // Criar o alimento com os dados da IA
+      const response = await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
+        name: foodData.food,
+        quantity: foodData.quantity,
+        unit: foodData.unit,
+        calories: foodData.calories,
+        protein: foodData.protein,
+        carbs: foodData.carbs,
+        fat: foodData.fat,
+        mealType: foodData.mealType,
+        date: foodData.date
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Sucesso! 🎉",
+          description: `${foodData.food} foi adicionado com IA`,
+        });
+        
+        // Recarregar a página para mostrar o novo alimento
+        window.location.reload();
+      } else {
+        throw new Error("Falha ao salvar alimento");
+      }
+    } catch (error: any) {
+      console.error("Erro ao adicionar alimento analisado pela IA:", error);
+      toast({
+        title: "Erro ao adicionar alimento",
+        description: error.message || "Não foi possível adicionar o alimento",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Função para adicionar alimento do banco de dados ou salvos
   const handleSelectFood = async (food: any) => {
     try {
@@ -276,6 +324,16 @@ export function MealSection({
             setIsFoodDatabaseModalOpen(false);
             setIsAddFoodModalOpen(true);
           }}
+        />
+      )}
+
+      {isAIAnalysisModalOpen && (
+        <AIFoodAnalysisModal
+          isOpen={true}
+          onClose={() => setIsAIAnalysisModalOpen(false)}
+          onFoodAnalyzed={handleFoodAnalyzed}
+          date={today}
+          selectedMeal={title}
         />
       )}
     </>
