@@ -41,9 +41,15 @@ export function AddFoodOptionsModal({
               e.preventDefault();
               e.stopPropagation();
               console.log("AI button clicked!");
-              console.log("About to call onSelectOption with ai-analysis");
-              onSelectOption("ai-analysis");
-              console.log("Called onSelectOption");
+              console.log("Closing options modal");
+              onClose();
+              console.log("Options modal closed");
+              // Directly trigger AI modal in a simple way
+              setTimeout(() => {
+                console.log("About to call onSelectOption with ai-analysis");
+                onSelectOption("ai-analysis");
+                console.log("Called onSelectOption");
+              }, 100);
             }}
           >
             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-2">
