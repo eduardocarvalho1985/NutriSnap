@@ -16,7 +16,19 @@ export function log(message: string, source = "express") {
     hour12: true,
   });
 
-  console.log(`${formattedTime} [${source}] ${message}`);
+  // Color and emoji mapping for different sources
+  const sourceConfig = {
+    express: { color: chalk.green, emoji: "🚂" },
+    api: { color: chalk.blue, emoji: "🔌" },
+    auth: { color: chalk.magenta, emoji: "🔐" },
+    db: { color: chalk.yellow, emoji: "💾" },
+    vite: { color: chalk.cyan, emoji: "🌀" },
+    default: { color: chalk.white, emoji: "ℹ️" }
+  };
+
+  const config = sourceConfig[source as keyof typeof sourceConfig] || sourceConfig.default;
+  
+  console.log(`${chalk.gray(formattedTime)} ${config.emoji} [${config.color(source)}] ${message}`);
 }
 
 export async function setupVite(app: Express, server: Server) {

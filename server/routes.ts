@@ -2,11 +2,12 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import chalk from "chalk";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint
   app.get("/api/health", (req, res) => {
-    console.log("Health check endpoint called");
+    console.log(chalk.green("💓 Health check endpoint called"));
     return res.json({ 
       status: "ok", 
       timestamp: new Date().toISOString(),
