@@ -37,8 +37,8 @@ function Router() {
       if (!user && !isAuthRoute) {
         // Not logged in, redirect to login
         setLocation("/auth/login");
-      } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute) {
-        // New user, take them through onboarding
+      } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute && location === "/profile") {
+        // New user trying to access profile, take them through onboarding
         setLocation("/onboarding");
       } else if (user && !user.onboardingCompleted && !isNewUser && !isAuthRoute) {
         // Existing user without onboarding data, redirect to dashboard instead of profile
