@@ -29,6 +29,7 @@ function Router() {
     if (!loading) {
       const isAuthRoute = location.startsWith("/auth") || location === "/";
       const isOnboardingRoute = location.startsWith("/onboarding");
+      const isProfileRoute = location === "/profile";
 
       // Determine if this is a new signup or an existing user login
       const isNewUser = user?.createdAt && 
@@ -36,23 +37,19 @@ function Router() {
 
       if (!user && !isAuthRoute) {
         // Not logged in, redirect to login
+        console.log("Redirecting to login - user not logged in");
         setLocation("/auth/login");
-      } else if (user && !user.onboardingCompleted && isNewUser && !isOnboardingRoute && !isAuthRoute && location === "/profile") {
-        // New user trying to access profile, take them through onboarding
+      } else if (user && isAuthRoute && user.onboardingCompleted) {
+        // Logged in user with completed onboarding on auth page, redirect to dashboard
+        console.log("Redirecting to dashboard - user logged in and onboarded");
+        setLocation("/dashboard");
+      } else if (user && isProfileRoute && !user.onboardingCompleted) {
+        // User trying to access profile but hasn't completed onboarding
+        console.log("Redirecting to onboarding - profile access with incomplete onboarding");
         setLocation("/onboarding");
-      } else if (user && (!user.onboardingCompleted || user.onboardingCompleted === false) && !isNewUser && !isAuthRoute) {
-        // Check more thoroughly for onboarding completion
-        const isActuallyCompleted = 
-          user.onboardingCompleted === true || 
-          user.onboardingCompleted === 't' || 
-          String(user.onboardingCompleted).toLowerCase() === 'true';
-
-        if (!isActuallyCompleted) {
-          console.log("Redirecting to dashboard - user onboarding not completed");
-          setLocation("/dashboard");
-        }
-      } else if (user && user.onboardingCompleted && isAuthRoute) {
+      } else if (user && isAuthRoute) {
         // Logged in user on auth page, redirect to dashboard
+        console.log("Redirecting to dashboard - user logged in");
         setLocation("/dashboard");
       }
     }

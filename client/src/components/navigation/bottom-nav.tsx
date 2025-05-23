@@ -28,7 +28,6 @@ export function BottomNav({ activePage }: BottomNavProps) {
           const latestUserData = await response.json();
           console.log("Full user data from database:", latestUserData);
           console.log("Onboarding completed field:", latestUserData.onboardingCompleted);
-          console.log("Type of onboardingCompleted:", typeof latestUserData.onboardingCompleted);
           
           // Check for both boolean true and string 'true' (PostgreSQL might return 't')
           const isOnboardingCompleted = 
@@ -44,6 +43,7 @@ export function BottomNav({ activePage }: BottomNavProps) {
           
           if (!isOnboardingCompleted) {
             console.log("Redirecting to onboarding");
+            // Direct user to onboarding when profile is clicked and onboarding is not completed
             window.location.href = "/onboarding";
           } else {
             console.log("Redirecting to profile");
