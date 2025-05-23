@@ -138,43 +138,98 @@ export default function Profile() {
             
             <div className="flex flex-wrap gap-3 justify-center mb-4">
               {user?.height ? (
-                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors"
+                  onClick={() => {
+                    document.getElementById('height-input')?.focus();
+                    document.getElementById('height-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
                   <span className="font-medium">{user.height} cm</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
                 </div>
-              ) : null}
+              ) : (
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors border-2 border-dashed border-gray-300"
+                  onClick={() => {
+                    document.getElementById('height-input')?.focus();
+                    document.getElementById('height-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <span className="font-medium text-gray-500">Adicionar altura</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
+                </div>
+              )}
               
               {user?.weight ? (
-                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors"
+                  onClick={() => {
+                    document.getElementById('weight-input')?.focus();
+                    document.getElementById('weight-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
                   <span className="font-medium">{user.weight} kg</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
                 </div>
-              ) : null}
+              ) : (
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors border-2 border-dashed border-gray-300"
+                  onClick={() => {
+                    document.getElementById('weight-input')?.focus();
+                    document.getElementById('weight-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <span className="font-medium text-gray-500">Adicionar peso</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
+                </div>
+              )}
               
               {user?.age ? (
-                <div className="bg-gray-100 px-3 py-1.5 rounded-full text-sm flex items-center">
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors"
+                  onClick={() => {
+                    document.getElementById('age-input')?.focus();
+                    document.getElementById('age-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
                   <CalendarIcon className="h-4 w-4 mr-1" />
                   <span className="font-medium">{user.age} anos</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
                 </div>
-              ) : null}
-              
-              {!user?.height && !user?.weight && !user?.age && (
-                <div className="text-gray-500 text-sm">
-                  Preencha seu perfil para mostrar suas informações
+              ) : (
+                <div 
+                  className="bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full text-sm flex items-center cursor-pointer transition-colors border-2 border-dashed border-gray-300"
+                  onClick={() => {
+                    document.getElementById('age-input')?.focus();
+                    document.getElementById('age-input')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                >
+                  <CalendarIcon className="h-4 w-4 mr-1 opacity-60" />
+                  <span className="font-medium text-gray-500">Adicionar idade</span>
+                  <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
                 </div>
               )}
             </div>
             
-            <div className="bg-primary/10 p-3 rounded-md text-center mb-2">
-              <p className="text-sm text-primary-dark">
+            <div 
+              className="bg-primary/10 hover:bg-primary/20 p-3 rounded-md text-center mb-2 cursor-pointer transition-colors"
+              onClick={() => {
+                document.getElementById('edit-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+            >
+              <p className="text-sm text-primary-dark flex items-center justify-center">
                 {user?.goal === "lose_weight" ? "Meta: Perder Peso" :
                  user?.goal === "maintain" ? "Meta: Manter Peso" :
                  user?.goal === "gain_muscle" ? "Meta: Ganhar Massa Muscular" : "Meta não definida"}
+                <ChevronDownIcon className="h-3 w-3 ml-1 opacity-60" />
               </p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6" id="edit-form">
             <h3 className="text-lg font-semibold mb-4">Editar Perfil</h3>
             
             <Form {...form}>
@@ -216,6 +271,7 @@ export default function Profile() {
                         <FormLabel>Idade</FormLabel>
                         <FormControl>
                           <Input 
+                            id="age-input"
                             type="number" 
                             {...field} 
                             placeholder="25" 
@@ -264,6 +320,7 @@ export default function Profile() {
                         <FormLabel>Altura (cm)</FormLabel>
                         <FormControl>
                           <Input 
+                            id="height-input"
                             type="number" 
                             {...field} 
                             placeholder="175" 
@@ -283,6 +340,7 @@ export default function Profile() {
                         <FormLabel>Peso (kg)</FormLabel>
                         <FormControl>
                           <Input 
+                            id="weight-input"
                             type="number" 
                             step="0.1"
                             {...field} 
