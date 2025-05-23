@@ -1,11 +1,28 @@
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { HomeIcon, BarChart2Icon, DumbbellIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 type BottomNavProps = {
   activePage: 'home' | 'progress' | 'workout' | 'settings' | 'profile';
 };
 
 export function BottomNav({ activePage }: BottomNavProps) {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+
+  const handleProfileClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Check if user has completed onboarding
+    if (!user?.onboardingCompleted) {
+      // New user - redirect to onboarding
+      setLocation("/onboarding");
+    } else {
+      // Existing user - go to profile
+      setLocation("/profile");
+    }
+  };
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-20">
       <div className="flex justify-around">
@@ -37,12 +54,17 @@ export function BottomNav({ activePage }: BottomNavProps) {
           isActive={activePage === 'settings'}
         />
         
-        <NavItem 
-          href="/profile" 
-          icon={<UserIcon className="h-6 w-6" />}
-          label="Perfil"
-          isActive={activePage === 'profile'}
-        />
+        {/* Smart Profile Navigation */}
+        <div
+          onClick={handleProfileClick}
+          className={`flex flex-col items-center py-2 px-3 cursor-pointer ${activePage === 'profile' ? 'text-primary' : 'text-gray-500'} relative`}
+        >
+          <UserIcon className="h-6 w-6" />
+          <span className="text-xs mt-1">Perfil</span>
+          {activePage === 'profile' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary"></div>
+          )}
+        </div>
       </div>
     </nav>
   );
