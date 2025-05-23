@@ -489,4 +489,27 @@ async updateUser(uid: string, data: any) {
         data.onboarding_completed = data.onboardingCompleted;
         delete data.onboardingCompleted;
       }
+      
+      // Add the rest of the method implementation
+      const updatedUser = await this.getUserByUid(uid);
+      if (!updatedUser) {
+        console.error(`Failed to update user ${uid}: User not found`);
+        return undefined;
+      }
+      
+      // Update the database with normalized data
+      const [user] = await db.update(users)
+        .set({
+          ...data,
+          updated_at: new Date()
+        })
+        .where(eq(users.uid, uid))
+        .returning();
+      
+      console.log(`User ${uid} successfully updated with onboarding_completed=${data.onboarding_completed}`);
+      return user;
+    } catch (error) {
+      console.error(`Error updating user ${uid}:`, error);
+      throw error;
+    }
 }
