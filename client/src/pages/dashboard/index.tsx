@@ -14,6 +14,7 @@ import { BellIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from "lucide-re
 import { AddFoodOptionsModal } from "@/components/food-log/add-food-options-modal";
 import { SavedFoodsModal } from "@/components/food-log/saved-foods-modal";
 import { FoodDatabaseModal } from "@/components/food-log/food-database-modal";
+import { FoodSearchModal } from "@/components/food-log/food-search-modal";
 import { EditFoodModal } from "@/components/food-log/edit-food-modal";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -53,6 +54,7 @@ export default function Dashboard() {
   const [showAddFoodOptionsModal, setShowAddFoodOptionsModal] = useState(false);
   const [showSavedFoodsModal, setShowSavedFoodsModal] = useState(false);
   const [showFoodDatabaseModal, setShowFoodDatabaseModal] = useState(false);
+  const [showFoodSearchModal, setShowFoodSearchModal] = useState(false);
   const [showEditFoodModal, setShowEditFoodModal] = useState(false);
   const [selectedFoodToEdit, setSelectedFoodToEdit] = useState<Food | null>(null);
 
@@ -143,7 +145,7 @@ export default function Dashboard() {
         setShowSavedFoodsModal(true);
         break;
       case "food-database":
-        setShowFoodDatabaseModal(true);
+        setShowFoodSearchModal(true);
         break;
       case "recently-logged":
         // This will be implemented later
