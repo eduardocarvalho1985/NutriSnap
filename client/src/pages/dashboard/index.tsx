@@ -425,15 +425,7 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Add meal button */}
-          <Button
-            variant="outline"
-            className="mt-4 text-center w-full py-3 border-dashed border-gray-300 text-primary font-medium hover:bg-gray-50 flex items-center justify-center"
-            onClick={handleAddMeal}
-          >
-            <PlusIcon className="h-5 w-5 mr-1" />
-            Adicionar Refeição
-          </Button>
+
         </div>
       </main>
 
