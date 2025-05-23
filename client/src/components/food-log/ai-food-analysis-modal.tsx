@@ -130,7 +130,12 @@ export function AIFoodAnalysisModal({
                 <Button
                   variant="outline"
                   className="h-24 flex flex-col items-center justify-center space-y-2"
-                  onClick={triggerFileInput}
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.setAttribute('capture', 'environment');
+                      fileInputRef.current.click();
+                    }
+                  }}
                 >
                   <Camera className="h-8 w-8 text-gray-500" />
                   <span className="text-sm">Câmera</span>
@@ -139,7 +144,12 @@ export function AIFoodAnalysisModal({
                 <Button
                   variant="outline"
                   className="h-24 flex flex-col items-center justify-center space-y-2"
-                  onClick={triggerFileInput}
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.removeAttribute('capture');
+                      fileInputRef.current.click();
+                    }
+                  }}
                 >
                   <Upload className="h-8 w-8 text-gray-500" />
                   <span className="text-sm">Galeria</span>
@@ -150,7 +160,6 @@ export function AIFoodAnalysisModal({
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                capture="environment"
                 onChange={handleImageSelect}
                 className="hidden"
               />

@@ -42,14 +42,17 @@ export function AddFoodOptionsModal({
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              console.log("AI button clicked!");
-              if (onAIAnalysis) {
-                console.log("Calling direct AI analysis function");
-                onAIAnalysis();
-              } else {
-                console.log("Fallback to onSelectOption");
-                onSelectOption("ai-analysis");
-              }
+              console.log("AI button clicked from options modal!");
+              onClose();
+              setTimeout(() => {
+                if (onAIAnalysis) {
+                  console.log("Calling direct AI analysis function");
+                  onAIAnalysis();
+                } else {
+                  console.log("Fallback to onSelectOption");
+                  onSelectOption("ai-analysis");
+                }
+              }, 100);
             }}
           >
             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-2">
