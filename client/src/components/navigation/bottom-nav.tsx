@@ -84,8 +84,9 @@ function NavItem({ href, icon, label, isActive }: NavItemProps) {
     e.preventDefault();
     e.stopPropagation();
     console.log(`🚀 Button clicked! Navigating to: ${href}`);
-    alert(`Clicking ${label} button - going to ${href}`); // Visual confirmation
-    setLocation(href);
+    
+    // Use window.location for direct navigation
+    window.location.href = href;
   };
 
   return (
