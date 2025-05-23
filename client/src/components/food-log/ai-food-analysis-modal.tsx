@@ -34,23 +34,72 @@ export function AIFoodAnalysisModal({
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Função para comprimir imagem
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Definir tamanho máximo (reduzir para 800px na maior dimensão)
+        const maxSize = 800;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Desenhar e comprimir
+        ctx?.drawImage(img, 0, 0, width, height);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7); // 70% qualidade
+        resolve(compressedDataUrl);
+      };
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit para arquivo original
         toast({
           title: "Arquivo muito grande",
-          description: "A imagem deve ter no máximo 5MB",
+          description: "A imagem deve ter no máximo 10MB",
           variant: "destructive",
         });
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        console.log("Comprimindo imagem...");
+        const compressedImage = await compressImage(file);
+        console.log("Imagem comprimida com sucesso");
+        setSelectedImage(compressedImage);
+      } catch (error) {
+        console.error("Erro ao comprimir imagem:", error);
+        toast({
+          title: "Erro ao processar imagem",
+          description: "Não foi possível processar a imagem",
+          variant: "destructive",
+        });
+      }
     }
   };
 
