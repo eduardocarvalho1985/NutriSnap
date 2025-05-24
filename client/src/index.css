@@ -118,8 +118,11 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    background-color: #FFF8F6 !important;
+    color: #1F2937;
     font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
