@@ -21,7 +21,7 @@ export default function Progress() {
   const [timeRange, setTimeRange] = useState<TimeRange>("7days");
   const [newWeight, setNewWeight] = useState("");
   const { toast } = useToast();
-	const [, setLocation] = useLocation();
+        const [, setLocation] = useLocation();
 
   // Get date range based on selected time range
   const getDateRange = () => {
@@ -164,9 +164,6 @@ export default function Progress() {
       <header className="bg-white shadow-sm px-4 py-4">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-bold font-heading text-secondary">Progresso</h1>
-          <button className="p-1 rounded-full hover:bg-gray-100">
-            <SlidersHorizontal className="h-6 w-6 text-gray-500" />
-          </button>
         </div>
       </header>
 
@@ -204,8 +201,8 @@ export default function Progress() {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold">Calorias</h3>
             <div className="flex items-center text-sm text-gray-600">
-              <span className="w-3 h-3 rounded-full bg-primary inline-block mr-1"></span> Meta
-              <span className="w-3 h-3 rounded-full bg-accent inline-block ml-3 mr-1"></span> Consumido
+              <span className="w-3 h-3 rounded-full inline-block mr-1" style={{backgroundColor: "rgba(96, 108, 56, 0.2)"}}></span> Meta
+              <span className="w-3 h-3 rounded-full inline-block ml-3 mr-1" style={{backgroundColor: "#DDA15E"}}></span> Consumido
             </div>
           </div>
 
@@ -358,9 +355,9 @@ export default function Progress() {
             </div>
           </CardContent>
         </Card>
-				<div className="px-4">
-					<Button variant="outline" onClick={() => setLocation("/dashboard")}>Voltar para o Dashboard</Button>
-				</div>
+                                <div className="px-4">
+                                        <Button variant="outline" onClick={() => setLocation("/dashboard")}>Voltar para o Dashboard</Button>
+                                </div>
       </main>
 
       {/* Bottom Navigation */}
