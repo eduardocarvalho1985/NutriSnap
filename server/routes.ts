@@ -4,6 +4,9 @@ import { storage } from "./storage";
 import { z } from "zod";
 import chalk from "chalk";
 import OpenAI from "openai";
+import { db } from "./db";
+import { users } from "@shared/schema";
+import { eq } from "drizzle-orm";
 
 // Initialize OpenAI
 if (!process.env.OPENAI_API_KEY) {
