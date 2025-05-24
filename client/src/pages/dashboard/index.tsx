@@ -292,7 +292,6 @@ export default function Dashboard() {
               ForkFit
             </h1>
             <i className="fas fa-utensils text-primary-foreground text-lg"></i>
-            <i className="fas fa-dumbbell text-primary-foreground text-lg"></i>
           </div>
           <button className="text-primary-foreground/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300">
             <BellIcon className="h-6 w-6" />
