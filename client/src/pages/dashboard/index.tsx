@@ -368,7 +368,7 @@ export default function Dashboard() {
               current={totalCarbsConsumed}
               target={targetCarbs}
               unit="g"
-              color="bg-yellow-500"
+              color="bg-orange-500"
             />
 
             {/* Fat */}
