@@ -200,7 +200,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Se for uma atualização específica de onboarding, garantimos que o campo seja atualizado diretamente
       
 
-      // Atualizamos o usuário com os dados recebidos
+      // Para notificações, usar update direto para evitar problemas de SQL
+      if (userData.dailyReminders !== undefined || userData.weeklyReports !== undefined) {
+        try {
+          const updateData: any = { updatedAt: new Date() };
+          if (userData.dailyReminders !== undefined) updateData.dailyReminders = userData.dailyReminders;
+          if (userData.weeklyReports !== undefined) updateData.weeklyReports = userData.weeklyReports;
+          
+          const [updatedUser] = await db.update(users)
+            .set(updateData)
+            .where(eq(users.uid, uid))
+            .returning();
+            
+          if (!updatedUser) {
+            return res.status(500).json({ message: "Failed to update user" });
+          }
+          
+          return res.json({ 
+            success: true, 
+            message: "User updated successfully",
+            user: mapUserToFrontend(updatedUser)
+          });
+        } catch (error: any) {
+          console.error("Error updating notifications:", error);
+          return res.status(500).json({ message: error.message });
+        }
+      }
+
+      // Para outras atualizações, usar o método normal
       const updatedUser = await storage.updateUser(uid, userData);
 
       if (!updatedUser) {
