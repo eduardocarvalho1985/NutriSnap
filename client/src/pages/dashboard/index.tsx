@@ -283,14 +283,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="app-container min-h-screen flex flex-col bg-neutral-light pb-16">
+    <div className="app-container min-h-screen flex flex-col bg-slate-50 pb-16">
       {/* Header */}
-      <header className="bg-white shadow-sm px-4 py-4">
+      <header className="snapfit-gradient px-4 py-6 text-white">
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold font-heading text-secondary">
-            <span className="text-primary">Nutri</span>Snap
+          <h1 className="text-2xl font-bold font-heading">
+            <span className="text-white">Snap</span><span className="text-yellow-300">Fit</span>
           </h1>
-          <button className="text-primary p-1 rounded-full hover:bg-gray-100">
+          <button className="text-white/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300 floating-button">
             <BellIcon className="h-6 w-6" />
           </button>
         </div>
@@ -299,29 +299,33 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-5 pb-20">
         {/* Date Selector */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="mobile-card bg-white p-4 mb-6 flex justify-between items-center">
           <button 
-            className="text-gray-600 p-1"
+            className="text-primary p-2 rounded-full hover:bg-primary/10 transition-all duration-300"
             onClick={handlePreviousDay}
           >
             <ChevronLeftIcon className="h-5 w-5" />
           </button>
-          <h2 className="text-lg font-medium">
-            <span className="font-semibold">{isToday ? "Hoje" : format(currentDate, "EEEE", { locale: ptBR })}</span>
-            <span className="text-gray-500 text-sm ml-1">{displayDate}</span>
+          <h2 className="text-lg font-medium text-center">
+            <span className="font-bold text-slate-800">{isToday ? "Hoje" : format(currentDate, "EEEE", { locale: ptBR })}</span>
+            <span className="text-slate-500 text-sm block">{displayDate}</span>
           </h2>
           <button 
-            className="text-gray-600 p-1"
+            className={`p-2 rounded-full transition-all duration-300 ${
+              isToday 
+                ? 'text-slate-300 cursor-not-allowed' 
+                : 'text-primary hover:bg-primary/10'
+            }`}
             onClick={handleNextDay}
             disabled={isToday}
           >
-            <ChevronRightIcon className={`h-5 w-5 ${isToday ? 'text-gray-300' : ''}`} />
+            <ChevronRightIcon className="h-5 w-5" />
           </button>
         </div>
 
         {/* Progress Summary */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h3 className="text-lg font-semibold mb-4">Resumo Diário</h3>
+        <div className="mobile-card bg-white p-6 mb-6">
+          <h3 className="text-lg font-bold mb-6 text-slate-800">Resumo Diário</h3>
 
           {/* Calories Progress Ring */}
           <div className="flex flex-col items-center justify-center mb-5">

@@ -289,21 +289,21 @@ export function MealSection({
           )}
         </div>
 
-        <div className="mt-3 space-y-2">
+        <div className="mt-4 space-y-3">
           <Button 
             variant="ghost" 
             size="sm"
-            className="text-primary text-sm font-medium flex items-center w-full justify-center"
+            className="text-slate-600 text-sm font-medium flex items-center w-full justify-center hover:bg-slate-50 border border-slate-200 rounded-xl py-3"
             onClick={handleAddFood}
           >
-            <PlusIcon className="h-4 w-4 mr-1" />
+            <PlusIcon className="h-4 w-4 mr-2" />
             Adicionar alimento
           </Button>
           
           <Button 
             variant="outline" 
             size="sm"
-            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium flex items-center w-full justify-center hover:from-purple-600 hover:to-pink-600 border-0"
+            className="snapfit-gradient text-white text-sm font-bold flex items-center w-full justify-center hover:opacity-90 border-0 rounded-xl py-3 floating-button"
             onClick={() => {
               console.log("Direct AI button clicked!");
               setIsAIAnalysisModalOpen(true);
