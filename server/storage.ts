@@ -144,8 +144,8 @@ export class DatabaseStorage implements IStorage {
       if ('stripeSubscriptionId' in userData) formattedData.stripe_subscription_id = userData.stripeSubscriptionId;
 
       // Campos de notificações
-      if ('dailyReminders' in userData) formattedData.daily_reminders = userData.dailyReminders;
-      if ('weeklyReports' in userData) formattedData.weekly_reports = userData.weeklyReports;
+      if ('dailyReminders' in userData) formattedData.dailyReminders = userData.dailyReminders;
+      if ('weeklyReports' in userData) formattedData.weeklyReports = userData.weeklyReports;
 
       // Tratamento especial para o status de onboarding
       // Se qualquer uma das flags for true, defina como true
@@ -163,8 +163,21 @@ export class DatabaseStorage implements IStorage {
 
       console.log("Formatted data for database:", formattedData);
 
+      // Remove campos vazios que podem causar problemas na query
+      const cleanedData = Object.fromEntries(
+        Object.entries(formattedData).filter(([_, value]) => value !== undefined)
+      );
+
+      console.log("Cleaned data for database:", cleanedData);
+
+      if (Object.keys(cleanedData).length === 0) {
+        console.log("No data to update");
+        const [existingUser] = await db.select().from(users).where(eq(users.uid, uid));
+        return existingUser;
+      }
+
       const [updatedUser] = await db.update(users)
-        .set(formattedData)
+        .set(cleanedData)
         .where(eq(users.uid, uid))
         .returning();
 
