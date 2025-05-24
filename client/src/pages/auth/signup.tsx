@@ -175,10 +175,10 @@ export default function Signup() {
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-secondary">
-              <span className="text-primary">Nutri</span>Snap
+            <h1 className="text-3xl font-bold snapfit-text-gradient">
+              SnapFit
             </h1>
-            <p className="mt-2 text-sm text-gray-600">Crie sua conta e comece a acompanhar sua nutrição</p>
+            <p className="mt-2 text-sm text-slate-600">Crie sua conta e transforme sua nutrição</p>
           </div>
           
           <Form {...form}>

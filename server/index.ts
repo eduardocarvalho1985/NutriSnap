@@ -115,7 +115,7 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     port,
     host: "0.0.0.0",
   }, () => {
-    console.log("\n" + chalk.bgGreen.black(" 🚀 NUTRI SNAP SERVER ") + "\n");
+    console.log("\n" + chalk.bgGreen.black(" 🚀 SNAPFIT SERVER ") + "\n");
     console.log(`📡 ${chalk.green("API Server")}: ${chalk.blue.bold(`http://localhost:${port}/api`)}`);
     console.log(`🌐 ${chalk.green("Web App")}: ${chalk.blue.bold(`http://localhost:${port}`)}`);
     console.log(`🔧 ${chalk.green("Environment")}: ${chalk.yellow(app.get("env"))}`);
