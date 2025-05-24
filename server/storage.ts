@@ -143,6 +143,10 @@ export class DatabaseStorage implements IStorage {
       if ('stripe_subscription_id' in userData) formattedData.stripe_subscription_id = userData.stripe_subscription_id;
       if ('stripeSubscriptionId' in userData) formattedData.stripe_subscription_id = userData.stripeSubscriptionId;
 
+      // Campos de notificações
+      if ('dailyReminders' in userData) formattedData.daily_reminders = userData.dailyReminders;
+      if ('weeklyReports' in userData) formattedData.weekly_reports = userData.weeklyReports;
+
       // Tratamento especial para o status de onboarding
       // Se qualquer uma das flags for true, defina como true
       if (userData.onboarding_completed === true || userData.onboardingCompleted === true) {
