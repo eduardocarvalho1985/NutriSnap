@@ -288,13 +288,13 @@ export default function Dashboard() {
       <header className="forkfit-gradient px-4 py-6 text-primary-foreground">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="fa-layers fa-fw text-primary-foreground text-xl">
-              <i className="fas fa-dumbbell" data-fa-transform="shrink-3 up-1"></i>
-              <i className="fas fa-utensils" data-fa-transform="shrink-4 down-1"></i>
-            </span>
             <h1 className="text-2xl font-bold font-heading text-primary-foreground">
               ForkFit
             </h1>
+            <span className="fa-layers fa-fw text-primary-foreground text-xl">
+              <i className="fas fa-dumbbell" data-fa-transform="shrink-3 up-1"></i>
+              <i className="fas fa-fork" data-fa-transform="shrink-4 down-1"></i>
+            </span>
           </div>
           <button className="text-primary-foreground/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300">
             <BellIcon className="h-6 w-6" />
