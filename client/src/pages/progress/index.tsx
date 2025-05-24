@@ -202,7 +202,7 @@ export default function Progress() {
             <h3 className="text-lg font-semibold">Calorias</h3>
             <div className="flex items-center text-sm text-gray-600">
               <span className="w-3 h-3 rounded-full inline-block mr-1" style={{backgroundColor: "rgba(96, 108, 56, 0.2)"}}></span> Meta
-              <span className="w-3 h-3 rounded-full inline-block ml-3 mr-1" style={{backgroundColor: "#DDA15E"}}></span> Consumido
+              <span className="w-3 h-3 rounded-full bg-primary inline-block ml-3 mr-1"></span> Consumido
             </div>
           </div>
 
@@ -232,7 +232,7 @@ export default function Progress() {
                   />
                   <Bar 
                     dataKey="consumed" 
-                    fill="#DDA15E" 
+                    fill="hsl(var(--primary))" 
                     radius={[4, 4, 0, 0]} 
                   />
                 </BarChart>
