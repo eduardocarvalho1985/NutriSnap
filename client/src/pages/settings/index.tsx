@@ -26,6 +26,38 @@ export default function Settings() {
   const [dailyReminders, setDailyReminders] = useState(user?.dailyReminders ?? true);
   const [weeklyReports, setWeeklyReports] = useState(user?.weeklyReports ?? true);
 
+  async function handleUpdateNotifications(type: 'daily' | 'weekly', value: boolean) {
+    if (!user?.uid) return;
+    
+    try {
+      const updateData = type === 'daily' 
+        ? { dailyReminders: value }
+        : { weeklyReports: value };
+      
+      await updateUserProfile(user.uid, updateData);
+      updateUser(updateData);
+      
+      if (type === 'daily') {
+        setDailyReminders(value);
+      } else {
+        setWeeklyReports(value);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Erro ao atualizar notificações",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  }
+
+  function handleLanguageClick() {
+    toast({
+      title: "Outros idiomas",
+      description: "Outros idiomas disponíveis em breve.",
+    });
+  }
+
   async function handleSignOut() {
     setIsLoading(true);
     try {
@@ -82,14 +114,20 @@ export default function Settings() {
                       <BellIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Lembretes diários</span>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={dailyReminders} 
+                      onCheckedChange={(checked) => handleUpdateNotifications('daily', checked)}
+                    />
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <BellIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Relatórios semanais</span>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={weeklyReports} 
+                      onCheckedChange={(checked) => handleUpdateNotifications('weekly', checked)}
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -102,7 +140,10 @@ export default function Settings() {
             <Card>
               <CardContent className="p-4">
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+                  <button 
+                    className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded"
+                    onClick={handleLanguageClick}
+                  >
                     <div className="flex items-center">
                       <GlobeIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Idioma</span>
@@ -111,37 +152,43 @@ export default function Settings() {
                       <span className="mr-1">Português (BR)</span>
                       <ChevronRightIcon className="h-4 w-4" />
                     </div>
-                  </div>
+                  </button>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
+                  <button className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded">
                     <div className="flex items-center">
                       <CreditCardIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Gerenciar Assinatura</span>
                     </div>
                     <ChevronRightIcon className="h-5 w-5 text-gray-400" />
-                  </div>
+                  </button>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
+                  <button 
+                    className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded"
+                    onClick={() => setLocation("/settings/privacy")}
+                  >
                     <div className="flex items-center">
                       <ShieldIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Privacidade</span>
                     </div>
                     <ChevronRightIcon className="h-5 w-5 text-gray-400" />
-                  </div>
+                  </button>
 
                   <Separator />
 
-                  <div className="flex items-center justify-between">
+                  <button 
+                    className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded"
+                    onClick={() => setLocation("/settings/help")}
+                  >
                     <div className="flex items-center">
                       <HelpCircleIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Ajuda</span>
                     </div>
                     <ChevronRightIcon className="h-5 w-5 text-gray-400" />
-                  </div>
+                  </button>
 
                   <Separator />
 
@@ -161,8 +208,8 @@ export default function Settings() {
 
           {/* App Info */}
           <div className="mt-8 text-center text-gray-500 text-sm">
-            <p>Nutri Snap v0.1.0</p>
-            <p className="mt-1">&copy; 2025 Nutri Snap. Todos os direitos reservados.</p>
+            <p>ForkFit v0.1.0</p>
+            <p className="mt-1">&copy; 2025 ForkFit. Todos os direitos reservados.</p>
           </div>
         </div>
       </main>

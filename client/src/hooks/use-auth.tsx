@@ -23,6 +23,8 @@ export type User = {
   protein?: number;
   carbs?: number;
   fat?: number;
+  dailyReminders?: boolean;
+  weeklyReports?: boolean;
   createdAt?: any;
   id?: number; // Added for PostgreSQL ID
 };
