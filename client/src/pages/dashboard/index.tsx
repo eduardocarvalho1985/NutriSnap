@@ -283,7 +283,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="app-container min-h-screen flex flex-col bg-background pb-16">
+    <div className="app-container min-h-screen flex flex-col pb-16" style={{backgroundColor: '#FFF8F6'}}>
       {/* Header */}
       <header className="forkfit-gradient px-4 py-6 text-primary-foreground">
         <div className="flex justify-between items-center">
