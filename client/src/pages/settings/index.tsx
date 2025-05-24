@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/navigation/bottom-nav";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { signOutUser } from "@/lib/firebase";
+import { signOutUser, updateUserProfile } from "@/lib/firebase";
 import { useLocation } from "wouter";
 import {
   BellIcon,
@@ -19,10 +19,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [dailyReminders, setDailyReminders] = useState(user?.dailyReminders ?? true);
+  const [weeklyReports, setWeeklyReports] = useState(user?.weeklyReports ?? true);
 
   async function handleSignOut() {
     setIsLoading(true);

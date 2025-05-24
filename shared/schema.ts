@@ -26,6 +26,8 @@ export const users = pgTable("users", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   onboardingCompleted: boolean("onboarding_completed").default(false),
+  dailyReminders: boolean("daily_reminders").default(true),
+  weeklyReports: boolean("weekly_reports").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
