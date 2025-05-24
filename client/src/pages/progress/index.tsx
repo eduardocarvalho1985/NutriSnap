@@ -17,7 +17,7 @@ import { useLocation } from 'wouter';
 type TimeRange = "7days" | "30days" | "3months";
 
 export default function Progress() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [timeRange, setTimeRange] = useState<TimeRange>("7days");
   const [newWeight, setNewWeight] = useState("");
   const { toast } = useToast();
@@ -102,11 +102,12 @@ export default function Progress() {
     };
   }).filter(item => item.weight !== null);
 
-  // Calculate stats
-  const daysInRange = caloriesChartData.length;
-  const daysOnTarget = caloriesChartData.filter(day => day.metGoal).length;
-  const averageCalories = caloriesChartData.length > 0
-    ? Math.round(caloriesChartData.reduce((sum, day) => sum + day.consumed, 0) / caloriesChartData.length)
+  // Calculate stats - only count days with data
+  const daysWithData = caloriesChartData.filter(day => day.consumed > 0);
+  const daysInRange = dateRange.length;
+  const daysOnTarget = daysWithData.filter(day => day.metGoal).length;
+  const averageCalories = daysWithData.length > 0
+    ? Math.round(daysWithData.reduce((sum, day) => sum + day.consumed, 0) / daysWithData.length)
     : 0;
 
   // Get most recent weight
@@ -141,7 +142,12 @@ export default function Progress() {
         throw new Error("Peso inválido");
       }
 
+      // Add weight log
       await addWeightLog(user.uid, format(new Date(), "yyyy-MM-dd"), weight);
+      
+      // Update user profile with new weight  
+      updateUser({ weight });
+      
       toast({
         title: "Peso atualizado",
         description: "Seu peso foi atualizado com sucesso."
