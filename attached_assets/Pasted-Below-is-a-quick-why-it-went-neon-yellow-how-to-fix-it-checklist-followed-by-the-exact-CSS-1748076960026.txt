@@ -1,0 +1,153 @@
+Below is a quick “why it went neon yellow 🤯 + how to fix it” checklist, followed by the **exact CSS / Tailwind tweaks** that usually clear things up.
+
+---
+
+## 1  What’s breaking right now
+
+| Symptom (from screenshot)                             | Root cause in `index.css`                                                                                                                                                                                                                     |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Neon-yellow blocks instead of Off-White cards         | You declared brand colours as raw **RGB triplets** (`255 144 114`) and later call them with **`hsl(var(--…))`**. When the browser tries to read “hsl(255 144 114)”, it clamps the out-of-range S & L values and you get high-chroma yellows.  |
+| Gradient buttons show yellow→lavender, not Coral      | Same `hsl(var(--gradient-start))` issue plus `--gradient-start` & `--gradient-end` are RGB.                                                                                                                                                   |
+| FAB + some icons use a lilac fallback                 | Tailwind components that rely on **`accent`/`primary`** fall back to its default purple because your custom colours are not wired into `tailwind.config.js`.                                                                                  |
+| Body looks fine (#FFF8F6) but inner cards override it | Several components still have old utility classes like `bg-yellow-400` / `bg-violet-100` hard-coded in JSX.                                                                                                                                   |
+
+---
+
+## 2  Fix the variable format first (5 min)
+
+You have two easy options—pick one and stay consistent.
+
+### Option A Use **HSL** everywhere
+
+```css
+/* index.css  – put HSL numbers in the vars */
+:root {
+  /* Coral #FF725E  →  hsl(10 100% 68%) */
+  --primary:         10 100% 68%;   /* hsl var set */
+  --primary-light:   10 100% 80%;
+  --primary-dark:    10 100% 55%;
+
+  --background:      24 100% 98%;   /* Off-White #FFF8F6 */
+  --foreground:     215 28% 17%;    /* Graphite #1F2937 */
+
+  /* Gradient */
+  --gradient-start:  14 100% 72%;   /* #FF9072 */
+  --gradient-end:    var(--primary);
+}
+```
+
+…and keep **`hsl(var(--primary))`** / **`hsl(var(--gradient-start))`** exactly as you already do.
+
+### Option B Keep **RGB** but call with `rgb()`
+
+```css
+/* RGB triplets in the vars */
+--primary:       255 114  94;  /* #FF725E */
+
+.forkfit-gradient{
+  background: linear-gradient(135deg,
+     rgb(var(--gradient-start)),
+     rgb(var(--gradient-end)));
+}
+```
+
+Pick **one** style—mixing HSL & RGB quickly becomes a headache.
+
+---
+
+## 3  Wire the ForkFit palette into Tailwind (10 min)
+
+Tailwind needs to know that `bg-primary` means “rgb(var(--primary))”.
+Add/replace the `extend.colors` block:
+
+```js
+// tailwind.config.js
+module.exports = {
+  content: ['./index.html','./src/**/*.{vue,js,ts,jsx,tsx}'],
+  theme: {
+    extend: {
+      colors: {
+        background: 'hsl(var(--background) / <alpha-value>)',
+        foreground: 'hsl(var(--foreground) / <alpha-value>)',
+
+        primary: 'hsl(var(--primary) / <alpha-value>)',
+        'primary-light': 'hsl(var(--primary-light) / <alpha-value>)',
+        'primary-dark': 'hsl(var(--primary-dark) / <alpha-value>)',
+
+        coral:      '#FF725E',
+        graphite:   '#1F2937',
+        'off-white':'#FFF8F6',
+      },
+      fontFamily: {
+        sans: ['Inter', ...require('tailwindcss/defaultTheme').fontFamily.sans],
+        heading: ['Montserrat', 'sans-serif'],
+      },
+      borderRadius: {
+        brand: '0.5rem',          // 8 px radius token
+      },
+    },
+  },
+  plugins: [],
+};
+```
+
+Now you can simply use `bg-primary`, `text-primary-dark`, `bg-background`, etc., in your React/Vue/HTML without guessing hex codes.
+
+---
+
+## 4  Replace hard-coded utility colours (15 min sweep)
+
+Search your components for any leftover **`bg-yellow-*`**, `bg-violet-*`, `text-purple-*`, etc., and swap:
+
+| Replace             | With                           |
+| ------------------- | ------------------------------ |
+| `bg-yellow-400`     | `bg-primary-light`             |
+| `bg-violet-100`     | `bg-primary/10`  (using alpha) |
+| `shadow-purple-400` | `shadow-primary/40`            |
+
+A quick VS Code global search for `yellow-` and `violet-` usually catches them all.
+
+---
+
+## 5  Gradient & button utilities (2 min)
+
+Drop this once the colours are fixed; it just keeps your handy helpers:
+
+```css
+@layer utilities {
+  .forkfit-gradient {
+    @apply bg-gradient-to-br from-[hsl(var(--gradient-start))]
+           to-[hsl(var(--gradient-end))];
+  }
+
+  .forkfit-text-gradient {
+    @apply forkfit-gradient bg-clip-text text-transparent;
+  }
+}
+```
+
+Now `<button class="forkfit-gradient text-off-white ...">` renders the correct Coral sweep.
+
+---
+
+## 6  Debug checklist
+
+1. **Flush cache / restart dev server** after editing `tailwind.config.js` so the new utilities compile.
+2. In dev-tools, hover a neon element → confirm colour is `--primary-light` not `yellow`.
+3. If something is still off, add `outline` inspectors temporarily:
+
+   ```html
+   <div class="outline outline-4 outline-primary-dark">…</div>
+   ```
+4. When all is good, remove the test outlines and commit.
+
+---
+
+### TL;DR
+
+* Convert all colour variables to the *same* colour space (HSL easiest)
+* Teach Tailwind about those variables (`extend.colors`)
+* Nuke leftover `bg-yellow-*` / `bg-violet-*` classes
+* Use `forkfit-gradient` / `bg-primary` utilities instead of hexes
+
+That should get your Replit build rendering ForkFit’s friendly Coral & Off-White instead of disco-yellow. Ping me if you hit any specific component that still resists the makeover!

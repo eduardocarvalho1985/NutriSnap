@@ -5,62 +5,62 @@
 @tailwind utilities;
 
 :root {
-  /* ForkFit Brand Colors */
-  --background: 255 248 246; /* Off-White #FFF8F6 */
-  --foreground: 31 41 55; /* Graphite #1F2937 */
+  /* ForkFit Brand Colors - HSL format */
+  --background: 9 43% 97%; /* Off-White #FFF8F6 */
+  --foreground: 220 26% 14%; /* Graphite #1F2937 */
   
-  --muted: 255 248 246;
-  --muted-foreground: 31 41 55;
+  --muted: 9 43% 97%;
+  --muted-foreground: 220 26% 14%;
 
-  --popover: 255 248 246;
-  --popover-foreground: 31 41 55;
+  --popover: 9 43% 97%;
+  --popover-foreground: 220 26% 14%;
 
-  --card: 255 248 246;
-  --card-foreground: 31 41 55;
+  --card: 9 43% 97%;
+  --card-foreground: 220 26% 14%;
 
-  --border: 255 162 143; /* Tint Coral-20 #FFA28F */
-  --input: 255 162 143;
+  --border: 13 100% 78%; /* Tint Coral-20 #FFA28F */
+  --input: 13 100% 78%;
 
   /* Primary: Coral */
-  --primary: 255 114 94; /* Coral #FF725E */
-  --primary-foreground: 255 248 246; /* Off-White */
-  --primary-light: 255 162 143; /* Tint Coral-20 #FFA28F */
-  --primary-dark: 255 144 114; /* Gradient start #FF9072 */
+  --primary: 9 100% 68%; /* Coral #FF725E */
+  --primary-foreground: 9 43% 97%; /* Off-White */
+  --primary-light: 13 100% 78%; /* Tint Coral-20 #FFA28F */
+  --primary-dark: 15 100% 73%; /* Gradient start #FF9072 */
 
-  --secondary: 31 41 55; /* Graphite */
-  --secondary-foreground: 255 248 246;
+  --secondary: 220 26% 14%; /* Graphite */
+  --secondary-foreground: 9 43% 97%;
 
-  --accent: 255 114 94; /* Coral */
-  --accent-foreground: 255 248 246;
+  --accent: 9 100% 68%; /* Coral */
+  --accent-foreground: 9 43% 97%;
 
-  --destructive: 239 68 68;
-  --destructive-foreground: 255 248 246;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 9 43% 97%;
 
-  --ring: 255 114 94; /* Coral */
+  --ring: 9 100% 68%; /* Coral */
 
   --radius: 0.5rem; /* 8px as per brand kit */
 
-  /* ForkFit Custom Colors */
-  --forkfit-coral: 255 114 94; /* #FF725E */
-  --forkfit-graphite: 31 41 55; /* #1F2937 */
-  --forkfit-off-white: 255 248 246; /* #FFF8F6 */
-  --forkfit-coral-tint: 255 162 143; /* #FFA28F */
+  /* ForkFit Custom Colors - HSL format */
+  --forkfit-coral: 9 100% 68%; /* #FF725E */
+  --forkfit-graphite: 220 26% 14%; /* #1F2937 */
+  --forkfit-off-white: 9 43% 97%; /* #FFF8F6 */
+  --forkfit-coral-tint: 13 100% 78%; /* #FFA28F */
   
   /* Gradient: 135° #FF9072 → #FF725E */
-  --gradient-start: 255 144 114; /* #FF9072 */
-  --gradient-end: 255 114 94; /* #FF725E */
+  --gradient-start: 15 100% 73%; /* #FF9072 */
+  --gradient-end: 9 100% 68%; /* #FF725E */
 
   /* Chart colors using ForkFit palette */
-  --chart-1: 255 114 94; /* Coral */
-  --chart-2: 255 162 143; /* Coral Tint */
-  --chart-3: 31 41 55; /* Graphite */
-  --chart-4: 255 144 114; /* Gradient start */
-  --chart-5: 255 190 180; /* Lighter coral */
+  --chart-1: 9 100% 68%; /* Coral */
+  --chart-2: 13 100% 78%; /* Coral Tint */
+  --chart-3: 220 26% 14%; /* Graphite */
+  --chart-4: 15 100% 73%; /* Gradient start */
+  --chart-5: 15 100% 85%; /* Lighter coral */
 
   /* Status colors */
-  --status-success: 34 197 94;
-  --status-warning: 251 146 60;
-  --status-error: 239 68 68;
+  --status-success: 142 71% 45%;
+  --status-warning: 45 93% 47%;
+  --status-error: 0 84% 60%;
 }
 
 .dark {
