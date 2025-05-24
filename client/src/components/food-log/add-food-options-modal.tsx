@@ -39,30 +39,6 @@ export function AddFoodOptionsModal({
         <div className="grid grid-cols-2 gap-4">
           <button
             className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log("AI button clicked from options modal!");
-              
-              if (onAIAnalysis) {
-                console.log("Calling direct AI analysis function");
-                onClose();
-                onAIAnalysis();
-              } else {
-                console.log("Fallback to onSelectOption");
-                onSelectOption("ai-analysis");
-                onClose();
-              }
-            }}
-          >
-            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-2">
-              <span className="text-white">🤖</span>
-            </div>
-            <span className="text-sm font-medium">Análise por IA</span>
-          </button>
-          
-          <button
-            className="flex flex-col items-center justify-center p-4 rounded-lg border-2 border-gray-200 hover:border-primary"
             onClick={() => onSelectOption("manual-entry")}
           >
             <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center mb-2">
