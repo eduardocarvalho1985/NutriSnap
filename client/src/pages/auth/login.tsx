@@ -146,14 +146,14 @@ export default function Login() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-neutral-light">
+    <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-background">
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold snapfit-text-gradient">
-              SnapFit
+            <h1 className="text-3xl font-bold forkfit-text-gradient">
+              ForkFit
             </h1>
-            <p className="mt-2 text-sm text-slate-600">Transforme sua nutrição, alcance seus objetivos</p>
+            <p className="mt-2 text-sm text-foreground">Sua nutrição de forma divertida.</p>
           </div>
           
           <Form {...form}>

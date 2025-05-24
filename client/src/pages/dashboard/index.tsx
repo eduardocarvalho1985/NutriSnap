@@ -283,14 +283,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="app-container min-h-screen flex flex-col bg-slate-50 pb-16">
+    <div className="app-container min-h-screen flex flex-col bg-background pb-16">
       {/* Header */}
-      <header className="snapfit-gradient px-4 py-6 text-white">
+      <header className="forkfit-gradient px-4 py-6 text-primary-foreground">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold font-heading">
-            <span className="text-white">Snap</span><span className="text-yellow-300">Fit</span>
+          <h1 className="text-2xl font-bold font-heading text-primary-foreground">
+            ForkFit
           </h1>
-          <button className="text-white/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300 floating-button">
+          <button className="text-primary-foreground/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300">
             <BellIcon className="h-6 w-6" />
           </button>
         </div>

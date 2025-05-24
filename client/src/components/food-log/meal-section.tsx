@@ -303,7 +303,7 @@ export function MealSection({
           <Button 
             variant="outline" 
             size="sm"
-            className="snapfit-gradient text-white text-sm font-bold flex items-center w-full justify-center hover:opacity-90 border-0 rounded-xl py-3 floating-button"
+            className="forkfit-gradient text-primary-foreground text-sm font-bold flex items-center w-full justify-center hover:opacity-90 border-0 rounded-xl py-3"
             onClick={() => {
               console.log("Direct AI button clicked!");
               setIsAIAnalysisModalOpen(true);
