@@ -175,14 +175,12 @@ export default function Signup() {
       <Card className="w-full max-w-md">
         <CardContent className="pt-6">
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex items-center justify-center gap-2 mb-2">
               <h1 className="text-3xl font-bold forkfit-text-gradient">
                 ForkFit
               </h1>
-              <span className="fa-layers fa-fw text-primary text-2xl">
-                <i className="fas fa-dumbbell" data-fa-transform="shrink-3 up-1"></i>
-                <i className="fas fa-fork" data-fa-transform="shrink-4 down-1"></i>
-              </span>
+              <i className="fa-solid fa-fork text-primary text-xl"></i>
+              <i className="fas fa-dumbbell text-primary text-xl"></i>
             </div>
             <p className="mt-2 text-sm text-foreground">Sua nutrição de forma divertida.</p>
           </div>
