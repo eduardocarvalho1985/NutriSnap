@@ -146,10 +146,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                   console.log("Dados mapeados para o formato do frontend:", mappedProfile);
                 }
                 
-                // Update user with mapped profile data 
+                // Update user with mapped profile data, preserving Firebase photoURL if database doesn't have one
                 setUser(prevUser => ({
                   ...(prevUser || basicUserInfo),
                   ...mappedProfile,
+                  // Preserve Firebase photoURL if database photoURL is null/empty
+                  photoURL: mappedProfile.photoURL || basicUserInfo.photoURL,
                 }));
               } else {
                 console.log("No user profile found in database, keeping basic auth data");
