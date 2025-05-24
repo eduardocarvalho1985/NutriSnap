@@ -15,6 +15,8 @@ import Dashboard from "@/pages/dashboard";
 import Progress from "@/pages/progress";
 import Workouts from "@/pages/workouts";
 import Settings from "@/pages/settings";
+import SettingsPrivacy from "@/pages/settings/privacy";
+import SettingsHelp from "@/pages/settings/help";
 import Profile from "@/pages/profile";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
@@ -79,6 +81,8 @@ function Router() {
       <Route path="/progress" component={Progress} />
       <Route path="/workouts" component={Workouts} />
       <Route path="/settings" component={Settings} />
+      <Route path="/settings/privacy" component={SettingsPrivacy} />
+      <Route path="/settings/help" component={SettingsHelp} />
       <Route path="/profile" component={Profile} />
 
       {/* Fallback to 404 */}
