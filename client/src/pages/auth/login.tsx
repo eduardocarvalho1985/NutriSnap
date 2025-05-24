@@ -154,7 +154,7 @@ export default function Login() {
               <h1 className="text-3xl font-bold forkfit-text-gradient">
                 ForkFit
               </h1>
-              <i className="fa-solid fa-fork text-primary text-xl"></i>
+              <i className="fas fa-utensils text-primary text-xl"></i>
               <i className="fas fa-dumbbell text-primary text-xl"></i>
             </div>
             <p className="mt-2 text-sm text-foreground">Sua nutrição de forma divertida.</p>

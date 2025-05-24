@@ -291,7 +291,7 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold font-heading text-primary-foreground">
               ForkFit
             </h1>
-            <i className="fa-solid fa-fork text-primary-foreground text-lg"></i>
+            <i className="fas fa-utensils text-primary-foreground text-lg"></i>
             <i className="fas fa-dumbbell text-primary-foreground text-lg"></i>
           </div>
           <button className="text-primary-foreground/80 p-2 rounded-full hover:bg-white/10 transition-all duration-300">
