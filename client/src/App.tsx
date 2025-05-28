@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import LandingPage from "@/pages/landing";
 import Login from "@/pages/auth/login";
 import Signup from "@/pages/auth/signup";
 import ResetPassword from "@/pages/auth/reset-password";
@@ -29,7 +30,8 @@ function Router() {
   useEffect(() => {
     // Redirect based on authentication status
     if (!loading) {
-      const isAuthRoute = location.startsWith("/auth") || location === "/";
+      const isLandingRoute = location === "/";
+      const isAuthRoute = location.startsWith("/auth");
       const isOnboardingRoute = location.startsWith("/onboarding");
       const isProfileRoute = location === "/profile";
 
@@ -37,11 +39,11 @@ function Router() {
       const isNewUser = user?.createdAt && 
                       (new Date().getTime() - new Date(user.createdAt).getTime()) < 5 * 60 * 1000; // 5 minutes
 
-      if (!user && !isAuthRoute) {
-        // Not logged in, redirect to login
-        console.log("Redirecting to login - user not logged in");
-        setLocation("/auth/login");
-      } else if (user && isAuthRoute && user.onboardingCompleted) {
+      if (!user && !isAuthRoute && !isLandingRoute) {
+        // Not logged in and not on landing page, redirect to landing
+        console.log("Redirecting to landing - user not logged in");
+        setLocation("/");
+      } else if (user && (isAuthRoute || isLandingRoute) && user.onboardingCompleted) {
         // Logged in user with completed onboarding on auth page, redirect to dashboard
         console.log("Redirecting to dashboard - user logged in and onboarded");
         setLocation("/dashboard");
@@ -65,7 +67,8 @@ function Router() {
   return (
     <Switch>
       {/* Authentication routes */}
-      <Route path="/" component={Login} />
+      <Route path="/" component={LandingPage} />
+      <Route path="/login" component={Login} />
       <Route path="/auth/login" component={Login} />
       <Route path="/auth/signup" component={Signup} />
       <Route path="/auth/reset-password" component={ResetPassword} />
