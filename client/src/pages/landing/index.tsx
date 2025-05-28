@@ -411,6 +411,21 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="flex items-center justify-center mb-4">
+              <span className="text-2xl">🍴</span>
+              <span className="ml-2 text-xl font-bold">ForkFit</span>
+            </div>
+            <p className="text-gray-400 mb-8">
+              Transformando a forma como você acompanha sua nutrição.
+            </p>
+            <div className="border-t border-gray-800 pt-8 text-gray-400">
+              <p>&copy; 2025 ForkFit. Todos os direitos reservados.</p>
+            </div>
+          </div>
+
+          {/* 
+          TODO: Uncomment when ready to add footer links
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center mb-4">
@@ -447,9 +462,7 @@ export default function LandingPage() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2025 ForkFit. Todos os direitos reservados.</p>
-          </div>
+          */}
         </div>
       </footer>
     </div>
