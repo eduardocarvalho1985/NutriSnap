@@ -1,0 +1,99 @@
+### ForkFit Landing Page — Comprehensive Product Description
+
+*(Use this as the single source-of-truth for your Replit build)*
+
+---
+
+#### 1. Elevator pitch
+
+> **ForkFit** é o app brasileiro que transforma **fotos do seu prato em insights nutricionais acionáveis em segundos**. Ele analisa calorias, macronutrientes e integra treinos, permitindo que qualquer pessoa acompanhe objetivos de saúde de forma **divertida, simples e precisa**. &#x20;
+
+---
+
+#### 2. Target & tone
+
+* **Público:** 25-45 anos, amantes de fitness e saúde, iniciantes em tracking de dieta.&#x20;
+* **Voz:** Motivacional, acessível, confiável; sempre em **português-BR**.
+* **Personalidade visual:** Colorida e moderna, com ênfase em “divertida”.
+
+---
+
+#### 3. Core user flow (page sections)
+
+| Ordem | Seção                        | Objetivo de negócio                | Copys-chave (PT-BR)                                                                                                                                                                        | Componentes                                                                                                         |
+| ----- | ---------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| 1     | **Header (sticky)**          | Exibir marca + navegação           | Naveg.: Recursos • Como Funciona • Depoimentos • Download                                                                                                                                  | Logo, menu desktop, hambúrguer mobile, CTA “Começar Agora”                                                          |
+| 2     | **Hero**                     | Explicar proposta & pedir download | H1 **“Sua nutrição de forma divertida”**<br>Sub - “Transforme fotos... alcance seus objetivos com facilidade.”<br>CTA primário “Começar Agora”, secundário “Como Funciona”                 | 2 botões, contagem **“+5.000 usuários”** com avatares, 2 mini-cards KPI (ex.: 73 % Objetivo; Proteínas 129 g/145 g) |
+| 3     | **Features (6 cards)**       | Mostrar benefícios                 | **Escaneamento de Refeições** • **Rastreamento de Macronutrientes** • **Integração com Treinos** • **Análise por IA** • **Acompanhamento de Progresso** • **Recomendações Personalizadas** | Ícone Lucide, título, texto curto, grid responsivo 2×3                                                              |
+| 4     | **Como Funciona (3-passos)** | Provar simplicidade                | ① **Fotografe seu Prato** ― “Basta apontar a câmera…”<br>② **Obtenha Análise Instantânea** ― “Nossa IA identifica…”<br>③ **Acompanhe seu Progresso** ― “Visualize consumo diário…”         | Linha horizontal, ícone numerado, descrição                                                                         |
+| 5     | **Depoimentos (carousel)**   | Construir prova social             | Citar histórias (ex.: Marina Silva ― “Perdeu 12 kg em 6 meses”; Pedro Oliveira ― triatleta)                                                                                                | Slide com 5 estrelas, foto circular, texto, setas navegação                                                         |
+| 6     | **Download / Final CTA**     | Converter em instalação            | H2 **“Comece sua Jornada para uma Nutrição Melhor”**<br>Sub-copy reforçando dados acionáveis                                                                                               | Botões Apple Store & Google Play (PNG oficiais), mockup app                                                         |
+| 7     | **Footer**                   | Encerrar com links & compliance    | Sobre • Recursos • Suporte • Redes Sociais • Termos & Privacidade                                                                                                                          | Coluna responsiva; cor de fundo primária escura                                                                     |
+
+*(Estrutura valida o sitemap oficial) *
+
+---
+
+#### 4. Visual & design system
+
+| Elemento        | Valor                                                                                    |
+| --------------- | ---------------------------------------------------------------------------------------- |
+| **Cores**       | Primária Coral **#FF725E**; Grafite texto **#1F2937**; Background Off-White **#FFF8F6**  |
+| **Tipografia**  | **Poppins** (600/800) para headings, **Inter** (400/500) corpo, Roboto Mono monospace    |
+| **Breakpoints** | `<768 px` mobile, `768–1024` tablet, `>1024` desktop                                     |
+| **Ícones**      | `lucide-react` (outlined, tamanho 28 px)                                                 |
+| **Buttons**     | — Primário: coral sólido + shadow<br>— Secundário: borda coral, texto coral              |
+| **Cards**       | Raio 2xl, sombra suave, padding 6, texto centralizado                                    |
+| **Animations**  | Framer-motion fade/slide (≤300 ms) para entrada de seções                                |
+
+---
+
+#### 5. Tech blueprint (for Replit setup)
+
+* **Stack**: React 18 + TypeScript + Vite + Tailwind CSS (pré-config nos arquivos *Technical*).&#x20;
+* **Component map** (1:1 com `/src/components`): `Navbar`, `HeroSection`, `FeaturesSection`, `HowItWorks`, `TestimonialsSection`, `DownloadSection`, `Footer`, `Icons`.
+* **Performance targets**: FCP < 1.5 s, LCP < 2.5 s (seguir imagem lazy-load e code-split).
+* **SEO**: `<title>` “ForkFit - Sua nutrição de forma divertida”; meta description conforme spec; estrutura semântica `<section>`/`<header>`/`<footer>`.
+* **Analytics events**: page\_view, cta\_click, card\_view (IntersectionObserver), store\_download.
+
+---
+
+#### 6. Copy deck (ready-to-paste)
+
+```text
+H1: Sua nutrição de forma divertida
+
+Hero Sub: Transforme fotos do seu prato em insights nutricionais acionáveis em segundos. Monitore calorias, macros e alcance seus objetivos com facilidade.
+
+CTA primário: Começar Agora
+CTA secundário: Como Funciona
+Social proof: +5.000 usuários já estão transformando sua nutrição
+
+Features Heading: Recursos que Transformam sua Nutrição
+Features Sub: O ForkFit combina tecnologia avançada com simplicidade para tornar o acompanhamento nutricional fácil e eficaz.
+
+[Card titles & bodies conforme item 3]
+
+HowItWorks Heading: Como o ForkFit Funciona
+HowItWorks Sub: Em apenas três passos simples, você terá acesso a insights nutricionais precisos e personalizados.
+
+Download Heading: Comece sua Jornada para uma Nutrição Melhor
+Download Sub: Baixe o ForkFit agora e transforme suas refeições em dados acionáveis para alcançar seus objetivos de saúde e fitness.
+```
+
+---
+
+#### 7. Acceptance checklist
+
+* [ ] Responsivo e pixel-perfect aos breakpoints
+* [ ] Dark header on scroll? **Não** — header fixa translucida se precisar.
+* [ ] Todos textos PT-BR (UTF-8).
+* [ ] Lighthouse ★90+ mobile & desktop.
+* [ ] Core-web-vitals nos limites.
+* [ ] Buttons: abrindo links corretos da App Store / Play Store.
+* [ ] Scroll-spy ativo para menu.
+* [ ] Carousel acessível (teclado & aria-labels).
+
+---
+
+**Pronto!** Com este documento o agente no Replit tem todo o conteúdo, estrutura, estilos e metas de desempenho para implementar a landing page ForkFit de ponta a ponta.
