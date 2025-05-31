@@ -1,4 +1,4 @@
-import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog, savedFoods, SavedFood, InsertSavedFood, foodDatabase, FoodDatabase, InsertFoodDatabase } from "@shared/schema";
+import { users, User, InsertUser, foodLogs, FoodLog, InsertFoodLog, weightLogs, WeightLog, InsertWeightLog, savedFoods, SavedFood, InsertSavedFood, foodDatabase, FoodDatabase, InsertFoodDatabase, newsletterSubscribers, NewsletterSubscriber, InsertNewsletterSubscriber } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, sql } from "drizzle-orm";
 
