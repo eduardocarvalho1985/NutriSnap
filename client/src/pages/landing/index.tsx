@@ -14,6 +14,7 @@ import {
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NewsletterSignup } from "@/components/newsletter-signup";
 
 export default function LandingPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -361,37 +362,22 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-      {/* Download/CTA Section */}
-      <section id="download" className="py-20 bg-secondary text-white">
+      {/* Newsletter/CTA Section */}
+      <section id="newsletter" className="py-20 bg-secondary text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-            Comece sua Jornada para uma Nutrição Melhor
+            Fique por Dentro das Novidades
           </h2>
           <p className="text-lg opacity-90 mb-12 max-w-2xl mx-auto">
-            Baixe o ForkFit agora e transforme suas refeições em dados acionáveis para 
-            alcançar seus objetivos de saúde e fitness.
+            Inscreva-se na nossa newsletter e receba dicas exclusivas de nutrição, 
+            novidades do app e seja o primeiro a saber sobre o lançamento do ForkFit mobile!
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
-            <div className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-gray-800 transition-colors">
-              <div className="text-2xl">📱</div>
-              <div className="text-left">
-                <div className="text-xs">Download on the</div>
-                <div className="text-lg font-semibold">App Store</div>
-              </div>
-            </div>
-            <div className="bg-black text-white px-6 py-3 rounded-xl flex items-center gap-3 cursor-pointer hover:bg-gray-800 transition-colors">
-              <div className="text-2xl">🤖</div>
-              <div className="text-left">
-                <div className="text-xs">GET IT ON</div>
-                <div className="text-lg font-semibold">Google Play</div>
-              </div>
-            </div>
-          </div>
+          <NewsletterSignup />
 
-          <div className="text-center">
+          <div className="text-center mt-12">
             <Link href="/login" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl inline-block text-center">
-              🍴 ForkFit App Login
+              🍴 Acesse o ForkFit Web
             </Link>
           </div>
         </div>
