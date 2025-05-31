@@ -331,7 +331,7 @@ export default function Dashboard() {
           <h3 className="text-xl font-bold mb-8 text-slate-800 text-center tracking-wide">Resumo Diário</h3>
 
           {/* Calories Progress Ring */}
-          <div className="flex flex-col items-center justify-center mb-8">
+          <div className="flex flex-col items-center justify-center mb-6">
             <ProgressRing 
               percentage={caloriesProgress > 100 ? 100 : caloriesProgress} 
               size={170} 
@@ -340,14 +340,14 @@ export default function Dashboard() {
               backgroundColor="var(--muted)"
             >
               <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
+                <div className="flex items-center justify-center gap-2 mb-1">
                   <Flame className="h-7 w-7 text-orange-500" />
                   <span className="text-4xl font-bold font-body text-slate-800">{totalCaloriesConsumed}</span>
                 </div>
                 <span className="block text-base text-slate-600 font-medium">/ {targetCalories} kcal</span>
               </div>
             </ProgressRing>
-            <div className="mt-4 text-center bg-slate-100 px-4 py-2 rounded-xl">
+            <div className="mt-3 text-center bg-slate-100 px-4 py-2 rounded-xl">
               <p className="text-base text-slate-700">
                 Restante: <span className="font-bold text-lg text-slate-800">{remainingCalories} kcal</span>
               </p>
