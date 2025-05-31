@@ -95,10 +95,9 @@ export default function Settings() {
                 <div>
                   <h3 className="font-semibold text-lg">Plano Gratuito</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    10 dias restantes no seu período de teste
+                    Ainda não lançamos nosso plano premium. Continue usando gratuitamente e fique ligado para nosso lançamento oficial.
                   </p>
                 </div>
-                <Button variant="default">Atualizar</Button>
               </div>
             </CardContent>
           </Card>

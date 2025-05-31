@@ -28,25 +28,30 @@ export default function Privacy() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 flex-1">
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-lg font-semibold mb-4">Política de Privacidade</h2>
-          <div className="space-y-4 text-gray-700">
-            <p>
-              Esta página será preenchida com nossa política de privacidade completa.
-            </p>
-            <p>
-              Aqui incluiremos informações sobre como coletamos, usamos e protegemos
-              seus dados pessoais no ForkFit.
-            </p>
+          <div className="mb-6">
+            <h2 className="text-lg font-semibold mb-2 flex items-center">
+              <span className="text-xl mr-2">📄</span>
+              Política de Privacidade
+            </h2>
+            <h3 className="text-base font-medium text-gray-800 mb-3">Como protegemos seus dados</h3>
+            <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Levamos sua privacidade a sério. Coletamos apenas o essencial para oferecer uma boa experiência no ForkFit — como nome, e-mail e suas escolhas alimentares. Tudo é armazenado com segurança e nunca será compartilhado sem seu consentimento.
+              </p>
+            </div>
           </div>
 
-          <h2 className="text-lg font-semibold mb-4 mt-8">Termos de Uso</h2>
-          <div className="space-y-4 text-gray-700">
-            <p>
-              Esta seção conterá nossos termos de uso e condições de serviço.
-            </p>
-            <p>
-              Definiremos aqui as regras e responsabilidades para o uso do aplicativo ForkFit.
-            </p>
+          <div className="border-t pt-6">
+            <h2 className="text-lg font-semibold mb-2 flex items-center">
+              <span className="text-xl mr-2">⚖️</span>
+              Termos de Uso
+            </h2>
+            <h3 className="text-base font-medium text-gray-800 mb-3">Uso responsável do ForkFit</h3>
+            <div className="space-y-3 text-gray-700 text-sm leading-relaxed">
+              <p>
+                Ao usar o ForkFit, você concorda em registrar informações reais e usar o app apenas para fins pessoais. Não nos responsabilizamos por decisões médicas — sempre consulte um profissional de saúde.
+              </p>
+            </div>
           </div>
         </div>
       </main>

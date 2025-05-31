@@ -29,7 +29,10 @@ export default function Help() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6 flex-1">
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Perguntas Frequentes</h2>
+          <h2 className="text-lg font-semibold flex items-center">
+            <span className="text-xl mr-2">❓</span>
+            FAQ – Perguntas Frequentes
+          </h2>
           
           <Card>
             <CardContent className="p-6">
@@ -38,35 +41,35 @@ export default function Help() {
                   <h3 className="font-medium text-gray-900 mb-2">
                     Como registrar minha alimentação?
                   </h3>
-                  <p className="text-gray-700 text-sm">
-                    Esta pergunta será respondida em breve com instruções detalhadas.
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    Use a câmera ou escreva os alimentos manualmente. Vamos ajudar a identificar os macros automaticamente.
                   </p>
                 </div>
 
-                <div>
+                <div className="border-t pt-4">
                   <h3 className="font-medium text-gray-900 mb-2">
                     Como usar a análise de alimentos por IA?
                   </h3>
-                  <p className="text-gray-700 text-sm">
-                    Instruções sobre como usar a funcionalidade de IA serão adicionadas aqui.
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    Tire uma foto do seu prato. Nossa IA analisa e estimamos os nutrientes com base na imagem.
                   </p>
                 </div>
 
-                <div>
+                <div className="border-t pt-4">
                   <h3 className="font-medium text-gray-900 mb-2">
                     Como definir minhas metas nutricionais?
                   </h3>
-                  <p className="text-gray-700 text-sm">
-                    Guia sobre configuração de metas será incluído nesta seção.
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    Na aba de perfil, toque em "Metas" e personalize seus objetivos diários de calorias, proteínas, carboidratos e gorduras.
                   </p>
                 </div>
 
-                <div>
+                <div className="border-t pt-4">
                   <h3 className="font-medium text-gray-900 mb-2">
                     Como visualizar meu progresso?
                   </h3>
-                  <p className="text-gray-700 text-sm">
-                    Explicação sobre os gráficos e relatórios será adicionada aqui.
+                  <p className="text-gray-700 text-sm leading-relaxed">
+                    Acesse a aba "Progresso" para ver gráficos e relatórios semanais sobre sua alimentação e metas atingidas.
                   </p>
                 </div>
               </div>
@@ -78,11 +81,8 @@ export default function Help() {
               <h3 className="font-medium text-gray-900 mb-2">
                 Precisa de mais ajuda?
               </h3>
-              <p className="text-gray-700 text-sm mb-4">
-                Entre em contato conosco para suporte adicional.
-              </p>
-              <p className="text-gray-600 text-xs">
-                Informações de contato serão adicionadas em breve.
+              <p className="text-gray-700 text-sm leading-relaxed">
+                Nosso time está aqui para você! Em breve, esta seção incluirá nossos canais de suporte.
               </p>
             </CardContent>
           </Card>
