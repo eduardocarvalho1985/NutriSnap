@@ -183,7 +183,7 @@ export default function LandingPage() {
                 <span className="text-primary">divertida</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                Transforme fotos do seu prato em insights nutricionais acionáveis em segundos. 
+                Transforme fotos do seu prato em insights nutricionais em segundos. 
                 Monitore calorias, macros e alcance seus objetivos com facilidade.
               </p>
               
