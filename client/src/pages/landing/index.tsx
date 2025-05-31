@@ -75,31 +75,31 @@ export default function LandingPage() {
       name: "Marina Silva",
       role: "Perdeu 12kg em 6 meses",
       content: "O ForkFit transformou minha relação com a comida. A análise por foto é incrivelmente precisa e me ajudou a entender melhor minha nutrição sem o estresse de pesar tudo.",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=64&h=64&fit=crop&crop=face"
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Marina&backgroundColor=b6e3f4,c0aede,d1d4f9"
     },
     {
       name: "Pedro Oliveira",
       role: "Triatleta Amador",
       content: "Como atleta, preciso acompanhar de perto minha ingestão de proteínas. O ForkFit tornou isso muito mais fácil e me deu insights que melhoraram meu desempenho nos treinos.",
-      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=64&h=64&fit=crop&crop=face"
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Pedro&backgroundColor=b6e3f4,c0aede,d1d4f9"
     },
     {
       name: "Ana Costa",
       role: "Mãe e Profissional",
       content: "Com a correria do dia a dia, era difícil manter uma alimentação saudável. O ForkFit me ajuda a fazer escolhas melhores de forma rápida e prática.",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=64&h=64&fit=crop&crop=face"
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Ana&backgroundColor=b6e3f4,c0aede,d1d4f9"
     },
     {
       name: "Carlos Santos",
       role: "Perdeu 8kg em 4 meses",
       content: "A facilidade de usar é impressionante. Só preciso fotografar e o app faz todo o trabalho. Consegui atingir meus objetivos sem estresse.",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=face"
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Carlos&backgroundColor=b6e3f4,c0aede,d1d4f9"
     },
     {
       name: "Beatriz Lima",
       role: "Nutricionista",
       content: "Recomendo o ForkFit para meus pacientes. A precisão da análise nutricional é excelente e ajuda muito no acompanhamento das dietas.",
-      avatar: "https://images.unsplash.com/photo-1559291001-693fb9166cba?w=64&h=64&fit=crop&crop=face"
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Beatriz&backgroundColor=b6e3f4,c0aede,d1d4f9"
     }
   ];
 
