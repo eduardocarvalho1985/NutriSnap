@@ -327,35 +327,35 @@ export default function Dashboard() {
         </div>
 
         {/* Progress Summary */}
-        <div className="mobile-card bg-white p-6 mb-6">
-          <h3 className="text-lg font-bold mb-6 text-slate-800">Resumo Diário</h3>
+        <div className="mobile-card bg-gradient-to-br from-white to-slate-50 p-6 mb-6 border border-slate-100 shadow-lg">
+          <h3 className="text-xl font-bold mb-8 text-slate-800 text-center tracking-wide">Resumo Diário</h3>
 
           {/* Calories Progress Ring */}
-          <div className="flex flex-col items-center justify-center mb-5">
+          <div className="flex flex-col items-center justify-center mb-8">
             <ProgressRing 
               percentage={caloriesProgress > 100 ? 100 : caloriesProgress} 
-              size={150} 
-              strokeWidth={8}
+              size={170} 
+              strokeWidth={10}
               color={caloriesProgress > 100 ? 'var(--status-error)' : 'var(--primary)'}
               backgroundColor="var(--muted)"
             >
               <div className="text-center">
-                <div className="flex items-center justify-center gap-2 mb-1">
-                  <Flame className="h-6 w-6 text-orange-500" />
-                  <span className="text-3xl font-semibold font-body">{totalCaloriesConsumed}</span>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Flame className="h-7 w-7 text-orange-500" />
+                  <span className="text-4xl font-bold font-body text-slate-800">{totalCaloriesConsumed}</span>
                 </div>
-                <span className="block text-sm text-gray-500">/ {targetCalories} kcal</span>
+                <span className="block text-base text-slate-600 font-medium">/ {targetCalories} kcal</span>
               </div>
             </ProgressRing>
-            <div className="mt-2 text-center">
-              <p className="text-sm text-gray-700">
-                Restante: <span className="font-medium">{remainingCalories} kcal</span>
+            <div className="mt-4 text-center bg-slate-100 px-4 py-2 rounded-xl">
+              <p className="text-base text-slate-700">
+                Restante: <span className="font-bold text-lg text-slate-800">{remainingCalories} kcal</span>
               </p>
             </div>
           </div>
 
           {/* Macros Progress */}
-          <div className="grid grid-cols-3 gap-4 mt-3">
+          <div className="grid grid-cols-3 gap-5 mt-6">
             {/* Protein */}
             <MacroProgress 
               label="Proteína"

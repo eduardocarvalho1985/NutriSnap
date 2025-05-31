@@ -65,18 +65,18 @@ export function MacroProgress({ label, current, target, unit, color }: MacroProg
   const colorClasses = getColorClasses();
   
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className={`flex flex-col items-center space-y-3 p-4 rounded-2xl ${colorClasses.bg} border border-slate-200/50`}>
       {/* Circular Progress */}
       <div className="relative">
-        <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+        <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
           {/* Background Circle */}
           <circle
             cx="18"
             cy="18"
             r="16"
             fill="none"
-            className="stroke-gray-200"
-            strokeWidth="3"
+            className="stroke-white/80"
+            strokeWidth="4"
           />
           {/* Progress Circle */}
           <circle
@@ -85,7 +85,7 @@ export function MacroProgress({ label, current, target, unit, color }: MacroProg
             r="16"
             fill="none"
             className={colorClasses.stroke}
-            strokeWidth="3"
+            strokeWidth="4"
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
@@ -102,13 +102,13 @@ export function MacroProgress({ label, current, target, unit, color }: MacroProg
       
       {/* Label and Values */}
       <div className="text-center">
-        <p className={`text-xs font-medium ${colorClasses.text} uppercase tracking-wide`}>
+        <p className={`text-sm font-bold ${colorClasses.text} uppercase tracking-wider`}>
           {label}
         </p>
-        <p className="text-sm font-semibold text-gray-700">
+        <p className="text-lg font-bold text-slate-800 mt-1">
           {roundedCurrent}{unit}
         </p>
-        <p className="text-xs text-gray-500">
+        <p className="text-sm text-slate-600 font-medium">
           de {roundedTarget}{unit}
         </p>
       </div>
