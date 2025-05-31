@@ -68,6 +68,14 @@ export function EditFoodModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Store original values for proportional calculations
+  const [originalQuantity, setOriginalQuantity] = useState(0);
+  const [originalUnit, setOriginalUnit] = useState("");
+  const [originalCalories, setOriginalCalories] = useState(0);
+  const [originalProtein, setOriginalProtein] = useState(0);
+  const [originalCarbs, setOriginalCarbs] = useState(0);
+  const [originalFat, setOriginalFat] = useState(0);
+
   // Common units for food measurements
   const commonUnits = ["g", "kg", "ml", "l", "oz", "lb", "unidade", "porção", "colher", "xícara"];
 
@@ -81,6 +89,60 @@ export function EditFoodModal({
     "Ceia"
   ];
 
+  // Function to convert units to grams for consistent calculations
+  const convertToGrams = (quantity: number, unit: string): number => {
+    const conversions: { [key: string]: number } = {
+      'g': 1,
+      'kg': 1000,
+      'ml': 1, // Assuming 1ml = 1g for simplicity
+      'l': 1000,
+      'oz': 28.35,
+      'lb': 453.59,
+      'unidade': 1,
+      'porção': 1,
+      'colher': 15, // Assuming tablespoon = 15g
+      'xícara': 240 // Assuming cup = 240g
+    };
+    return quantity * (conversions[unit.toLowerCase()] || 1);
+  };
+
+  // Function to calculate nutritional values based on quantity change
+  const calculateProportionalValues = (newQuantity: number, newUnit: string) => {
+    if (originalQuantity <= 0) return;
+
+    const originalGrams = convertToGrams(originalQuantity, originalUnit);
+    const newGrams = convertToGrams(newQuantity, newUnit);
+    const ratio = newGrams / originalGrams;
+
+    const newCalories = Math.round(originalCalories * ratio);
+    const newProtein = Math.round((originalProtein * ratio) * 10) / 10; // Round to 1 decimal
+    const newCarbs = Math.round((originalCarbs * ratio) * 10) / 10;
+    const newFat = Math.round((originalFat * ratio) * 10) / 10;
+
+    setCalories(newCalories.toString());
+    setProtein(newProtein.toString());
+    setCarbs(newCarbs.toString());
+    setFat(newFat.toString());
+  };
+
+  // Handle quantity change with automatic macro adjustment
+  const handleQuantityChange = (value: string) => {
+    setQuantity(value);
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue) && numValue > 0) {
+      calculateProportionalValues(numValue, unit);
+    }
+  };
+
+  // Handle unit change with automatic macro adjustment
+  const handleUnitChange = (newUnit: string) => {
+    setUnit(newUnit);
+    const numQuantity = parseFloat(quantity);
+    if (!isNaN(numQuantity) && numQuantity > 0) {
+      calculateProportionalValues(numQuantity, newUnit);
+    }
+  };
+
   // Populate form with food data when opened
   useEffect(() => {
     if (foodItem) {
@@ -92,6 +154,14 @@ export function EditFoodModal({
       setCarbs(foodItem.carbs?.toString() || "0");
       setFat(foodItem.fat?.toString() || "0");
       setMealType(foodItem.mealType || "");
+
+      // Store original values for calculations
+      setOriginalQuantity(foodItem.quantity);
+      setOriginalUnit(foodItem.unit);
+      setOriginalCalories(foodItem.calories);
+      setOriginalProtein(foodItem.protein || 0);
+      setOriginalCarbs(foodItem.carbs || 0);
+      setOriginalFat(foodItem.fat || 0);
     }
   }, [foodItem]);
 
@@ -203,7 +273,7 @@ export function EditFoodModal({
                   type="number"
                   step="0.01"
                   value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
+                  onChange={(e) => handleQuantityChange(e.target.value)}
                   placeholder="Ex: 100"
                   required
                 />
@@ -213,7 +283,7 @@ export function EditFoodModal({
                 <Label htmlFor="unit">Unidade</Label>
                 <Select 
                   value={unit} 
-                  onValueChange={setUnit}
+                  onValueChange={handleUnitChange}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione a unidade" />
@@ -230,7 +300,12 @@ export function EditFoodModal({
             </div>
 
             <div>
-              <Label htmlFor="calories">Calorias (kcal)</Label>
+              <Label htmlFor="calories">
+                Calorias (kcal) 
+                <span className="text-xs text-gray-500 ml-1">
+                  - ajustado automaticamente
+                </span>
+              </Label>
               <Input
                 id="calories"
                 type="number"
@@ -238,12 +313,16 @@ export function EditFoodModal({
                 onChange={(e) => setCalories(e.target.value)}
                 placeholder="Ex: 165"
                 required
+                className="bg-blue-50 border-blue-200"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label htmlFor="protein">Proteína (g)</Label>
+                <Label htmlFor="protein">
+                  Proteína (g)
+                  <span className="text-xs text-gray-500 block">auto-ajustado</span>
+                </Label>
                 <Input
                   id="protein"
                   type="number"
@@ -251,11 +330,15 @@ export function EditFoodModal({
                   value={protein}
                   onChange={(e) => setProtein(e.target.value)}
                   placeholder="Ex: 25"
+                  className="bg-blue-50 border-blue-200"
                 />
               </div>
 
               <div>
-                <Label htmlFor="carbs">Carboidratos (g)</Label>
+                <Label htmlFor="carbs">
+                  Carboidratos (g)
+                  <span className="text-xs text-gray-500 block">auto-ajustado</span>
+                </Label>
                 <Input
                   id="carbs"
                   type="number"
@@ -263,11 +346,15 @@ export function EditFoodModal({
                   value={carbs}
                   onChange={(e) => setCarbs(e.target.value)}
                   placeholder="Ex: 10"
+                  className="bg-blue-50 border-blue-200"
                 />
               </div>
 
               <div>
-                <Label htmlFor="fat">Gorduras (g)</Label>
+                <Label htmlFor="fat">
+                  Gorduras (g)
+                  <span className="text-xs text-gray-500 block">auto-ajustado</span>
+                </Label>
                 <Input
                   id="fat"
                   type="number"
@@ -275,6 +362,7 @@ export function EditFoodModal({
                   value={fat}
                   onChange={(e) => setFat(e.target.value)}
                   placeholder="Ex: 5"
+                  className="bg-blue-50 border-blue-200"
                 />
               </div>
             </div>
