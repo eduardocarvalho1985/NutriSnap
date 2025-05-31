@@ -189,11 +189,9 @@ export default function LandingPage() {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
-                <Link href="/login">
-                  <Button className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center">
-                    Começar Agora
-                    <ChevronRight className="ml-2" size={20} />
-                  </Button>
+                <Link href="/login" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
+                  Começar Agora
+                  <ChevronRight className="ml-2" size={20} />
                 </Link>
                 <Button 
                   variant="outline" 
@@ -304,10 +302,8 @@ export default function LandingPage() {
                 vez mais precisas e personalizadas. Quanto mais você usa, melhor ficamos em ajudá-lo a 
                 atingir seus objetivos.
               </p>
-              <Link href="/login">
-                <Button className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl">
-                  Experimentar Agora
-                </Button>
+              <Link href="/login" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl inline-block text-center">
+                Experimentar Agora
               </Link>
             </div>
           </div>
@@ -399,10 +395,8 @@ export default function LandingPage() {
           </div>
 
           <div className="text-center">
-            <Link href="/login">
-              <Button className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl">
-                🍴 ForkFit App Login
-              </Button>
+            <Link href="/login" className="bg-primary hover:bg-primary-dark text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-lg hover:shadow-xl inline-block text-center">
+              🍴 ForkFit App Login
             </Link>
           </div>
         </div>
