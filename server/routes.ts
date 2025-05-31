@@ -605,6 +605,45 @@ Please provide realistic nutritional estimates for a typical serving of this foo
     }
   });
 
+  // Newsletter subscription endpoint
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const { fullName, email } = req.body;
+
+      if (!fullName || !email) {
+        return res.status(400).json({ 
+          message: "Nome completo e email são obrigatórios" 
+        });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ 
+          message: "Por favor, insira um email válido" 
+        });
+      }
+
+      await storage.subscribeToNewsletter({ fullName, email });
+      
+      return res.status(201).json({ 
+        message: "Inscrição realizada com sucesso!" 
+      });
+    } catch (error: any) {
+      console.error("Error subscribing to newsletter:", error);
+      
+      if (error.message.includes("unique")) {
+        return res.status(409).json({ 
+          message: "Este email já está inscrito em nossa newsletter" 
+        });
+      }
+      
+      return res.status(500).json({ 
+        message: "Erro interno do servidor. Tente novamente." 
+      });
+    }
+  });
+
   // Mock Stripe payment endpoints
   app.post("/api/create-payment-intent", async (req, res) => {
     try {

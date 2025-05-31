@@ -30,6 +30,9 @@ export interface IStorage {
   searchFoodDatabase(query: string): Promise<FoodDatabase[]>;
   getFoodDatabaseByCategory(category: string): Promise<FoodDatabase[]>;
   getAllFoodCategories(): Promise<string[]>;
+
+  // Newsletter methods
+  subscribeToNewsletter(data: Partial<InsertNewsletterSubscriber>): Promise<NewsletterSubscriber>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -462,6 +465,25 @@ export class DatabaseStorage implements IStorage {
       .groupBy(foodDatabase.category);
 
     return categories.map(c => c.category);
+  }
+
+  async subscribeToNewsletter(data: Partial<InsertNewsletterSubscriber>): Promise<NewsletterSubscriber> {
+    try {
+      const [subscriber] = await db
+        .insert(newsletterSubscribers)
+        .values({
+          fullName: data.fullName!,
+          email: data.email!,
+          isActive: data.isActive ?? true
+        })
+        .returning();
+      
+      console.log("Newsletter subscription created:", subscriber);
+      return subscriber;
+    } catch (error) {
+      console.error("Error subscribing to newsletter:", error);
+      throw error;
+    }
   }
 }
 

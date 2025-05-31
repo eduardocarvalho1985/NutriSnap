@@ -83,6 +83,15 @@ export const foodDatabase = pgTable("food_database", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Newsletter subscribers table
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  fullName: text("full_name").notNull(),
+  email: text("email").notNull().unique(),
+  subscribedAt: timestamp("subscribed_at").notNull().defaultNow(),
+  isActive: boolean("is_active").notNull().default(true)
+});
+
 // Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   foodLogs: many(foodLogs),
@@ -138,6 +147,11 @@ export const insertFoodDatabaseSchema = createInsertSchema(foodDatabase).omit({
   createdAt: true
 });
 
+export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({
+  id: true,
+  subscribedAt: true
+});
+
 // Types for database operations
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -153,3 +167,6 @@ export type SavedFood = typeof savedFoods.$inferSelect;
 
 export type InsertFoodDatabase = z.infer<typeof insertFoodDatabaseSchema>;
 export type FoodDatabase = typeof foodDatabase.$inferSelect;
+
+export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
+export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
