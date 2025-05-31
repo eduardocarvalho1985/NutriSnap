@@ -39,8 +39,10 @@ function Router() {
       const isNewUser = user?.createdAt && 
                       (new Date().getTime() - new Date(user.createdAt).getTime()) < 5 * 60 * 1000; // 5 minutes
 
-      if (!user && !isAuthRoute && !isLandingRoute) {
-        // Not logged in and not on landing page, redirect to landing
+      const isLoginRoute = location === "/login";
+      
+      if (!user && !isAuthRoute && !isLandingRoute && !isLoginRoute) {
+        // Not logged in and not on landing/auth pages, redirect to landing
         console.log("Redirecting to landing - user not logged in");
         setLocation("/");
       } else if (user && (isAuthRoute || isLandingRoute) && user.onboardingCompleted) {
