@@ -173,7 +173,6 @@ export default function LandingPage() {
           )}
         </div>
       </header>
-
       {/* Hero Section */}
       <section className="py-20 lg:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -213,7 +212,7 @@ export default function LandingPage() {
                     />
                   ))}
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 pl-[45px] pr-[45px]">
                   <span className="font-semibold">+5.000 usuários</span> já estão transformando sua nutrição
                 </p>
               </div>
@@ -236,7 +235,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Features Section */}
       <section id="recursos" className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -263,7 +261,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* How It Works */}
       <section id="como-funciona" className="py-20 bg-neutral-light">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -309,7 +306,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Testimonials */}
       <section id="depoimentos" className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -365,7 +361,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Download/CTA Section */}
       <section id="download" className="py-20 bg-secondary text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -401,7 +396,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
