@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { X, Search, Plus, Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { X, Search, Plus, Loader2, Edit2, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -13,6 +13,17 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { EditSavedFoodModal } from "./edit-saved-food-modal";
 
 type SavedFood = {
   id: number;
@@ -38,7 +49,10 @@ export function SavedFoodsModal({
 }: SavedFoodsModalProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingFood, setEditingFood] = useState<SavedFood | null>(null);
+  const [deletingFood, setDeletingFood] = useState<SavedFood | null>(null);
 
   const { data: savedFoods, isLoading, isError } = useQuery({
     queryKey: ["/api/users", user?.uid, "saved-foods"],

@@ -823,6 +823,70 @@ Please provide realistic nutritional estimates for a typical serving of this foo
     }
   });
 
+  // Update saved food
+  app.put("/api/users/:uid/saved-foods/:id", async (req, res) => {
+    try {
+      const { uid, id } = req.params;
+      const foodId = parseInt(id);
+      
+      if (isNaN(foodId)) {
+        return res.status(400).json({ message: "Invalid food ID" });
+      }
+
+      console.log(`PUT /api/users/${uid}/saved-foods/${foodId} - Request body:`, JSON.stringify(req.body));
+
+      // Validate the data
+      const foodSchema = z.object({
+        name: z.string().optional(),
+        quantity: z.number().optional(),
+        unit: z.string().optional(),
+        calories: z.number().optional(),
+        protein: z.number().optional(),
+        carbs: z.number().optional(),
+        fat: z.number().optional()
+      });
+
+      const validatedData = foodSchema.parse(req.body);
+      const updatedFood = await storage.updateSavedFood(uid, foodId, validatedData);
+
+      if (!updatedFood) {
+        return res.status(404).json({ message: "Saved food not found or unauthorized" });
+      }
+
+      console.log(`Updated saved food for user ${uid}:`, JSON.stringify(updatedFood));
+      return res.json(updatedFood);
+    } catch (error: any) {
+      console.error(`Error updating saved food:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Delete saved food
+  app.delete("/api/users/:uid/saved-foods/:id", async (req, res) => {
+    try {
+      const { uid, id } = req.params;
+      const foodId = parseInt(id);
+      
+      if (isNaN(foodId)) {
+        return res.status(400).json({ message: "Invalid food ID" });
+      }
+
+      console.log(`DELETE /api/users/${uid}/saved-foods/${foodId}`);
+
+      const deleted = await storage.deleteSavedFood(uid, foodId);
+
+      if (!deleted) {
+        return res.status(404).json({ message: "Saved food not found or unauthorized" });
+      }
+
+      console.log(`Deleted saved food ${foodId} for user ${uid}`);
+      return res.json({ success: true });
+    } catch (error: any) {
+      console.error(`Error deleting saved food:`, error);
+      return res.status(500).json({ message: error.message });
+    }
+  });
+
   // Food database routes (shared across all users)
   app.get("/api/food-database/search", async (req, res) => {
     const { q } = req.query;

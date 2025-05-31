@@ -69,6 +69,7 @@ export const savedFoods = pgTable("saved_foods", {
   carbs: real("carbs").default(0),
   fat: real("fat").default(0),
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at"),
 });
 
 // Food database table (shared across all users)

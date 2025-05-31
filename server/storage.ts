@@ -25,6 +25,8 @@ export interface IStorage {
   // Saved food methods
   getSavedFoods(uid: string): Promise<SavedFood[]>;
   saveFoodItem(uid: string, foodData: Partial<InsertSavedFood>): Promise<SavedFood>;
+  updateSavedFood(uid: string, id: number, foodData: Partial<SavedFood>): Promise<SavedFood | undefined>;
+  deleteSavedFood(uid: string, id: number): Promise<boolean>;
 
   // Food database methods (shared across all users)
   searchFoodDatabase(query: string): Promise<FoodDatabase[]>;
@@ -439,6 +441,42 @@ export class DatabaseStorage implements IStorage {
       .returning();
 
     return savedFood;
+  }
+
+  async updateSavedFood(uid: string, id: number, foodData: Partial<SavedFood>): Promise<SavedFood | undefined> {
+    const user = await this.getUserByUid(uid);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Clean the data for update - remove fields that shouldn't be updated
+    const { id: _, userId: __, createdAt: ___, ...updateData } = foodData;
+
+    const [updatedFood] = await db
+      .update(savedFoods)
+      .set({
+        ...updateData,
+        updatedAt: new Date()
+      })
+      .where(and(eq(savedFoods.id, id), eq(savedFoods.userId, user.id)))
+      .returning();
+
+    return updatedFood || undefined;
+  }
+
+  async deleteSavedFood(uid: string, id: number): Promise<boolean> {
+    const user = await this.getUserByUid(uid);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const result = await db
+      .delete(savedFoods)
+      .where(and(eq(savedFoods.id, id), eq(savedFoods.userId, user.id)));
+
+    return result.rowCount !== undefined && result.rowCount > 0;
   }
 
   // Food database methods (shared across all users)
