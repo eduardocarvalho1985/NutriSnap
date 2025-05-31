@@ -328,10 +328,10 @@ export default function Dashboard() {
 
         {/* Progress Summary */}
         <div className="mobile-card bg-gradient-to-br from-white to-slate-50 p-6 mb-6 border border-slate-100 shadow-lg">
-          <h3 className="text-xl font-bold mb-8 text-slate-800 text-center tracking-wide">Resumo Diário</h3>
+          <h3 className="text-xl font-bold mb-5 text-slate-800 text-center tracking-wide">Resumo Diário</h3>
 
           {/* Calories Progress Ring */}
-          <div className="flex flex-col items-center justify-center mb-6">
+          <div className="flex flex-col items-center justify-center mb-4">
             <ProgressRing 
               percentage={caloriesProgress > 100 ? 100 : caloriesProgress} 
               size={170} 
