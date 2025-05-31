@@ -135,7 +135,7 @@ export default function LandingPage() {
               <a href="#recursos" className="text-gray-600 hover:text-primary transition-colors">Recursos</a>
               <a href="#como-funciona" className="text-gray-600 hover:text-primary transition-colors">Como Funciona</a>
               <a href="#depoimentos" className="text-gray-600 hover:text-primary transition-colors">Depoimentos</a>
-              <a href="#download" className="text-gray-600 hover:text-primary transition-colors">Download</a>
+              <a href="#newsletter" className="text-gray-600 hover:text-primary transition-colors">Newsletter</a>
             </nav>
 
             {/* CTA Button Desktop */}
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 <a href="#recursos" className="text-gray-600 hover:text-primary transition-colors">Recursos</a>
                 <a href="#como-funciona" className="text-gray-600 hover:text-primary transition-colors">Como Funciona</a>
                 <a href="#depoimentos" className="text-gray-600 hover:text-primary transition-colors">Depoimentos</a>
-                <a href="#download" className="text-gray-600 hover:text-primary transition-colors">Download</a>
+                <a href="#newsletter" className="text-gray-600 hover:text-primary transition-colors">Newsletter</a>
                 <Link href="/login">
                   <Button className="bg-primary hover:bg-primary-dark text-white w-full mt-4 rounded-full">
                     Começar Agora
