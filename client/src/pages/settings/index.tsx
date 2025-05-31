@@ -58,6 +58,13 @@ export default function Settings() {
     });
   }
 
+  function handleSubscriptionClick() {
+    toast({
+      title: "Plano Premium",
+      description: "Ainda não lançamos nosso plano premium. Continue usando gratuitamente e fique ligado para nosso lançamento oficial.",
+    });
+  }
+
   async function handleSignOut() {
     setIsLoading(true);
     try {
@@ -155,7 +162,10 @@ export default function Settings() {
 
                   <Separator />
 
-                  <button className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded">
+                  <button 
+                    className="flex items-center justify-between w-full p-2 hover:bg-gray-50 rounded"
+                    onClick={handleSubscriptionClick}
+                  >
                     <div className="flex items-center">
                       <CreditCardIcon className="h-5 w-5 text-gray-600 mr-3" />
                       <span>Gerenciar Assinatura</span>
