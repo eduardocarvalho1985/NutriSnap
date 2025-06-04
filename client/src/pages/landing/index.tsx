@@ -282,9 +282,6 @@ export default function LandingPage() {
                   <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto">
                     <span className="text-white text-2xl font-bold">{step.step}</span>
                   </div>
-                  {index < howItWorks.length - 1 && (
-                    <div className="hidden md:block absolute top-8 left-full w-full h-0.5 bg-primary/20 -translate-x-8" />
-                  )}
                 </div>
                 <h3 className="text-xl font-semibold text-secondary mb-3">{step.title}</h3>
                 <p className="text-gray-600">{step.description}</p>
