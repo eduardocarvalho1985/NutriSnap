@@ -42,6 +42,7 @@ interface EditFoodModalProps {
   onClose: () => void;
   foodItem: FoodItem | null;
   date: string;
+  mode?: 'edit' | 'add';
   onDelete?: () => void;
 }
 
@@ -50,6 +51,7 @@ export function EditFoodModal({
   onClose,
   foodItem,
   date,
+  mode = 'edit',
   onDelete,
 }: EditFoodModalProps) {
   console.log("EditFoodModal opened with:", { isOpen, foodItem, date });
@@ -170,12 +172,21 @@ export function EditFoodModal({
 
     if (!user?.uid || !foodItem) return;
 
+    // Validate meal type is required
+    if (!mealType || mealType.trim() === "") {
+      toast({
+        title: "Tipo de refeição obrigatório",
+        description: "Por favor, selecione o tipo de refeição.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 
-      // Prepare the updated food data
-      const updatedFood = {
-        id: foodItem.id,
+      // Prepare the food data
+      const foodData = {
         name,
         quantity: parseFloat(quantity),
         unit,
@@ -187,31 +198,42 @@ export function EditFoodModal({
         date
       };
 
-      // Call API to update the food log
-      const response = await apiRequest(
-        "PUT", 
-        `/api/users/${user.uid}/food-logs/${foodItem.id}`, 
-        updatedFood
-      );
+      let response;
+
+      if (mode === 'add') {
+        // Add new food log
+        response = await apiRequest(
+          "POST", 
+          `/api/users/${user.uid}/food-logs`, 
+          foodData
+        );
+      } else {
+        // Update existing food log
+        response = await apiRequest(
+          "PUT", 
+          `/api/users/${user.uid}/food-logs/${foodItem.id}`, 
+          { ...foodData, id: foodItem.id }
+        );
+      }
 
       if (!response.ok) {
-        throw new Error("Failed to update food entry");
+        throw new Error(`Failed to ${mode === 'add' ? 'add' : 'update'} food entry`);
       }
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["/api/food-logs", user.uid, date] });
 
       toast({
-        title: "Alimento atualizado",
-        description: `${name} foi atualizado com sucesso.`,
+        title: mode === 'add' ? "Alimento adicionado" : "Alimento atualizado",
+        description: `${name} foi ${mode === 'add' ? 'adicionado' : 'atualizado'} com sucesso.`,
       });
 
       onClose();
     } catch (error) {
-      console.error("Error updating food:", error);
+      console.error(`Error ${mode === 'add' ? 'adding' : 'updating'} food:`, error);
       toast({
-        title: "Erro ao atualizar",
-        description: "Não foi possível atualizar o alimento. Tente novamente.",
+        title: `Erro ao ${mode === 'add' ? 'adicionar' : 'atualizar'}`,
+        description: `Não foi possível ${mode === 'add' ? 'adicionar' : 'atualizar'} o alimento. Tente novamente.`,
         variant: "destructive",
       });
     } finally {
@@ -225,7 +247,7 @@ export function EditFoodModal({
         <DialogHeader className="mb-4">
           <div className="flex justify-between items-center">
             <DialogTitle className="text-center text-xl font-semibold">
-              Editar Alimento
+              {mode === 'add' ? 'Adicionar Alimento' : 'Editar Alimento'}
             </DialogTitle>
             <DialogClose className="absolute right-4 top-4">
               <X className="h-4 w-4" />
@@ -379,40 +401,51 @@ export function EditFoodModal({
                   <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
                   Salvando...
                 </>
-              ) : "Atualizar"}
+              ) : (mode === 'add' ? 'Adicionar à Refeição' : 'Atualizar')}
             </Button>
             
-            <div className="flex w-full gap-3">
-              <Button 
-                type="button" 
-                variant="destructive" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (onDelete && typeof onDelete === 'function') {
-                    try {
-                      onDelete();
-                    } catch (error) {
-                      console.error("Error in delete handler:", error);
+            {mode === 'edit' ? (
+              <div className="flex w-full gap-3">
+                <Button 
+                  type="button" 
+                  variant="destructive" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onDelete && typeof onDelete === 'function') {
+                      try {
+                        onDelete();
+                      } catch (error) {
+                        console.error("Error in delete handler:", error);
+                      }
                     }
-                  }
-                  onClose();
-                }}
-                className="h-10 flex-1"
-              >
-                <Trash2Icon className="mr-2 h-4 w-4" />
-                Excluir
-              </Button>
-              
+                    onClose();
+                  }}
+                  className="h-10 flex-1"
+                >
+                  <Trash2Icon className="mr-2 h-4 w-4" />
+                  Excluir
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => onClose()}
+                  className="h-10 flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            ) : (
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={() => onClose()}
-                className="h-10 flex-1"
+                className="w-full h-10"
               >
                 Cancelar
               </Button>
-            </div>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

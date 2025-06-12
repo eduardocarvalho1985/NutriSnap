@@ -57,6 +57,8 @@ export default function Dashboard() {
   const [showFoodSearchModal, setShowFoodSearchModal] = useState(false);
   const [showEditFoodModal, setShowEditFoodModal] = useState(false);
   const [selectedFoodToEdit, setSelectedFoodToEdit] = useState<Food | null>(null);
+  const [editFoodMode, setEditFoodMode] = useState<'edit' | 'add'>('edit');
+  const [selectedFoodForAdding, setSelectedFoodForAdding] = useState<SavedFood | null>(null);
 
   const formattedDate = format(currentDate, "yyyy-MM-dd");
   const displayDate = format(currentDate, "dd MMM", { locale: ptBR });
