@@ -189,99 +189,54 @@ export default function Dashboard() {
     };
     
     setSelectedFoodToEdit(foodForEdit);
+    setEditFoodMode('edit');
     setShowEditFoodModal(true);
   }
 
-  // Function to handle food selection
-  async function handleFoodSelection(food: SavedFood) {
-    if (!user?.uid) return;
-
-    try {
-      console.log("Handling food selection:", food);
-      setShowSavedFoodsModal(false);
-      
-      // Determine which meal to use - if no meal is selected, use "Lanche" as default
-      const mealToUse = selectedMeal || "Lanche";
-
-      // Add selected food to log using the API
-      const response = await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
-        date: formattedDate,
-        mealType: mealToUse,
-        name: food.name,
-        quantity: food.quantity,
-        unit: food.unit,
-        calories: food.calories,
-        protein: food.protein || 0,
-        carbs: food.carbs || 0,
-        fat: food.fat || 0
-      });
-
-      // Ensure the food was added successfully
-      if (response.ok) {
-        // Explicitly refetch the food logs instead of just invalidating the query
-        await refetchFoodLogs();
-        
-        toast({
-          title: "Alimento adicionado",
-          description: `${food.name} foi adicionado ao seu registro como ${mealToUse}.`
-        });
-      } else {
-        throw new Error("Failed to add food to log");
-      }
-    } catch (error) {
-      console.error("Error adding food from saved foods:", error);
-      toast({
-        title: "Erro ao adicionar alimento",
-        description: "Ocorreu um erro ao adicionar este alimento ao seu registro.",
-        variant: "destructive"
-      });
-    }
+  // Function to handle food selection - open EditFoodModal in add mode
+  function handleFoodSelection(food: SavedFood) {
+    console.log("Handling food selection:", food);
+    setShowSavedFoodsModal(false);
+    
+    // Convert SavedFood to FoodItem format for EditFoodModal
+    const foodForAdding = {
+      id: `temp-${Date.now()}`, // Temporary ID for add mode
+      name: food.name,
+      quantity: food.quantity,
+      unit: food.unit,
+      calories: food.calories,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      mealType: "" // Empty initially, user will select in modal
+    };
+    
+    setSelectedFoodToEdit(foodForAdding);
+    setEditFoodMode('add');
+    setShowEditFoodModal(true);
   }
 
-  // Function to handle Brazilian food database selection
-  async function handleFoodDatabaseSelection(food: any) {
-    if (!user?.uid) return;
-
-    try {
-      console.log("Handling Brazilian food database selection:", food);
-      setShowFoodSearchModal(false);
-      
-      // Determine which meal to use - if no meal is selected, use "Lanche" as default
-      const mealToUse = selectedMeal || "Lanche";
-
-      // Add selected food to log using the API (defaults to 100g since database shows per 100g)
-      const response = await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
-        date: formattedDate,
-        mealType: mealToUse,
-        name: food.name,
-        quantity: 100,
-        unit: "g",
-        calories: food.calories,
-        protein: food.protein || 0,
-        carbs: food.carbs || 0,
-        fat: food.fat || 0
-      });
-
-      // Ensure the food was added successfully
-      if (response.ok) {
-        // Explicitly refetch the food logs instead of just invalidating the query
-        await refetchFoodLogs();
-        
-        toast({
-          title: "Alimento adicionado!",
-          description: `${food.name} foi adicionado ao seu diário.`,
-        });
-      } else {
-        throw new Error("Failed to add food to log");
-      }
-    } catch (error) {
-      console.error("Error adding food from database:", error);
-      toast({
-        title: "Erro",
-        description: "Erro ao adicionar alimento do banco de dados. Tente novamente.",
-        variant: "destructive",
-      });
-    }
+  // Function to handle Brazilian food database selection - open EditFoodModal in add mode
+  function handleFoodDatabaseSelection(food: any) {
+    console.log("Handling Brazilian food database selection:", food);
+    setShowFoodSearchModal(false);
+    
+    // Convert food database item to FoodItem format for EditFoodModal
+    const foodForAdding = {
+      id: `temp-${Date.now()}`, // Temporary ID for add mode
+      name: food.name,
+      quantity: 100, // Default 100g since database shows per 100g
+      unit: "g",
+      calories: food.calories,
+      protein: food.protein || 0,
+      carbs: food.carbs || 0,
+      fat: food.fat || 0,
+      mealType: "" // Empty initially, user will select in modal
+    };
+    
+    setSelectedFoodToEdit(foodForAdding);
+    setEditFoodMode('add');
+    setShowEditFoodModal(true);
   }
 
   return (
@@ -509,9 +464,11 @@ export default function Dashboard() {
           isOpen={showEditFoodModal}
           foodItem={selectedFoodToEdit}
           date={formattedDate}
+          mode={editFoodMode}
           onClose={() => {
             setShowEditFoodModal(false);
             setSelectedFoodToEdit(null);
+            setEditFoodMode('edit');
           }}
           onDelete={async () => {
             if (!user?.uid || !selectedFoodToEdit?.id) return;
