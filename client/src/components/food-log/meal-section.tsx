@@ -42,6 +42,7 @@ interface MealSectionProps {
   calories: number;
   foods: Food[];
   isLast?: boolean;
+  date: string;
   onAddFood: () => void;
   onEditFood?: (food: Food) => void;
   onDeleteFood?: (food: Food) => void;
@@ -52,6 +53,7 @@ export function MealSection({
   calories, 
   foods, 
   isLast = false, 
+  date,
   onAddFood, 
   onEditFood,
   onDeleteFood
@@ -66,9 +68,6 @@ export function MealSection({
   console.log("AI Modal state:", isAIAnalysisModalOpen);
   const { toast } = useToast();
   const { user } = useAuth();
-
-  // Data atual
-  const today = new Date().toISOString().split('T')[0];
 
   const handleSelectOption = (option: string) => {
     console.log("Option selected:", option);
@@ -180,7 +179,7 @@ export function MealSection({
 
       // Adicionar ao registro diário através da API
       await apiRequest("POST", `/api/users/${user.uid}/food-logs`, {
-        date: today,
+        date: date,
         mealType: title,
         name: food.name,
         quantity: food.quantity,
@@ -324,7 +323,7 @@ export function MealSection({
             handleSelectOption(option);
           }}
           onAIAnalysis={handleAIAnalysis}
-          date={today}
+          date={date}
           selectedMeal={title}
         />
       )}
@@ -332,7 +331,7 @@ export function MealSection({
       {isAddFoodModalOpen && (
         <AddFoodModal
           onClose={() => setIsAddFoodModalOpen(false)}
-          date={today}
+          date={date}
           selectedMeal={title}
         />
       )}
@@ -362,7 +361,7 @@ export function MealSection({
           isOpen={true}
           onClose={() => setIsAIAnalysisModalOpen(false)}
           onFoodAnalyzed={handleFoodAnalyzed}
-          date={today}
+          date={date}
           selectedMeal={title}
         />
       )}
