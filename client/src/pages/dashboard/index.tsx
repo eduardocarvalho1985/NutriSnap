@@ -398,6 +398,7 @@ export default function Dashboard() {
                 calories={meal.calories}
                 foods={meal.foods}
                 isLast={index === foodLogsByMeal.length - 1}
+                date={formattedDate}
                 onAddFood={() => handleAddFood(meal.type)}
                 onEditFood={handleEditFood}
                 onDeleteFood={async (food) => {
