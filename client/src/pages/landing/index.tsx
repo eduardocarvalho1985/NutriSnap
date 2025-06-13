@@ -180,8 +180,8 @@ export default function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-4xl lg:text-6xl font-bold text-secondary mb-6">
-                Sua nutrição de forma{" "}
-                <span className="text-primary">divertida</span>
+                Contar calorias nunca foi tão{" "}
+                <span className="text-primary">fácil.</span>
               </h1>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
                 Transforme fotos do seu prato em insights nutricionais em segundos. 
